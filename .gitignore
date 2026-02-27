@@ -2,8 +2,6 @@
 .gradle/
 build/
 gradle-app.setting
-!gradle-wrapper.jar
-!gradle-wrapper.properties
 
 # IntelliJ IDEA
 .idea/
@@ -23,6 +21,9 @@ out/
 *.zip
 *.tar.gz
 *.rar
+
+# Keep Gradle wrapper
+!gradle/wrapper/gradle-wrapper.jar
 
 # Kotlin
 *.kotlin_module
