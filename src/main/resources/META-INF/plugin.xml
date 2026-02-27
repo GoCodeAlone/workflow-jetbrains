@@ -4,14 +4,14 @@
     <vendor url="https://github.com/GoCodeAlone">GoCodeAlone</vendor>
 
     <description><![CDATA[
-        <p>IDE support for Workflow Engine configuration files.</p>
+        <p>IDE support for Workflow Engine configuration files. Compatible with <strong>workflow engine v0.3.0+</strong>.</p>
         <ul>
             <li>YAML schema validation and autocomplete for workflow configs</li>
             <li>Language Server Protocol (LSP) integration via workflow-lsp-server</li>
             <li>wfctl command integration: validate, inspect, init, run, schema</li>
             <li>Live templates for modules, pipelines, steps, triggers, and workflows</li>
         </ul>
-        <p>Requires <a href="https://github.com/GoCodeAlone/workflow">Workflow Engine</a> and optionally the wfctl CLI.</p>
+        <p>Requires <a href="https://github.com/GoCodeAlone/workflow">Workflow Engine</a> v0.3.0+ and optionally the wfctl CLI.</p>
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
