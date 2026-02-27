@@ -1,0 +1,213 @@
+<templateSet group="Workflow Engine">
+
+    <!-- ===================== MODULES ===================== -->
+
+    <template name="wf:module"
+              value="$NAME$:&#10;  type: $TYPE$&#10;  config:&#10;    $END$"
+              description="Generic Workflow module declaration"
+              toReformat="true" toShortenFQNames="true">
+        <variable name="NAME" expression="" defaultValue="&quot;my-module&quot;" alwaysStopAt="true"/>
+        <variable name="TYPE" expression="" defaultValue="&quot;http.server&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="WORKFLOW_YAML" value="true"/>
+        </context>
+    </template>
+
+    <template name="wf:module:http-server"
+              value="$NAME$:&#10;  type: http.server&#10;  config:&#10;    port: $PORT$&#10;    host: &quot;0.0.0.0&quot;&#10;    $END$"
+              description="HTTP server module"
+              toReformat="true" toShortenFQNames="true">
+        <variable name="NAME" expression="" defaultValue="&quot;server&quot;" alwaysStopAt="true"/>
+        <variable name="PORT" expression="" defaultValue="&quot;8080&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="WORKFLOW_YAML" value="true"/>
+        </context>
+    </template>
+
+    <template name="wf:module:router"
+              value="$NAME$:&#10;  type: http.router&#10;  config:&#10;    server: $SERVER$&#10;    $END$"
+              description="HTTP router module"
+              toReformat="true" toShortenFQNames="true">
+        <variable name="NAME" expression="" defaultValue="&quot;router&quot;" alwaysStopAt="true"/>
+        <variable name="SERVER" expression="" defaultValue="&quot;server&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="WORKFLOW_YAML" value="true"/>
+        </context>
+    </template>
+
+    <template name="wf:module:sqlite"
+              value="$NAME$:&#10;  type: datastore.sqlite&#10;  config:&#10;    path: $PATH$&#10;    $END$"
+              description="SQLite datastore module"
+              toReformat="true" toShortenFQNames="true">
+        <variable name="NAME" expression="" defaultValue="&quot;db&quot;" alwaysStopAt="true"/>
+        <variable name="PATH" expression="" defaultValue="&quot;./data/app.db&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="WORKFLOW_YAML" value="true"/>
+        </context>
+    </template>
+
+    <template name="wf:module:jwt"
+              value="$NAME$:&#10;  type: auth.jwt&#10;  config:&#10;    secret: $SECRET$&#10;    expiry: &quot;24h&quot;&#10;    $END$"
+              description="JWT auth module"
+              toReformat="true" toShortenFQNames="true">
+        <variable name="NAME" expression="" defaultValue="&quot;auth&quot;" alwaysStopAt="true"/>
+        <variable name="SECRET" expression="" defaultValue="&quot;${JWT_SECRET}&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="WORKFLOW_YAML" value="true"/>
+        </context>
+    </template>
+
+    <!-- ===================== PIPELINES ===================== -->
+
+    <template name="wf:pipeline"
+              value="$NAME$:&#10;  steps:&#10;    - name: $STEP_NAME$&#10;      type: $STEP_TYPE$&#10;      config:&#10;        $END$"
+              description="Workflow pipeline declaration"
+              toReformat="true" toShortenFQNames="true">
+        <variable name="NAME" expression="" defaultValue="&quot;my-pipeline&quot;" alwaysStopAt="true"/>
+        <variable name="STEP_NAME" expression="" defaultValue="&quot;step1&quot;" alwaysStopAt="true"/>
+        <variable name="STEP_TYPE" expression="" defaultValue="&quot;step.set&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="WORKFLOW_YAML" value="true"/>
+        </context>
+    </template>
+
+    <!-- ===================== STEPS ===================== -->
+
+    <template name="wf:step:set"
+              value="- name: $NAME$&#10;  type: step.set&#10;  config:&#10;    values:&#10;      $KEY$: $VALUE$&#10;      $END$"
+              description="Set variable step"
+              toReformat="true" toShortenFQNames="true">
+        <variable name="NAME" expression="" defaultValue="&quot;set-vars&quot;" alwaysStopAt="true"/>
+        <variable name="KEY" expression="" defaultValue="&quot;result&quot;" alwaysStopAt="true"/>
+        <variable name="VALUE" expression="" defaultValue="&quot;{{ .input }}&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="WORKFLOW_YAML" value="true"/>
+        </context>
+    </template>
+
+    <template name="wf:step:http-call"
+              value="- name: $NAME$&#10;  type: step.http_call&#10;  config:&#10;    url: $URL$&#10;    method: $METHOD$&#10;    headers:&#10;      Content-Type: application/json&#10;    body: $BODY$&#10;    $END$"
+              description="HTTP call step"
+              toReformat="true" toShortenFQNames="true">
+        <variable name="NAME" expression="" defaultValue="&quot;http-call&quot;" alwaysStopAt="true"/>
+        <variable name="URL" expression="" defaultValue="&quot;https://api.example.com/endpoint&quot;" alwaysStopAt="true"/>
+        <variable name="METHOD" expression="" defaultValue="&quot;POST&quot;" alwaysStopAt="true"/>
+        <variable name="BODY" expression="" defaultValue="&quot;{{ json .input }}&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="WORKFLOW_YAML" value="true"/>
+        </context>
+    </template>
+
+    <template name="wf:step:json-response"
+              value="- name: $NAME$&#10;  type: step.http_response&#10;  config:&#10;    status: $STATUS$&#10;    headers:&#10;      Content-Type: application/json&#10;    body: |&#10;      {{ json .Current }}&#10;    $END$"
+              description="JSON HTTP response step"
+              toReformat="true" toShortenFQNames="true">
+        <variable name="NAME" expression="" defaultValue="&quot;json-response&quot;" alwaysStopAt="true"/>
+        <variable name="STATUS" expression="" defaultValue="200" alwaysStopAt="true"/>
+        <context>
+            <option name="WORKFLOW_YAML" value="true"/>
+        </context>
+    </template>
+
+    <!-- ===================== TRIGGERS ===================== -->
+
+    <template name="wf:trigger:http"
+              value="trigger:&#10;  type: http&#10;  config:&#10;    path: $PATH$&#10;    method: $METHOD$&#10;    $END$"
+              description="HTTP trigger"
+              toReformat="true" toShortenFQNames="true">
+        <variable name="PATH" expression="" defaultValue="&quot;/api/resource&quot;" alwaysStopAt="true"/>
+        <variable name="METHOD" expression="" defaultValue="&quot;POST&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="WORKFLOW_YAML" value="true"/>
+        </context>
+    </template>
+
+    <template name="wf:trigger:schedule"
+              value="trigger:&#10;  type: schedule&#10;  config:&#10;    cron: &quot;$CRON$&quot;&#10;    $END$"
+              description="Schedule (cron) trigger"
+              toReformat="true" toShortenFQNames="true">
+        <variable name="CRON" expression="" defaultValue="&quot;0 * * * *&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="WORKFLOW_YAML" value="true"/>
+        </context>
+    </template>
+
+    <template name="wf:trigger:event"
+              value="trigger:&#10;  type: event&#10;  config:&#10;    topic: $TOPIC$&#10;    $END$"
+              description="Event trigger"
+              toReformat="true" toShortenFQNames="true">
+        <variable name="TOPIC" expression="" defaultValue="&quot;my.event.topic&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="WORKFLOW_YAML" value="true"/>
+        </context>
+    </template>
+
+    <!-- ===================== WORKFLOWS ===================== -->
+
+    <template name="wf:workflow:http"
+              value="$NAME$:&#10;  trigger:&#10;    type: http&#10;    config:&#10;      path: $PATH$&#10;      method: $METHOD$&#10;  pipeline: $PIPELINE$&#10;  $END$"
+              description="HTTP-triggered workflow"
+              toReformat="true" toShortenFQNames="true">
+        <variable name="NAME" expression="" defaultValue="&quot;my-workflow&quot;" alwaysStopAt="true"/>
+        <variable name="PATH" expression="" defaultValue="&quot;/api/my-workflow&quot;" alwaysStopAt="true"/>
+        <variable name="METHOD" expression="" defaultValue="&quot;POST&quot;" alwaysStopAt="true"/>
+        <variable name="PIPELINE" expression="" defaultValue="&quot;my-pipeline&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="WORKFLOW_YAML" value="true"/>
+        </context>
+    </template>
+
+    <template name="wf:workflow:messaging"
+              value="$NAME$:&#10;  trigger:&#10;    type: event&#10;    config:&#10;      topic: $TOPIC$&#10;  pipeline: $PIPELINE$&#10;  $END$"
+              description="Event/messaging triggered workflow"
+              toReformat="true" toShortenFQNames="true">
+        <variable name="NAME" expression="" defaultValue="&quot;my-messaging-workflow&quot;" alwaysStopAt="true"/>
+        <variable name="TOPIC" expression="" defaultValue="&quot;my.event.topic&quot;" alwaysStopAt="true"/>
+        <variable name="PIPELINE" expression="" defaultValue="&quot;my-pipeline&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="WORKFLOW_YAML" value="true"/>
+        </context>
+    </template>
+
+    <template name="wf:workflow:statemachine"
+              value="$NAME$:&#10;  type: statemachine&#10;  trigger:&#10;    type: http&#10;    config:&#10;      path: $PATH$&#10;      method: POST&#10;  states:&#10;    $INITIAL$:&#10;      pipeline: $PIPELINE$&#10;      transitions:&#10;        - event: $EVENT$&#10;          target: $TARGET$&#10;  $END$"
+              description="State machine workflow"
+              toReformat="true" toShortenFQNames="true">
+        <variable name="NAME" expression="" defaultValue="&quot;my-statemachine&quot;" alwaysStopAt="true"/>
+        <variable name="PATH" expression="" defaultValue="&quot;/api/state&quot;" alwaysStopAt="true"/>
+        <variable name="INITIAL" expression="" defaultValue="&quot;initial&quot;" alwaysStopAt="true"/>
+        <variable name="PIPELINE" expression="" defaultValue="&quot;my-pipeline&quot;" alwaysStopAt="true"/>
+        <variable name="EVENT" expression="" defaultValue="&quot;complete&quot;" alwaysStopAt="true"/>
+        <variable name="TARGET" expression="" defaultValue="&quot;done&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="WORKFLOW_YAML" value="true"/>
+        </context>
+    </template>
+
+    <!-- ===================== TOP-LEVEL SCAFFOLDS ===================== -->
+
+    <template name="wf:app"
+              value="modules:&#10;  server:&#10;    type: http.server&#10;    config:&#10;      port: &quot;$PORT$&quot;&#10;  router:&#10;    type: http.router&#10;    config:&#10;      server: server&#10;&#10;pipelines:&#10;  $PIPELINE_NAME$:&#10;    steps:&#10;      - name: respond&#10;        type: step.http_response&#10;        config:&#10;          status: 200&#10;          body: |&#10;            {&quot;ok&quot;: true}&#10;&#10;workflows:&#10;  $WORKFLOW_NAME$:&#10;    trigger:&#10;      type: http&#10;      config:&#10;        path: $PATH$&#10;        method: GET&#10;    pipeline: $PIPELINE_NAME$&#10;    $END$"
+              description="Complete Workflow app scaffold"
+              toReformat="true" toShortenFQNames="true">
+        <variable name="PORT" expression="" defaultValue="&quot;8080&quot;" alwaysStopAt="true"/>
+        <variable name="PIPELINE_NAME" expression="" defaultValue="&quot;hello-pipeline&quot;" alwaysStopAt="true"/>
+        <variable name="WORKFLOW_NAME" expression="" defaultValue="&quot;hello-workflow&quot;" alwaysStopAt="true"/>
+        <variable name="PATH" expression="" defaultValue="&quot;/api/hello&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="WORKFLOW_YAML" value="true"/>
+        </context>
+    </template>
+
+    <template name="wf:requires"
+              value="requires:&#10;  - module: $MODULE$&#10;    version: &quot;$VERSION$&quot;&#10;    $END$"
+              description="Plugin/module dependency declaration"
+              toReformat="true" toShortenFQNames="true">
+        <variable name="MODULE" expression="" defaultValue="&quot;workflow-plugin-admin&quot;" alwaysStopAt="true"/>
+        <variable name="VERSION" expression="" defaultValue="&quot;&gt;=1.0.0&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="WORKFLOW_YAML" value="true"/>
+        </context>
+    </template>
+
+</templateSet>

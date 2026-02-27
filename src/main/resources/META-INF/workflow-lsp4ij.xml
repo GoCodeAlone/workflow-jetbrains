@@ -1,0 +1,7 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.redhat.devtools.lsp4ij">
+        <!-- LSP server support provider for workflow-lsp-server -->
+        <serverSupportProvider
+            implementation="com.gocodalone.workflow.ide.lsp.WorkflowLspServerSupportProvider"/>
+    </extensions>
+</idea-plugin>

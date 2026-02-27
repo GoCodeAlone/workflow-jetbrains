@@ -1,0 +1,208 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/GoCodeAlone/workflow/schemas/workflow-config.schema.json",
+  "title": "Workflow Engine Config",
+  "description": "Schema for Workflow Engine YAML configuration files",
+  "type": "object",
+  "properties": {
+    "modules": {
+      "type": "object",
+      "description": "Named module declarations. Each key is the module name.",
+      "additionalProperties": {
+        "$ref": "#/definitions/module"
+      }
+    },
+    "pipelines": {
+      "type": "object",
+      "description": "Named pipeline declarations. Each key is the pipeline name.",
+      "additionalProperties": {
+        "$ref": "#/definitions/pipeline"
+      }
+    },
+    "workflows": {
+      "type": "object",
+      "description": "Named workflow declarations. Each key is the workflow name.",
+      "additionalProperties": {
+        "$ref": "#/definitions/workflow"
+      }
+    },
+    "requires": {
+      "type": "array",
+      "description": "Plugin/module dependencies",
+      "items": {
+        "$ref": "#/definitions/requirement"
+      }
+    }
+  },
+  "definitions": {
+    "module": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Module type identifier",
+          "examples": [
+            "http.server",
+            "http.router",
+            "datastore.sqlite",
+            "datastore.postgres",
+            "auth.jwt",
+            "cache.modular",
+            "messaging.kafka",
+            "platform.kubernetes",
+            "platform.ecs",
+            "cloud.account",
+            "observability.otel"
+          ]
+        },
+        "config": {
+          "type": "object",
+          "description": "Module-specific configuration",
+          "additionalProperties": true
+        },
+        "dependsOn": {
+          "type": "array",
+          "description": "Module dependencies (informational only; does not affect init order)",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "pipeline": {
+      "type": "object",
+      "required": ["steps"],
+      "properties": {
+        "steps": {
+          "type": "array",
+          "description": "Ordered list of pipeline steps",
+          "items": {
+            "$ref": "#/definitions/step"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "step": {
+      "type": "object",
+      "required": ["name", "type"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Step name (used for referencing output via {{ index .steps \"name\" \"key\" }})"
+        },
+        "type": {
+          "type": "string",
+          "description": "Step type identifier",
+          "examples": [
+            "step.set",
+            "step.http_call",
+            "step.http_response",
+            "step.auth_required",
+            "step.cache_get",
+            "step.cache_set",
+            "step.db_query",
+            "step.db_exec",
+            "step.event_publish",
+            "step.dlq_send",
+            "step.retry_with_backoff",
+            "step.resilient_circuit_breaker",
+            "step.condition",
+            "step.log",
+            "step.transform"
+          ]
+        },
+        "config": {
+          "type": "object",
+          "description": "Step-specific configuration",
+          "additionalProperties": true
+        },
+        "condition": {
+          "type": "string",
+          "description": "Go template expression; step is skipped if evaluates to false/empty"
+        }
+      },
+      "additionalProperties": false
+    },
+    "workflow": {
+      "type": "object",
+      "required": ["trigger", "pipeline"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Workflow type (default: standard)",
+          "enum": ["standard", "statemachine"]
+        },
+        "trigger": {
+          "$ref": "#/definitions/trigger"
+        },
+        "pipeline": {
+          "type": "string",
+          "description": "Name of the pipeline to execute"
+        },
+        "states": {
+          "type": "object",
+          "description": "State machine states (only for type: statemachine)",
+          "additionalProperties": {
+            "$ref": "#/definitions/state"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "trigger": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Trigger type",
+          "enum": ["http", "schedule", "event", "manual"]
+        },
+        "config": {
+          "type": "object",
+          "description": "Trigger-specific configuration",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "state": {
+      "type": "object",
+      "properties": {
+        "pipeline": {
+          "type": "string",
+          "description": "Pipeline to run when entering this state"
+        },
+        "transitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "event": {"type": "string"},
+              "target": {"type": "string"},
+              "condition": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "requirement": {
+      "type": "object",
+      "required": ["module"],
+      "properties": {
+        "module": {
+          "type": "string",
+          "description": "Plugin/module name"
+        },
+        "version": {
+          "type": "string",
+          "description": "Version constraint (e.g. >=1.0.0)"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

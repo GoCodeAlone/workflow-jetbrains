@@ -1,0 +1,34 @@
+# Gradle
+.gradle/
+build/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# macOS
+.DS_Store
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Kotlin
+*.kotlin_module
+
+# Plugin sandbox (IntelliJ Platform Gradle Plugin)
+.plugin-sandbox/
+
+# Local env
+local.properties

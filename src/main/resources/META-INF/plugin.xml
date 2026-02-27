@@ -1,0 +1,84 @@
+<idea-plugin>
+    <id>com.gocodalone.workflow</id>
+    <name>Workflow Engine</name>
+    <vendor url="https://github.com/GoCodeAlone">GoCodeAlone</vendor>
+
+    <description><![CDATA[
+        <p>IDE support for Workflow Engine configuration files.</p>
+        <ul>
+            <li>YAML schema validation and autocomplete for workflow configs</li>
+            <li>Language Server Protocol (LSP) integration via workflow-lsp-server</li>
+            <li>wfctl command integration: validate, inspect, init, run, schema</li>
+            <li>Live templates for modules, pipelines, steps, triggers, and workflows</li>
+        </ul>
+        <p>Requires <a href="https://github.com/GoCodeAlone/workflow">Workflow Engine</a> and optionally the wfctl CLI.</p>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>org.jetbrains.plugins.yaml</depends>
+    <depends optional="true" config-file="workflow-lsp4ij.xml">com.redhat.devtools.lsp4ij</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- JSON Schema provider for workflow YAML files -->
+        <json.schemaProviderFactory
+            implementation="com.gocodalone.workflow.ide.schema.WorkflowSchemaProviderFactory"/>
+
+        <!-- Settings configurable under Tools > Workflow Engine -->
+        <applicationConfigurable
+            parentId="tools"
+            instance="com.gocodalone.workflow.ide.settings.WorkflowSettingsConfigurable"
+            id="com.gocodalone.workflow.settings"
+            displayName="Workflow Engine"/>
+
+        <!-- Persistent settings state -->
+        <applicationService
+            serviceImplementation="com.gocodalone.workflow.ide.settings.WorkflowSettings"/>
+
+        <!-- Live templates for YAML workflow files -->
+        <defaultLiveTemplates file="/liveTemplates/workflow.xml"/>
+        <liveTemplateContext
+            implementation="com.gocodalone.workflow.ide.livetemplate.WorkflowLiveTemplateContext"
+            contextId="WORKFLOW_YAML"/>
+    </extensions>
+
+    <actions>
+        <group id="com.gocodalone.workflow.actions.WfctlGroup"
+               text="Workflow Engine"
+               description="Workflow Engine wfctl commands"
+               popup="true">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+
+            <action id="com.gocodalone.workflow.actions.ValidateAction"
+                    class="com.gocodalone.workflow.ide.actions.ValidateAction"
+                    text="Validate Config"
+                    description="Run wfctl template validate on the current file"/>
+
+            <action id="com.gocodalone.workflow.actions.InspectAction"
+                    class="com.gocodalone.workflow.ide.actions.InspectAction"
+                    text="Inspect Dependencies"
+                    description="Run wfctl inspect -deps on the current file"/>
+
+            <separator/>
+
+            <action id="com.gocodalone.workflow.actions.InitAction"
+                    class="com.gocodalone.workflow.ide.actions.InitAction"
+                    text="Init from Template..."
+                    description="Run wfctl template init to scaffold a new workflow config"/>
+
+            <action id="com.gocodalone.workflow.actions.RunAction"
+                    class="com.gocodalone.workflow.ide.actions.RunAction"
+                    text="Run Workflow"
+                    description="Run wfctl run -config on the current file"/>
+
+            <action id="com.gocodalone.workflow.actions.WorkflowSchemaAction"
+                    class="com.gocodalone.workflow.ide.actions.WorkflowSchemaAction"
+                    text="Show Schema"
+                    description="Run wfctl schema to show the workflow config schema"/>
+
+            <action id="com.gocodalone.workflow.actions.WorkflowTemplateValidateAction"
+                    class="com.gocodalone.workflow.ide.actions.WorkflowTemplateValidateAction"
+                    text="Template Validate"
+                    description="Run wfctl template validate on the current file"/>
+        </group>
+    </actions>
+</idea-plugin>
