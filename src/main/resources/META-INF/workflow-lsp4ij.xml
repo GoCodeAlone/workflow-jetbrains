@@ -1,7 +1,15 @@
 <idea-plugin>
     <extensions defaultExtensionNs="com.redhat.devtools.lsp4ij">
-        <!-- LSP server support provider for workflow-lsp-server -->
-        <serverSupportProvider
-            implementation="com.gocodalone.workflow.ide.lsp.WorkflowLspServerSupportProvider"/>
+        <server id="workflow-lsp-server"
+                name="Workflow LSP"
+                factoryClass="com.gocodalone.workflow.ide.lsp.WorkflowLspServerSupportProvider">
+            <description><![CDATA[
+                Language server for Workflow Engine YAML configuration files.
+            ]]></description>
+        </server>
+
+        <fileNamePatternMapping patterns="workflow.yaml;workflow.yml;app.yaml;app.yml"
+                                serverId="workflow-lsp-server"
+                                languageId="yaml"/>
     </extensions>
 </idea-plugin>

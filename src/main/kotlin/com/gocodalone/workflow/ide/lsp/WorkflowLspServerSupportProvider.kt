@@ -3,13 +3,9 @@ package com.gocodalone.workflow.ide.lsp
 import com.gocodalone.workflow.ide.WorkflowBundle
 import com.gocodalone.workflow.ide.settings.WorkflowSettings
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.VirtualFile
-import com.redhat.devtools.lsp4ij.LanguageServerManager
-import com.redhat.devtools.lsp4ij.ServerStatus
+import com.redhat.devtools.lsp4ij.LanguageServerFactory
 import com.redhat.devtools.lsp4ij.client.features.LSPClientFeatures
 import com.redhat.devtools.lsp4ij.server.StreamConnectionProvider
-import com.redhat.devtools.lsp4ij.server.definition.LanguageServerDefinition
-import com.redhat.devtools.lsp4ij.server.definition.launching.UserDefinedLanguageServerDefinition
 
 /**
  * LSP4IJ server support provider that manages the workflow-lsp-server lifecycle.
@@ -19,7 +15,7 @@ import com.redhat.devtools.lsp4ij.server.definition.launching.UserDefinedLanguag
  * 2. Resolves the workflow-lsp-server binary path (settings -> PATH -> auto-download)
  * 3. Starts the server over stdio transport for YAML workflow files
  */
-class WorkflowLspServerSupportProvider : com.redhat.devtools.lsp4ij.server.definition.LanguageServerFactory {
+class WorkflowLspServerSupportProvider : LanguageServerFactory {
 
     companion object {
         const val SERVER_ID = "workflow-lsp-server"
