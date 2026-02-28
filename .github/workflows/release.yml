@@ -39,17 +39,11 @@ jobs:
       - name: Verify Plugin
         run: ./gradlew verifyPlugin
 
-      - name: Sign Plugin
-        run: ./gradlew signPlugin
-        env:
-          CERTIFICATE_CHAIN: ${{ secrets.CERTIFICATE_CHAIN }}
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
-
-      - name: Publish Plugin to JetBrains Marketplace
-        run: ./gradlew publishPlugin
-        env:
-          JETBRAINS_MARKETPLACE_TOKEN: ${{ secrets.JETBRAINS_MARKETPLACE_TOKEN }}
+      - name: Upload plugin artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-zip
+          path: build/distributions/*.zip
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -57,3 +51,17 @@ jobs:
           files: build/distributions/*.zip
           generate_release_notes: true
           tag_name: ${{ github.ref_name }}
+
+      - name: Sign Plugin
+        continue-on-error: true
+        run: ./gradlew signPlugin
+        env:
+          CERTIFICATE_CHAIN: ${{ secrets.CERTIFICATE_CHAIN }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
+
+      - name: Publish Plugin to JetBrains Marketplace
+        continue-on-error: true
+        run: ./gradlew publishPlugin
+        env:
+          JETBRAINS_MARKETPLACE_TOKEN: ${{ secrets.JETBRAINS_MARKETPLACE_TOKEN }}

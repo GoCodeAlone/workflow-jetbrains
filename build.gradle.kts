@@ -22,7 +22,6 @@ repositories {
 dependencies {
     intellijPlatform {
         intellijIdeaCommunity(providers.gradleProperty("platformVersion").get())
-        bundledPlugin("com.intellij.modules.platform")
         bundledPlugin("org.jetbrains.plugins.yaml")
 
         // LSP4IJ for LSP client support
