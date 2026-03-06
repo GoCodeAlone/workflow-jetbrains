@@ -69,5 +69,9 @@ jobs:
           git diff --cached --quiet && echo "No changes" && exit 0
           git commit -m "chore: sync schema and version to workflow ${WORKFLOW_VERSION}"
           git push
-          git tag "${WORKFLOW_VERSION}"
-          git push origin "${WORKFLOW_VERSION}"
+          if git rev-parse "${WORKFLOW_VERSION}" >/dev/null 2>&1; then
+            echo "Tag ${WORKFLOW_VERSION} already exists, skipping"
+          else
+            git tag "${WORKFLOW_VERSION}"
+            git push origin "${WORKFLOW_VERSION}"
+          fi
