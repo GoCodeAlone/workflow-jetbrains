@@ -28,11 +28,8 @@ class WorkflowSettings : PersistentStateComponent<WorkflowSettings> {
     /** Whether the LSP server integration is enabled. */
     var enableLsp: Boolean = true
 
-    /** Whether to automatically register the MCP server with the IDE AI assistant. */
+    /** Whether to automatically register wfctl as the MCP server with the IDE AI assistant. */
     var autoRegisterMcp: Boolean = false
-
-    /** Path to the workflow-mcp-server binary. Empty = resolve from PATH. */
-    var mcpServerPath: String = ""
 
     override fun getState(): WorkflowSettings = this
 

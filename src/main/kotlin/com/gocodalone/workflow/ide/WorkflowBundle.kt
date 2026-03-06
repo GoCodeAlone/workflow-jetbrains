@@ -10,7 +10,6 @@ object WorkflowBundle {
     // Default binary names
     const val WFCTL_BINARY = "wfctl"
     const val LSP_SERVER_BINARY = "workflow-lsp-server"
-    const val MCP_SERVER_BINARY = "workflow-mcp-server"
 
     // Workflow config file patterns
     val WORKFLOW_FILE_PATTERNS = listOf(

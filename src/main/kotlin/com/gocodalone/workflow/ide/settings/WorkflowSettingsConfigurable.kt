@@ -24,7 +24,6 @@ class WorkflowSettingsConfigurable : Configurable {
 
     private lateinit var wfctlPathField: TextFieldWithBrowseButton
     private lateinit var lspServerPathField: TextFieldWithBrowseButton
-    private lateinit var mcpServerPathField: TextFieldWithBrowseButton
     private lateinit var enableLspCheckbox: JBCheckBox
     private lateinit var autoRegisterMcpCheckbox: JBCheckBox
 
@@ -47,14 +46,6 @@ class WorkflowSettingsConfigurable : Configurable {
             FileChooserDescriptorFactory.createSingleFileDescriptor()
         )
 
-        mcpServerPathField = TextFieldWithBrowseButton()
-        mcpServerPathField.addBrowseFolderListener(
-            "Select workflow-mcp-server Binary",
-            "Path to the Workflow Engine MCP server binary",
-            null,
-            FileChooserDescriptorFactory.createSingleFileDescriptor()
-        )
-
         enableLspCheckbox = JBCheckBox("Enable LSP server integration (requires workflow-lsp-server)")
         autoRegisterMcpCheckbox = JBCheckBox("Auto-register MCP server with AI Assistant")
 
@@ -72,12 +63,6 @@ class WorkflowSettingsConfigurable : Configurable {
                 row {
                     comment("Leave blank to resolve workflow-lsp-server from system PATH")
                 }
-                row("MCP server path:") {
-                    cell(mcpServerPathField).align(AlignX.FILL)
-                }
-                row {
-                    comment("Leave blank to resolve workflow-mcp-server from system PATH")
-                }
             }
             group("Features") {
                 row {
@@ -90,7 +75,7 @@ class WorkflowSettingsConfigurable : Configurable {
                     cell(autoRegisterMcpCheckbox)
                 }
                 row {
-                    comment("Registers the Workflow MCP server with the IDE's AI assistant for context-aware assistance")
+                    comment("Registers wfctl as the MCP server with the IDE's AI assistant for context-aware assistance")
                 }
             }
         }
@@ -99,7 +84,6 @@ class WorkflowSettingsConfigurable : Configurable {
     override fun isModified(): Boolean {
         return wfctlPathField.text != settings.wfctlPath ||
                 lspServerPathField.text != settings.lspServerPath ||
-                mcpServerPathField.text != settings.mcpServerPath ||
                 enableLspCheckbox.isSelected != settings.enableLsp ||
                 autoRegisterMcpCheckbox.isSelected != settings.autoRegisterMcp
     }
@@ -107,7 +91,6 @@ class WorkflowSettingsConfigurable : Configurable {
     override fun apply() {
         settings.wfctlPath = wfctlPathField.text.trim()
         settings.lspServerPath = lspServerPathField.text.trim()
-        settings.mcpServerPath = mcpServerPathField.text.trim()
         settings.enableLsp = enableLspCheckbox.isSelected
         settings.autoRegisterMcp = autoRegisterMcpCheckbox.isSelected
     }
@@ -115,7 +98,6 @@ class WorkflowSettingsConfigurable : Configurable {
     override fun reset() {
         wfctlPathField.text = settings.wfctlPath
         lspServerPathField.text = settings.lspServerPath
-        mcpServerPathField.text = settings.mcpServerPath
         enableLspCheckbox.isSelected = settings.enableLsp
         autoRegisterMcpCheckbox.isSelected = settings.autoRegisterMcp
     }
