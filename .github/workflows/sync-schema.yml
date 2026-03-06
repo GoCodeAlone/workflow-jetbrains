@@ -1,0 +1,73 @@
+name: Sync Schema on Workflow Release
+
+on:
+  repository_dispatch:
+    types: [workflow-release]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    name: Update schema and release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-home-cache-cleanup: true
+
+      - name: Install wfctl
+        env:
+          GOPRIVATE: github.com/GoCodeAlone/*
+          GONOSUMCHECK: github.com/GoCodeAlone/*
+          GOFLAGS: -buildvcs=false
+        run: |
+          WORKFLOW_VERSION="${{ github.event.client_payload.version }}"
+          go install "github.com/GoCodeAlone/workflow/cmd/wfctl@${WORKFLOW_VERSION}"
+
+      - name: Regenerate schema
+        run: wfctl schema --output src/main/resources/schemas/workflow-config.schema.json
+
+      - name: Render templates
+        run: |
+          export WORKFLOW_VERSION="${{ github.event.client_payload.version }}"
+          envsubst '${WORKFLOW_VERSION}' < README.md.tmpl > README.md
+          envsubst '${WORKFLOW_VERSION}' < src/main/resources/META-INF/plugin.xml.tmpl > src/main/resources/META-INF/plugin.xml
+
+      - name: Bump plugin version
+        run: |
+          WORKFLOW_VERSION="${{ github.event.client_payload.version }}"
+          PLUGIN_VERSION="${WORKFLOW_VERSION#v}"
+          sed -i "s/^pluginVersion=.*/pluginVersion=${PLUGIN_VERSION}/" gradle.properties
+
+      - name: Build plugin
+        run: ./gradlew buildPlugin
+
+      - name: Run tests
+        run: ./gradlew test
+
+      - name: Commit and tag
+        run: |
+          WORKFLOW_VERSION="${{ github.event.client_payload.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "chore: sync schema and version to workflow ${WORKFLOW_VERSION}"
+          git push
+          git tag "${WORKFLOW_VERSION}"
+          git push origin "${WORKFLOW_VERSION}"

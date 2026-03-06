@@ -55,7 +55,9 @@
               "auth.jwt",
               "auth.user-store",
               "cache.modular",
+              "config.provider",
               "data.transformer",
+              "database.partitioned",
               "database.workflow",
               "dlq.service",
               "dynamic.component",
@@ -113,8 +115,11 @@
               "step.circuit_breaker",
               "step.conditional",
               "step.constraint_check",
+              "step.db_create_partition",
               "step.db_exec",
               "step.db_query",
+              "step.db_query_cached",
+              "step.db_sync_partitions",
               "step.delegate",
               "step.deploy",
               "step.dlq_replay",
@@ -128,7 +133,9 @@
               "step.ff_gate",
               "step.foreach",
               "step.gate",
+              "step.hash",
               "step.http_call",
+              "step.http_proxy",
               "step.jq",
               "step.json_response",
               "step.log",
@@ -138,6 +145,7 @@
               "step.platform_template",
               "step.publish",
               "step.rate_limit",
+              "step.regex_match",
               "step.request_parse",
               "step.resilient_circuit_breaker",
               "step.retry_with_backoff",
@@ -147,6 +155,7 @@
               "step.scan_sast",
               "step.set",
               "step.shell_exec",
+              "step.static_file",
               "step.sub_workflow",
               "step.transform",
               "step.ui_scaffold",
@@ -395,6 +404,136 @@
                       "description": "Token expiration duration (e.g. 1h, 24h, 7d)",
                       "type": "string",
                       "default": "24h"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "config.provider"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "sources",
+                    "schema"
+                  ],
+                  "properties": {
+                    "schema": {
+                      "description": "Map of config key definitions with env, required, default, sensitive, desc fields",
+                      "type": "object"
+                    },
+                    "sources": {
+                      "description": "Ordered list of config sources (later overrides earlier). Supported types: defaults, env",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "database.partitioned"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "driver",
+                    "dsn"
+                  ],
+                  "properties": {
+                    "driver": {
+                      "description": "PostgreSQL database driver",
+                      "type": "string",
+                      "enum": [
+                        "pgx",
+                        "pgx/v5",
+                        "postgres"
+                      ]
+                    },
+                    "dsn": {
+                      "description": "Data source name / connection string",
+                      "type": "string"
+                    },
+                    "maxIdleConns": {
+                      "description": "Maximum number of idle connections in the pool",
+                      "type": "number",
+                      "default": 5
+                    },
+                    "maxOpenConns": {
+                      "description": "Maximum number of open database connections",
+                      "type": "number",
+                      "default": 25
+                    },
+                    "partitionKey": {
+                      "description": "Column name used for partitioning in single-partition mode (e.g. tenant_id). Ignored when 'partitions' is set.",
+                      "type": "string"
+                    },
+                    "partitionNameFormat": {
+                      "description": "Template for partition table names in single-partition mode. Supports {table} and {tenant} placeholders. Ignored when 'partitions' is set.",
+                      "type": "string",
+                      "default": "{table}_{tenant}"
+                    },
+                    "partitionType": {
+                      "description": "PostgreSQL partition type for single-partition mode: list (FOR VALUES IN) or range (FOR VALUES FROM/TO). Ignored when 'partitions' is set.",
+                      "type": "string",
+                      "enum": [
+                        "list",
+                        "range"
+                      ],
+                      "default": "list"
+                    },
+                    "partitions": {
+                      "description": "List of independent partition key configurations. When set, overrides the single-partition fields. Each entry supports: partitionKey, tables, partitionType, partitionNameFormat, sourceTable, sourceColumn.",
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "sourceColumn": {
+                      "description": "Column in source table to query for tenant values in single-partition mode. Defaults to partitionKey.",
+                      "type": "string"
+                    },
+                    "sourceTable": {
+                      "description": "Table containing all tenant IDs for auto-partition sync in single-partition mode. Ignored when 'partitions' is set.",
+                      "type": "string"
+                    },
+                    "tables": {
+                      "description": "Tables to manage partitions for in single-partition mode. Ignored when 'partitions' is set.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "additionalProperties": false
@@ -1317,6 +1456,15 @@
                     "base_path": {
                       "description": "Base path prefix for all generated routes",
                       "type": "string"
+                    },
+                    "max_body_bytes": {
+                      "description": "Maximum allowed request body size in bytes for validated OpenAPI operations (leave empty to use module default)",
+                      "type": "number"
+                    },
+                    "register_routes": {
+                      "description": "When false, skip registering spec-path routes (only serve spec endpoints and Swagger UI); default true",
+                      "type": "boolean",
+                      "default": true
                     },
                     "router": {
                       "description": "Name of the http.router module to register routes on (auto-detected if omitted)",
@@ -2460,6 +2608,46 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "step.db_create_partition"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "database",
+                    "tenantKey"
+                  ],
+                  "properties": {
+                    "database": {
+                      "description": "Name of a database.partitioned service",
+                      "type": "string"
+                    },
+                    "partitionKey": {
+                      "description": "Target a specific partition config by its partitionKey. Required when the database has multiple partition configs. Omit to use the primary (first) partition config.",
+                      "type": "string"
+                    },
+                    "tenantKey": {
+                      "description": "Dot-path in pipeline context to resolve the tenant value (e.g. the new tenant's ID)",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "step.db_exec"
                   ]
                 }
@@ -2474,6 +2662,11 @@
                     "query"
                   ],
                   "properties": {
+                    "allow_dynamic_sql": {
+                      "description": "When true, template expressions in 'query' are resolved at runtime. Each resolved value must contain only letters, digits, underscores and hyphens to prevent SQL injection.",
+                      "type": "boolean",
+                      "default": "false"
+                    },
                     "database": {
                       "description": "Name of the database service (must implement DBProvider)",
                       "type": "string"
@@ -2486,7 +2679,11 @@
                       }
                     },
                     "query": {
-                      "description": "Parameterized SQL INSERT/UPDATE/DELETE statement (use ? for placeholders)",
+                      "description": "Parameterized SQL INSERT/UPDATE/DELETE statement (use ? for placeholders). Template expressions are forbidden unless allow_dynamic_sql is true.",
+                      "type": "string"
+                    },
+                    "tenantKey": {
+                      "description": "Dot-path in pipeline context to resolve the tenant value for automatic scoping. Supported for UPDATE/DELETE only (requires database.partitioned)",
                       "type": "string"
                     }
                   },
@@ -2517,6 +2714,11 @@
                     "query"
                   ],
                   "properties": {
+                    "allow_dynamic_sql": {
+                      "description": "When true, template expressions in 'query' are resolved at runtime. Each resolved value must contain only letters, digits, underscores and hyphens to prevent SQL injection.",
+                      "type": "boolean",
+                      "default": "false"
+                    },
                     "database": {
                       "description": "Name of the database service (must implement DBProvider)",
                       "type": "string"
@@ -2538,7 +2740,120 @@
                       }
                     },
                     "query": {
-                      "description": "Parameterized SQL SELECT query (use ? for placeholders, no template expressions allowed)",
+                      "description": "Parameterized SQL SELECT query (use ? for placeholders). Template expressions are forbidden unless allow_dynamic_sql is true.",
+                      "type": "string"
+                    },
+                    "tenantKey": {
+                      "description": "Dot-path in pipeline context to resolve the tenant value for automatic scoping (requires database.partitioned)",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.db_query_cached"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "database",
+                    "query",
+                    "cache_key"
+                  ],
+                  "properties": {
+                    "allow_dynamic_sql": {
+                      "description": "When true, template expressions in 'query' are resolved at runtime. Each resolved value must contain only letters, digits, and underscores to prevent SQL injection.",
+                      "type": "boolean",
+                      "default": "false"
+                    },
+                    "cache_key": {
+                      "description": "Template-resolved key used to store/retrieve the cached result",
+                      "type": "string"
+                    },
+                    "cache_ttl": {
+                      "description": "Duration string for how long to cache the result (e.g. '5m', '30s', '1h')",
+                      "type": "string",
+                      "default": "5m"
+                    },
+                    "database": {
+                      "description": "Name of the database service (must implement DBProvider)",
+                      "type": "string"
+                    },
+                    "mode": {
+                      "description": "Result mode: 'single' returns row/found, 'list' returns rows/count",
+                      "type": "string",
+                      "enum": [
+                        "single",
+                        "list"
+                      ],
+                      "default": "single"
+                    },
+                    "params": {
+                      "description": "Template-resolved parameter values for query placeholders",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "query": {
+                      "description": "Parameterized SQL SELECT query using $N placeholders (e.g. $1, $2); automatically converted to ? for SQLite drivers. Template expressions are forbidden unless allow_dynamic_sql is true.",
+                      "type": "string"
+                    },
+                    "scan_fields": {
+                      "description": "Column names to include in the output (omit to include all columns)",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.db_sync_partitions"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "database"
+                  ],
+                  "properties": {
+                    "database": {
+                      "description": "Name of a database.partitioned service with sourceTable configured",
+                      "type": "string"
+                    },
+                    "partitionKey": {
+                      "description": "Target a specific partition config by its partitionKey for syncing. Omit to sync all configured partition groups.",
                       "type": "string"
                     }
                   },
@@ -2928,16 +3243,17 @@
               "properties": {
                 "config": {
                   "type": "object",
-                  "required": [
-                    "topic"
-                  ],
                   "properties": {
                     "broker": {
                       "description": "Name of the messaging broker module to use (falls back to eventbus if not set)",
                       "type": "string"
                     },
+                    "data": {
+                      "description": "Alias for 'payload' — event data fields (supports template expressions)",
+                      "type": "object"
+                    },
                     "event_type": {
-                      "description": "Optional event type identifier to include with the message",
+                      "description": "CloudEvents type identifier (e.g., messaging.texter-message.received)",
                       "type": "string"
                     },
                     "headers": {
@@ -2948,8 +3264,20 @@
                       "description": "Event payload as a JSON object (supports template expressions); defaults to current pipeline context",
                       "type": "object"
                     },
+                    "provider": {
+                      "description": "Alias for 'broker' — name of the EventPublisher or MessageBroker service (e.g., kinesis, bento-output)",
+                      "type": "string"
+                    },
+                    "source": {
+                      "description": "CloudEvents source URI identifying the event producer (supports template expressions)",
+                      "type": "string"
+                    },
+                    "stream": {
+                      "description": "Alias for 'topic' — name of the stream to publish to (e.g., Kinesis stream name)",
+                      "type": "string"
+                    },
                     "topic": {
-                      "description": "Topic or channel to publish the event to",
+                      "description": "Topic or channel to publish the event to (also accepts 'stream' alias)",
                       "type": "string"
                     }
                   },
@@ -3169,6 +3497,42 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "step.hash"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "input"
+                  ],
+                  "properties": {
+                    "algorithm": {
+                      "description": "Hash algorithm: md5, sha256, or sha512",
+                      "type": "string",
+                      "default": "sha256"
+                    },
+                    "input": {
+                      "description": "Input string to hash (template expressions supported)",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "step.http_call"
                   ]
                 }
@@ -3202,14 +3566,64 @@
                       ],
                       "default": "GET"
                     },
+                    "oauth2": {
+                      "description": "OAuth2 client_credentials configuration. Tokens are cached and refreshed automatically. Fields: grant_type (default: client_credentials), token_url, client_id, client_secret, scopes. When the token endpoint returns instance_url (Salesforce pattern), it is injected as {{ .instance_url }} for URL templates and included in the step output. If both the legacy auth block and oauth2 are configured, auth takes precedence and oauth2 is ignored.",
+                      "type": "object"
+                    },
                     "timeout": {
                       "description": "Request timeout duration",
                       "type": "string",
                       "default": "30s"
                     },
                     "url": {
-                      "description": "Request URL (supports {{ .field }} templates)",
+                      "description": "Request URL (supports {{ .field }} templates; {{ .instance_url }} is available when OAuth2 client_credentials auth uses a token endpoint that returns instance_url)",
                       "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.http_proxy"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "backend_url_key": {
+                      "description": "Dot-path in pc.Current for the backend URL (e.g. backend_url or steps.resolve.url)",
+                      "type": "string",
+                      "default": "backend_url"
+                    },
+                    "forward_headers": {
+                      "description": "Header names to copy from the original request to the proxy request",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "resource_key": {
+                      "description": "Dot-path in pc.Current for the resource path suffix",
+                      "type": "string",
+                      "default": "path_params.resource"
+                    },
+                    "timeout": {
+                      "description": "Proxy request timeout duration",
+                      "type": "string",
+                      "default": "30s"
                     }
                   },
                   "additionalProperties": false
@@ -3559,6 +3973,42 @@
                     "requests_per_minute": {
                       "description": "Maximum requests per minute",
                       "type": "number"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.regex_match"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "pattern",
+                    "input"
+                  ],
+                  "properties": {
+                    "input": {
+                      "description": "Input string to match against (template expressions supported)",
+                      "type": "string"
+                    },
+                    "pattern": {
+                      "description": "Regular expression pattern (compiled at config time)",
+                      "type": "string"
                     }
                   },
                   "additionalProperties": false
@@ -4034,6 +4484,46 @@
                     },
                     "work_dir": {
                       "description": "Working directory inside the container",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.static_file"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "file",
+                    "content_type"
+                  ],
+                  "properties": {
+                    "cache_control": {
+                      "description": "Optional Cache-Control header value (e.g. public, max-age=3600)",
+                      "type": "string"
+                    },
+                    "content_type": {
+                      "description": "MIME type of the file (e.g. application/yaml, text/html)",
+                      "type": "string"
+                    },
+                    "file": {
+                      "description": "Path to the file to serve; resolved relative to the config file directory",
                       "type": "string"
                     }
                   },
@@ -4749,8 +5239,11 @@
                     "step.circuit_breaker",
                     "step.conditional",
                     "step.constraint_check",
+                    "step.db_create_partition",
                     "step.db_exec",
                     "step.db_query",
+                    "step.db_query_cached",
+                    "step.db_sync_partitions",
                     "step.delegate",
                     "step.deploy",
                     "step.dlq_replay",
@@ -4764,7 +5257,9 @@
                     "step.ff_gate",
                     "step.foreach",
                     "step.gate",
+                    "step.hash",
                     "step.http_call",
+                    "step.http_proxy",
                     "step.jq",
                     "step.json_response",
                     "step.log",
@@ -4774,6 +5269,7 @@
                     "step.platform_template",
                     "step.publish",
                     "step.rate_limit",
+                    "step.regex_match",
                     "step.request_parse",
                     "step.resilient_circuit_breaker",
                     "step.retry_with_backoff",
@@ -4783,6 +5279,7 @@
                     "step.scan_sast",
                     "step.set",
                     "step.shell_exec",
+                    "step.static_file",
                     "step.sub_workflow",
                     "step.transform",
                     "step.ui_scaffold",
@@ -5411,6 +5908,46 @@
                     "properties": {
                       "type": {
                         "enum": [
+                          "step.db_create_partition"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "database",
+                          "tenantKey"
+                        ],
+                        "properties": {
+                          "database": {
+                            "description": "Name of a database.partitioned service",
+                            "type": "string"
+                          },
+                          "partitionKey": {
+                            "description": "Target a specific partition config by its partitionKey. Required when the database has multiple partition configs. Omit to use the primary (first) partition config.",
+                            "type": "string"
+                          },
+                          "tenantKey": {
+                            "description": "Dot-path in pipeline context to resolve the tenant value (e.g. the new tenant's ID)",
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
                           "step.db_exec"
                         ]
                       }
@@ -5425,6 +5962,11 @@
                           "query"
                         ],
                         "properties": {
+                          "allow_dynamic_sql": {
+                            "description": "When true, template expressions in 'query' are resolved at runtime. Each resolved value must contain only letters, digits, underscores and hyphens to prevent SQL injection.",
+                            "type": "boolean",
+                            "default": "false"
+                          },
                           "database": {
                             "description": "Name of the database service (must implement DBProvider)",
                             "type": "string"
@@ -5437,7 +5979,11 @@
                             }
                           },
                           "query": {
-                            "description": "Parameterized SQL INSERT/UPDATE/DELETE statement (use ? for placeholders)",
+                            "description": "Parameterized SQL INSERT/UPDATE/DELETE statement (use ? for placeholders). Template expressions are forbidden unless allow_dynamic_sql is true.",
+                            "type": "string"
+                          },
+                          "tenantKey": {
+                            "description": "Dot-path in pipeline context to resolve the tenant value for automatic scoping. Supported for UPDATE/DELETE only (requires database.partitioned)",
                             "type": "string"
                           }
                         },
@@ -5468,6 +6014,11 @@
                           "query"
                         ],
                         "properties": {
+                          "allow_dynamic_sql": {
+                            "description": "When true, template expressions in 'query' are resolved at runtime. Each resolved value must contain only letters, digits, underscores and hyphens to prevent SQL injection.",
+                            "type": "boolean",
+                            "default": "false"
+                          },
                           "database": {
                             "description": "Name of the database service (must implement DBProvider)",
                             "type": "string"
@@ -5489,7 +6040,120 @@
                             }
                           },
                           "query": {
-                            "description": "Parameterized SQL SELECT query (use ? for placeholders, no template expressions allowed)",
+                            "description": "Parameterized SQL SELECT query (use ? for placeholders). Template expressions are forbidden unless allow_dynamic_sql is true.",
+                            "type": "string"
+                          },
+                          "tenantKey": {
+                            "description": "Dot-path in pipeline context to resolve the tenant value for automatic scoping (requires database.partitioned)",
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.db_query_cached"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "database",
+                          "query",
+                          "cache_key"
+                        ],
+                        "properties": {
+                          "allow_dynamic_sql": {
+                            "description": "When true, template expressions in 'query' are resolved at runtime. Each resolved value must contain only letters, digits, and underscores to prevent SQL injection.",
+                            "type": "boolean",
+                            "default": "false"
+                          },
+                          "cache_key": {
+                            "description": "Template-resolved key used to store/retrieve the cached result",
+                            "type": "string"
+                          },
+                          "cache_ttl": {
+                            "description": "Duration string for how long to cache the result (e.g. '5m', '30s', '1h')",
+                            "type": "string",
+                            "default": "5m"
+                          },
+                          "database": {
+                            "description": "Name of the database service (must implement DBProvider)",
+                            "type": "string"
+                          },
+                          "mode": {
+                            "description": "Result mode: 'single' returns row/found, 'list' returns rows/count",
+                            "type": "string",
+                            "enum": [
+                              "single",
+                              "list"
+                            ],
+                            "default": "single"
+                          },
+                          "params": {
+                            "description": "Template-resolved parameter values for query placeholders",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "query": {
+                            "description": "Parameterized SQL SELECT query using $N placeholders (e.g. $1, $2); automatically converted to ? for SQLite drivers. Template expressions are forbidden unless allow_dynamic_sql is true.",
+                            "type": "string"
+                          },
+                          "scan_fields": {
+                            "description": "Column names to include in the output (omit to include all columns)",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.db_sync_partitions"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "database"
+                        ],
+                        "properties": {
+                          "database": {
+                            "description": "Name of a database.partitioned service with sourceTable configured",
+                            "type": "string"
+                          },
+                          "partitionKey": {
+                            "description": "Target a specific partition config by its partitionKey for syncing. Omit to sync all configured partition groups.",
                             "type": "string"
                           }
                         },
@@ -5879,16 +6543,17 @@
                     "properties": {
                       "config": {
                         "type": "object",
-                        "required": [
-                          "topic"
-                        ],
                         "properties": {
                           "broker": {
                             "description": "Name of the messaging broker module to use (falls back to eventbus if not set)",
                             "type": "string"
                           },
+                          "data": {
+                            "description": "Alias for 'payload' — event data fields (supports template expressions)",
+                            "type": "object"
+                          },
                           "event_type": {
-                            "description": "Optional event type identifier to include with the message",
+                            "description": "CloudEvents type identifier (e.g., messaging.texter-message.received)",
                             "type": "string"
                           },
                           "headers": {
@@ -5899,8 +6564,20 @@
                             "description": "Event payload as a JSON object (supports template expressions); defaults to current pipeline context",
                             "type": "object"
                           },
+                          "provider": {
+                            "description": "Alias for 'broker' — name of the EventPublisher or MessageBroker service (e.g., kinesis, bento-output)",
+                            "type": "string"
+                          },
+                          "source": {
+                            "description": "CloudEvents source URI identifying the event producer (supports template expressions)",
+                            "type": "string"
+                          },
+                          "stream": {
+                            "description": "Alias for 'topic' — name of the stream to publish to (e.g., Kinesis stream name)",
+                            "type": "string"
+                          },
                           "topic": {
-                            "description": "Topic or channel to publish the event to",
+                            "description": "Topic or channel to publish the event to (also accepts 'stream' alias)",
                             "type": "string"
                           }
                         },
@@ -6120,6 +6797,42 @@
                     "properties": {
                       "type": {
                         "enum": [
+                          "step.hash"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "input"
+                        ],
+                        "properties": {
+                          "algorithm": {
+                            "description": "Hash algorithm: md5, sha256, or sha512",
+                            "type": "string",
+                            "default": "sha256"
+                          },
+                          "input": {
+                            "description": "Input string to hash (template expressions supported)",
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
                           "step.http_call"
                         ]
                       }
@@ -6153,14 +6866,64 @@
                             ],
                             "default": "GET"
                           },
+                          "oauth2": {
+                            "description": "OAuth2 client_credentials configuration. Tokens are cached and refreshed automatically. Fields: grant_type (default: client_credentials), token_url, client_id, client_secret, scopes. When the token endpoint returns instance_url (Salesforce pattern), it is injected as {{ .instance_url }} for URL templates and included in the step output. If both the legacy auth block and oauth2 are configured, auth takes precedence and oauth2 is ignored.",
+                            "type": "object"
+                          },
                           "timeout": {
                             "description": "Request timeout duration",
                             "type": "string",
                             "default": "30s"
                           },
                           "url": {
-                            "description": "Request URL (supports {{ .field }} templates)",
+                            "description": "Request URL (supports {{ .field }} templates; {{ .instance_url }} is available when OAuth2 client_credentials auth uses a token endpoint that returns instance_url)",
                             "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.http_proxy"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "properties": {
+                          "backend_url_key": {
+                            "description": "Dot-path in pc.Current for the backend URL (e.g. backend_url or steps.resolve.url)",
+                            "type": "string",
+                            "default": "backend_url"
+                          },
+                          "forward_headers": {
+                            "description": "Header names to copy from the original request to the proxy request",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "resource_key": {
+                            "description": "Dot-path in pc.Current for the resource path suffix",
+                            "type": "string",
+                            "default": "path_params.resource"
+                          },
+                          "timeout": {
+                            "description": "Proxy request timeout duration",
+                            "type": "string",
+                            "default": "30s"
                           }
                         },
                         "additionalProperties": false
@@ -6510,6 +7273,42 @@
                           "requests_per_minute": {
                             "description": "Maximum requests per minute",
                             "type": "number"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.regex_match"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "pattern",
+                          "input"
+                        ],
+                        "properties": {
+                          "input": {
+                            "description": "Input string to match against (template expressions supported)",
+                            "type": "string"
+                          },
+                          "pattern": {
+                            "description": "Regular expression pattern (compiled at config time)",
+                            "type": "string"
                           }
                         },
                         "additionalProperties": false
@@ -6985,6 +7784,46 @@
                           },
                           "work_dir": {
                             "description": "Working directory inside the container",
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.static_file"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "file",
+                          "content_type"
+                        ],
+                        "properties": {
+                          "cache_control": {
+                            "description": "Optional Cache-Control header value (e.g. public, max-age=3600)",
+                            "type": "string"
+                          },
+                          "content_type": {
+                            "description": "MIME type of the file (e.g. application/yaml, text/html)",
+                            "type": "string"
+                          },
+                          "file": {
+                            "description": "Path to the file to serve; resolved relative to the config file directory",
                             "type": "string"
                           }
                         },
