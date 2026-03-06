@@ -50,10 +50,29 @@ jobs:
           envsubst '${WORKFLOW_VERSION}' < README.md.tmpl > README.md
           envsubst '${WORKFLOW_VERSION}' < src/main/resources/META-INF/plugin.xml.tmpl > src/main/resources/META-INF/plugin.xml
 
-      - name: Bump plugin version
+      - name: Compute plugin version
+        id: version
         run: |
           WORKFLOW_VERSION="${{ github.event.client_payload.version }}"
-          PLUGIN_VERSION="${WORKFLOW_VERSION#v}"
+          VERSION="${WORKFLOW_VERSION#v}"
+          MAJOR=$(echo "$VERSION" | cut -d. -f1)
+          MINOR=$(echo "$VERSION" | cut -d. -f2)
+          PATCH=$(echo "$VERSION" | cut -d. -f3)
+          BASE=$((PATCH * 100))
+          CURRENT_VERSION=$(grep '^pluginVersion=' gradle.properties | cut -d= -f2)
+          CURRENT_PATCH=$(echo "$CURRENT_VERSION" | cut -d. -f3)
+          if [ "$CURRENT_PATCH" -ge "$BASE" ] && [ "$CURRENT_PATCH" -lt "$((BASE + 100))" ]; then
+            PLUGIN_PATCH=$((CURRENT_PATCH + 1))
+          else
+            PLUGIN_PATCH=$BASE
+          fi
+          PLUGIN_VERSION="${MAJOR}.${MINOR}.${PLUGIN_PATCH}"
+          echo "PLUGIN_VERSION=${PLUGIN_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Engine ${WORKFLOW_VERSION} → plugin v${PLUGIN_VERSION}"
+
+      - name: Bump plugin version
+        run: |
+          PLUGIN_VERSION="${{ steps.version.outputs.PLUGIN_VERSION }}"
           sed -i "s/^pluginVersion=.*/pluginVersion=${PLUGIN_VERSION}/" gradle.properties
 
       - name: Build plugin
@@ -65,15 +84,16 @@ jobs:
       - name: Commit and tag
         run: |
           WORKFLOW_VERSION="${{ github.event.client_payload.version }}"
+          PLUGIN_VERSION="v${{ steps.version.outputs.PLUGIN_VERSION }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
           git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore: sync schema and version to workflow ${WORKFLOW_VERSION}"
+          git commit -m "chore: sync schema and version to workflow ${WORKFLOW_VERSION} (plugin ${PLUGIN_VERSION})"
           git push
-          if git rev-parse "${WORKFLOW_VERSION}" >/dev/null 2>&1; then
-            echo "Tag ${WORKFLOW_VERSION} already exists, skipping"
+          if git rev-parse "${PLUGIN_VERSION}" >/dev/null 2>&1; then
+            echo "Tag ${PLUGIN_VERSION} already exists, skipping"
           else
-            git tag "${WORKFLOW_VERSION}"
-            git push origin "${WORKFLOW_VERSION}"
+            git tag "${PLUGIN_VERSION}"
+            git push origin "${PLUGIN_VERSION}"
           fi
