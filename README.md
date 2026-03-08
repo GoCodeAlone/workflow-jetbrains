@@ -12,7 +12,7 @@ IDE support for [Workflow Engine](https://github.com/GoCodeAlone/workflow) confi
 
 Works with all JetBrains IDEs: IntelliJ IDEA, GoLand, WebStorm, PyCharm, PhpStorm, Rider, CLion, RubyMine, and all other IntelliJ Platform-based products. Requires IDE version **2024.2 or later**.
 
-This plugin targets **workflow engine v0.3.20+**. The bundled JSON schema and live templates are generated from the v0.3.20 registry.
+This plugin targets **workflow engine v0.3.24+**. The bundled JSON schema and live templates are generated from the v0.3.24 registry.
 
 ---
 
@@ -98,8 +98,8 @@ The plugin zip is produced at `build/distributions/`. Install it via **Settings 
 | Dependency | Purpose | Install |
 |---|---|---|
 | JDK 17+ | Building from source only | [Adoptium](https://adoptium.net/) |
-| `wfctl` | Tool actions (validate, run, inspect, etc.) | `go install github.com/GoCodeAlone/workflow/cmd/wfctl@v0.3.20` |
-| `workflow-lsp-server` | LSP features (autocomplete, hover, diagnostics) | `go install github.com/GoCodeAlone/workflow/cmd/workflow-lsp-server@v0.3.20` |
+| `wfctl` | Tool actions and MCP server | `go install github.com/GoCodeAlone/workflow/cmd/wfctl@v0.3.24` |
+| `workflow-lsp-server` | LSP features (autocomplete, hover, diagnostics) | `go install github.com/GoCodeAlone/workflow/cmd/workflow-lsp-server@v0.3.24` |
 | YAML plugin | YAML editing support | Bundled with most JetBrains IDEs |
 | LSP4IJ plugin | Enhanced LSP client bridge | Optional — install from Marketplace if LSP features are not working |
 
@@ -123,8 +123,7 @@ Navigate to **Settings > Tools > Workflow Engine**.
 | wfctl path | _(from PATH)_ | Absolute path to the `wfctl` binary. Leave blank to resolve from system PATH. |
 | LSP server path | _(from PATH)_ | Absolute path to `workflow-lsp-server`. Leave blank to resolve from system PATH. |
 | Enable LSP server integration | Enabled | Turns on hover documentation, diagnostics, and autocomplete via the LSP server. |
-| MCP server path | _(from PATH)_ | Absolute path to `workflow-mcp-server`. |
-| Auto-register MCP server with AI Assistant | Disabled | Registers the Workflow MCP server with the IDE's built-in AI assistant for context-aware help. |
+| Auto-register MCP server with AI Assistant | Disabled | Registers `wfctl` as the MCP server with the IDE's built-in AI assistant for context-aware help. |
 
 ---
 

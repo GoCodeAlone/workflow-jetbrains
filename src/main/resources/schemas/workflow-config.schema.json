@@ -139,6 +139,7 @@
               "step.jq",
               "step.json_response",
               "step.log",
+              "step.parallel",
               "step.platform_apply",
               "step.platform_destroy",
               "step.platform_plan",
@@ -3757,6 +3758,46 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "step.parallel"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "steps"
+                  ],
+                  "properties": {
+                    "error_strategy": {
+                      "description": "fail_fast: cancel on first error. collect_errors: run all, collect partial results.",
+                      "type": "string",
+                      "enum": [
+                        "fail_fast",
+                        "collect_errors"
+                      ],
+                      "default": "fail_fast"
+                    },
+                    "steps": {
+                      "description": "List of sub-steps to run concurrently. Each must have a unique 'name'.",
+                      "type": "object"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "step.platform_apply"
                   ]
                 }
@@ -5263,6 +5304,7 @@
                     "step.jq",
                     "step.json_response",
                     "step.log",
+                    "step.parallel",
                     "step.platform_apply",
                     "step.platform_destroy",
                     "step.platform_plan",
@@ -7042,6 +7084,46 @@
                           "message": {
                             "description": "Message template (supports {{ .field }} expressions)",
                             "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.parallel"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "steps"
+                        ],
+                        "properties": {
+                          "error_strategy": {
+                            "description": "fail_fast: cancel on first error. collect_errors: run all, collect partial results.",
+                            "type": "string",
+                            "enum": [
+                              "fail_fast",
+                              "collect_errors"
+                            ],
+                            "default": "fail_fast"
+                          },
+                          "steps": {
+                            "description": "List of sub-steps to run concurrently. Each must have a unique 'name'.",
+                            "type": "object"
                           }
                         },
                         "additionalProperties": false
