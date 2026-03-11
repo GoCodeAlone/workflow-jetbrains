@@ -12,7 +12,7 @@ IDE support for [Workflow Engine](https://github.com/GoCodeAlone/workflow) confi
 
 Works with all JetBrains IDEs: IntelliJ IDEA, GoLand, WebStorm, PyCharm, PhpStorm, Rider, CLion, RubyMine, and all other IntelliJ Platform-based products. Requires IDE version **2024.2 or later**.
 
-This plugin targets **workflow engine v0.3.29+**. The bundled JSON schema and live templates are generated from the v0.3.29 registry.
+This plugin targets **workflow engine v0.3.32+**. The bundled JSON schema and live templates are generated from the v0.3.32 registry.
 
 ---
 
@@ -98,8 +98,8 @@ The plugin zip is produced at `build/distributions/`. Install it via **Settings 
 | Dependency | Purpose | Install |
 |---|---|---|
 | JDK 17+ | Building from source only | [Adoptium](https://adoptium.net/) |
-| `wfctl` | Tool actions and MCP server | `go install github.com/GoCodeAlone/workflow/cmd/wfctl@v0.3.29` |
-| `workflow-lsp-server` | LSP features (autocomplete, hover, diagnostics) | `go install github.com/GoCodeAlone/workflow/cmd/workflow-lsp-server@v0.3.29` |
+| `wfctl` | Tool actions and MCP server | `go install github.com/GoCodeAlone/workflow/cmd/wfctl@v0.3.32` |
+| `workflow-lsp-server` | LSP features (autocomplete, hover, diagnostics) | `go install github.com/GoCodeAlone/workflow/cmd/workflow-lsp-server@v0.3.32` |
 | YAML plugin | YAML editing support | Bundled with most JetBrains IDEs |
 | LSP4IJ plugin | Enhanced LSP client bridge | Optional — install from Marketplace if LSP features are not working |
 
