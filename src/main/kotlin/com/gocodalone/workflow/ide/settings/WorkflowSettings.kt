@@ -37,6 +37,8 @@ class WorkflowSettings : PersistentStateComponent<WorkflowSettings> {
     /** Glob patterns identifying workflow config files (e.g. "config/app.yaml"). */
     var configPaths: List<String> = emptyList()
 
+    /** Whether to suppress the content-detection notification prompt. */
+    var suppressDetectionPrompt: Boolean = false
 
     override fun getState(): WorkflowSettings = this
 

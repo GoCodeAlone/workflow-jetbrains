@@ -45,6 +45,10 @@
                     anchor="right"
                     secondary="true"
                     factoryClass="com.gocodalone.workflow.ide.editor.WorkflowVisualEditorToolWindowFactory"/>
+
+        <!-- Content detection notification provider -->
+        <editorNotificationProvider
+            implementation="com.gocodalone.workflow.ide.editor.WorkflowDetectionNotificationProvider"/>
     </extensions>
 
     <actions>
