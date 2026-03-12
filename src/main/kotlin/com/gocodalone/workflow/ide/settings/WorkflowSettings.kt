@@ -31,6 +31,13 @@ class WorkflowSettings : PersistentStateComponent<WorkflowSettings> {
     /** Whether to automatically register wfctl as the MCP server with the IDE AI assistant. */
     var autoRegisterMcp: Boolean = false
 
+    /** Path to the workflow-mcp-server binary. Empty = resolve from PATH. */
+    var mcpServerPath: String = ""
+
+    /** Glob patterns identifying workflow config files (e.g. "config/app.yaml"). */
+    var configPaths: List<String> = emptyList()
+
+
     override fun getState(): WorkflowSettings = this
 
     override fun loadState(state: WorkflowSettings) {

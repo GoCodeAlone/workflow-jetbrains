@@ -63,3 +63,12 @@ intellijPlatform {
         }
     }
 }
+
+tasks.register<Exec>("buildWebview") {
+    workingDir = file("webview-src")
+    commandLine("npx", "vite", "build", "--outDir", "../src/main/resources/editor")
+}
+
+tasks.named("processResources") {
+    dependsOn("buildWebview")
+}

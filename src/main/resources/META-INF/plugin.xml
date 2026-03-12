@@ -39,6 +39,12 @@
         <liveTemplateContext
             implementation="com.gocodalone.workflow.ide.livetemplate.WorkflowLiveTemplateContext"
             contextId="WORKFLOW_YAML"/>
+
+        <!-- Visual Editor tool window -->
+        <toolWindow id="Workflow Visual Editor"
+                    anchor="right"
+                    secondary="true"
+                    factoryClass="com.gocodalone.workflow.ide.editor.WorkflowVisualEditorToolWindowFactory"/>
     </extensions>
 
     <actions>
@@ -80,5 +86,14 @@
                     text="Template Validate"
                     description="Run wfctl template validate on the current file"/>
         </group>
+
+        <!-- Visual editor action -->
+        <action id="workflow.openVisualEditor"
+                class="com.gocodalone.workflow.ide.editor.WorkflowVisualEditorAction"
+                text="Open Visual Editor"
+                description="Open workflow visual editor alongside YAML">
+            <add-to-group group-id="com.gocodalone.workflow.actions.WfctlGroup"/>
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+        </action>
     </actions>
 </idea-plugin>

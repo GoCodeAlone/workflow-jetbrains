@@ -1,0 +1,60 @@
+name: Sync Editor on Editor Release
+
+on:
+  repository_dispatch:
+    types: [editor-release]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    name: Update editor dependency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@gocodealone'
+
+      - name: Update editor package
+        working-directory: webview-src
+        run: |
+          EDITOR_VERSION="${{ github.event.client_payload.version }}"
+          npm install "@gocodealone/workflow-editor@${EDITOR_VERSION#v}"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build webview
+        working-directory: webview-src
+        run: |
+          npm ci
+          npx vite build --outDir ../src/main/resources/editor
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build and test plugin
+        run: ./gradlew buildPlugin test
+
+      - name: Commit and tag
+        run: |
+          EDITOR_VERSION="${{ github.event.client_payload.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "chore: sync editor to ${EDITOR_VERSION}"
+          git push
+          git tag "${EDITOR_VERSION}"
+          git push origin "${EDITOR_VERSION}"

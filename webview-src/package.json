@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "devDependencies": {
+    "@gocodealone/workflow-editor": "file:../../workflow-editor/gocodealone-workflow-editor-0.1.0.tgz",
+    "@xyflow/react": "^12.10.0",
+    "@vitejs/plugin-react": "^5.1.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "zustand": "^5.0.11",
+    "vite": "^7.3.1"
+  }
+}
