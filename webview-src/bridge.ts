@@ -34,7 +34,7 @@ export function sendYamlUpdated(content: string) {
 }
 
 export function sendNavigateToLine(line: number, col: number) {
-  getHostBridge()?.['sendNavigateToLine'](`${line},${col}`);
+  getHostBridge()?.['sendNavigateToLine'](line, col);
 }
 
 export function sendRequestSchemas() {
