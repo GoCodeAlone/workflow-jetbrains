@@ -49,6 +49,11 @@ class WorkflowBridge(
             override fun onLoadEnd(b: CefBrowser?, frame: org.cef.browser.CefFrame?, httpStatusCode: Int) {
                 injectBridge()
                 sendYamlToEditor()
+                // Discover and send plugin schemas in background
+                com.intellij.openapi.application.ApplicationManager.getApplication().executeOnPooledThread {
+                    val plugins = PluginDiscovery.discoverPluginSchemas(project)
+                    if (plugins.isNotEmpty()) sendPluginSchemas(plugins)
+                }
             }
         }, browser.cefBrowser)
     }
@@ -117,6 +122,26 @@ class WorkflowBridge(
             .replace("\$", "\\\$")
         browser.cefBrowser.executeJavaScript(
             "window.onSchemasLoaded && window.onSchemasLoaded(JSON.parse(`$content`));",
+            "", 0
+        )
+    }
+
+    private fun sendPluginSchemas(plugins: List<PluginSchemaData>) {
+        val gson = com.google.gson.Gson()
+        val json = gson.toJson(plugins.map { p ->
+            mapOf(
+                "pluginName" to p.pluginName,
+                "pluginIcon" to p.pluginIcon,
+                "pluginColor" to p.pluginColor,
+                "modules" to p.modules,
+            )
+        })
+        val escaped = json
+            .replace("\\", "\\\\")
+            .replace("`", "\\`")
+            .replace("\$", "\\\$")
+        browser.cefBrowser.executeJavaScript(
+            "window.onPluginSchemasLoaded && window.onPluginSchemasLoaded(JSON.parse(`$escaped`));",
             "", 0
         )
     }

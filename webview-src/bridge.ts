@@ -5,6 +5,7 @@ export interface BridgeCallbacks {
   onYamlChanged: (content: string) => void;
   onCursorMoved: (line: number, col: number) => void;
   onSchemasLoaded: (schemas: unknown) => void;
+  onPluginSchemasLoaded?: (plugins: unknown[]) => void;
 }
 
 let callbacks: BridgeCallbacks | null = null;
@@ -16,6 +17,7 @@ export function initBridge(cb: BridgeCallbacks) {
   (window as unknown as Record<string, unknown>)['onYamlChanged'] = (content: string) => callbacks?.onYamlChanged(content);
   (window as unknown as Record<string, unknown>)['onCursorMoved'] = (line: number, col: number) => callbacks?.onCursorMoved(line, col);
   (window as unknown as Record<string, unknown>)['onSchemasLoaded'] = (schemas: unknown) => callbacks?.onSchemasLoaded(schemas);
+  (window as unknown as Record<string, unknown>)['onPluginSchemasLoaded'] = (plugins: unknown[]) => callbacks?.onPluginSchemasLoaded?.(plugins);
 
   // Wait for hostBridge to be injected
   if ((window as unknown as Record<string, unknown>)['hostBridge']) {

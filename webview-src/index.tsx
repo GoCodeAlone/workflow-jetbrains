@@ -12,6 +12,7 @@ function App() {
   const yamlRef = useRef<string>('');
 
   const loadSchemas = useModuleSchemaStore((s) => s.loadSchemas);
+  const loadPluginSchemas = useModuleSchemaStore((s) => s.loadPluginSchemas);
   const setHighlightedNode = useWorkflowStore((s) => s.setHighlightedNode);
 
   useEffect(() => {
@@ -39,8 +40,13 @@ function App() {
           loadSchemas(schemas as Parameters<typeof loadSchemas>[0]);
         }
       },
+      onPluginSchemasLoaded: (plugins) => {
+        if (Array.isArray(plugins)) {
+          loadPluginSchemas(plugins as Parameters<typeof loadPluginSchemas>[0]);
+        }
+      },
     });
-  }, [loadSchemas, setHighlightedNode]);
+  }, [loadSchemas, loadPluginSchemas, setHighlightedNode]);
 
   return (
     <WorkflowEditor
