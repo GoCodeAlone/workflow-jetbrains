@@ -12,6 +12,15 @@ class WorkflowSettingsTest : BasePlatformTestCase() {
         assertTrue("autoRegisterMcp should default to true", settings.autoRegisterMcp)
     }
 
+    fun testLspEnabledSettingCanBeToggled() {
+        val settings = WorkflowSettings.getInstance()
+        assertTrue("enableLsp should default to true", settings.enableLsp)
+        settings.enableLsp = false
+        assertFalse("enableLsp should be false after toggle", settings.enableLsp)
+        // Reset
+        settings.enableLsp = true
+    }
+
     fun testProjectSettingsDefaults() {
         val settings = WorkflowProjectSettings.getInstance(project)
         assertTrue("configPaths should default to empty list", settings.configPaths.isEmpty())
