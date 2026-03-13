@@ -1,31 +1,32 @@
 package com.gocodalone.workflow.ide.settings
 
+import com.gocodalone.workflow.ide.BinaryDownloader
+import com.gocodalone.workflow.ide.WorkflowBundle
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
+import com.intellij.ui.ToolbarDecorator
 import com.intellij.ui.components.JBCheckBox
-import com.intellij.ui.components.JBLabel
+import com.intellij.ui.components.JBList
 import com.intellij.ui.dsl.builder.AlignX
+import com.intellij.ui.dsl.builder.AlignY
 import com.intellij.ui.dsl.builder.panel
+import javax.swing.DefaultListModel
+import javax.swing.JButton
 import javax.swing.JComponent
+import javax.swing.JOptionPane
 
-/**
- * Settings page registered under Tools > Workflow Engine.
- *
- * Provides UI for:
- * - wfctl binary path
- * - LSP server binary path
- * - Enable/disable LSP integration
- * - Auto-register MCP server with IDE AI assistant
- */
 class WorkflowSettingsConfigurable : Configurable {
 
-    private val settings: WorkflowSettings = WorkflowSettings.getInstance()
+    private val appSettings: WorkflowSettings = WorkflowSettings.getInstance()
 
     private lateinit var wfctlPathField: TextFieldWithBrowseButton
     private lateinit var lspServerPathField: TextFieldWithBrowseButton
     private lateinit var enableLspCheckbox: JBCheckBox
     private lateinit var autoRegisterMcpCheckbox: JBCheckBox
+    private lateinit var wfctlInstallButton: JButton
+    private lateinit var lspInstallButton: JButton
 
     override fun getDisplayName(): String = "Workflow Engine"
 
@@ -47,7 +48,19 @@ class WorkflowSettingsConfigurable : Configurable {
         )
 
         enableLspCheckbox = JBCheckBox("Enable LSP server integration (requires workflow-lsp-server)")
-        autoRegisterMcpCheckbox = JBCheckBox("Auto-register MCP server with AI Assistant")
+        autoRegisterMcpCheckbox = JBCheckBox("Prompt to register MCP server on project open")
+
+        wfctlInstallButton = JButton("Install from GitHub Releases")
+        wfctlInstallButton.addActionListener {
+            installBinary(WorkflowBundle.WFCTL_BINARY, wfctlPathField, wfctlInstallButton)
+        }
+
+        lspInstallButton = JButton("Install from GitHub Releases")
+        lspInstallButton.addActionListener {
+            installBinary(WorkflowBundle.LSP_SERVER_BINARY, lspServerPathField, lspInstallButton)
+        }
+
+        updateInstallButtonStates()
 
         return panel {
             group("Binary Paths") {
@@ -55,13 +68,15 @@ class WorkflowSettingsConfigurable : Configurable {
                     cell(wfctlPathField).align(AlignX.FILL)
                 }
                 row {
-                    comment("Leave blank to auto-detect from PATH or download from GitHub Releases")
+                    cell(wfctlInstallButton)
+                    comment("Downloads the latest wfctl binary for your platform")
                 }
                 row("LSP server path:") {
                     cell(lspServerPathField).align(AlignX.FILL)
                 }
                 row {
-                    comment("Leave blank to auto-detect from PATH or download from GitHub Releases")
+                    cell(lspInstallButton)
+                    comment("Downloads the latest workflow-lsp-server binary for your platform")
                 }
             }
             group("Features") {
@@ -75,30 +90,66 @@ class WorkflowSettingsConfigurable : Configurable {
                     cell(autoRegisterMcpCheckbox)
                 }
                 row {
-                    comment("Registers wfctl as the MCP server with the IDE's AI assistant for context-aware assistance")
+                    comment("Writes wfctl MCP server entry to .mcp.json in the project root for AI assistant integration")
                 }
             }
         }
     }
 
+    private fun installBinary(binaryName: String, pathField: TextFieldWithBrowseButton, button: JButton) {
+        button.isEnabled = false
+        button.text = "Downloading..."
+
+        BinaryDownloader.downloadWithProgress(null, binaryName).thenAccept { path ->
+            ApplicationManager.getApplication().invokeLater {
+                if (path != null) {
+                    pathField.text = path
+                    button.text = "Installed"
+                } else {
+                    button.text = "Install from GitHub Releases"
+                    button.isEnabled = true
+                }
+            }
+        }
+    }
+
+    private fun updateInstallButtonStates() {
+        val wfctlResolved = BinaryDownloader.resolveFromPathOrCache(
+            WorkflowBundle.WFCTL_BINARY, appSettings.wfctlPath
+        )
+        if (wfctlResolved != null) {
+            wfctlInstallButton.text = "Installed"
+            wfctlInstallButton.isEnabled = false
+        }
+
+        val lspResolved = BinaryDownloader.resolveFromPathOrCache(
+            WorkflowBundle.LSP_SERVER_BINARY, appSettings.lspServerPath
+        )
+        if (lspResolved != null) {
+            lspInstallButton.text = "Installed"
+            lspInstallButton.isEnabled = false
+        }
+    }
+
     override fun isModified(): Boolean {
-        return wfctlPathField.text != settings.wfctlPath ||
-                lspServerPathField.text != settings.lspServerPath ||
-                enableLspCheckbox.isSelected != settings.enableLsp ||
-                autoRegisterMcpCheckbox.isSelected != settings.autoRegisterMcp
+        return wfctlPathField.text != appSettings.wfctlPath ||
+                lspServerPathField.text != appSettings.lspServerPath ||
+                enableLspCheckbox.isSelected != appSettings.enableLsp ||
+                autoRegisterMcpCheckbox.isSelected != appSettings.autoRegisterMcp
     }
 
     override fun apply() {
-        settings.wfctlPath = wfctlPathField.text.trim()
-        settings.lspServerPath = lspServerPathField.text.trim()
-        settings.enableLsp = enableLspCheckbox.isSelected
-        settings.autoRegisterMcp = autoRegisterMcpCheckbox.isSelected
+        appSettings.wfctlPath = wfctlPathField.text.trim()
+        appSettings.lspServerPath = lspServerPathField.text.trim()
+        appSettings.enableLsp = enableLspCheckbox.isSelected
+        appSettings.autoRegisterMcp = autoRegisterMcpCheckbox.isSelected
     }
 
     override fun reset() {
-        wfctlPathField.text = settings.wfctlPath
-        lspServerPathField.text = settings.lspServerPath
-        enableLspCheckbox.isSelected = settings.enableLsp
-        autoRegisterMcpCheckbox.isSelected = settings.autoRegisterMcp
+        wfctlPathField.text = appSettings.wfctlPath
+        lspServerPathField.text = appSettings.lspServerPath
+        enableLspCheckbox.isSelected = appSettings.enableLsp
+        autoRegisterMcpCheckbox.isSelected = appSettings.autoRegisterMcp
+        updateInstallButtonStates()
     }
 }

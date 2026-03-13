@@ -1,13 +1,13 @@
 package com.gocodalone.workflow.ide.editor
 
-import com.gocodalone.workflow.ide.settings.WorkflowSettings
+import com.gocodalone.workflow.ide.settings.WorkflowProjectSettings
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 
 class WorkflowFileDetectorTest : BasePlatformTestCase() {
 
     override fun tearDown() {
         try {
-            WorkflowSettings.getInstance().configPaths = emptyList()
+            WorkflowProjectSettings.getInstance(project).configPaths = emptyList()
         } catch (_: Exception) {
             // Service may not be available during teardown
         }
@@ -57,7 +57,7 @@ class WorkflowFileDetectorTest : BasePlatformTestCase() {
 
     fun testConfigPathsOverrideContentDetection() {
         // A file that doesn't match content detection but is in configPaths
-        WorkflowSettings.getInstance().configPaths = listOf("**/*.yaml")
+        WorkflowProjectSettings.getInstance(project).configPaths = listOf("**/*.yaml")
         val file = myFixture.configureByText("custom.yaml", "key: value")
         assertTrue(
             "Expected configPaths glob match to return true",

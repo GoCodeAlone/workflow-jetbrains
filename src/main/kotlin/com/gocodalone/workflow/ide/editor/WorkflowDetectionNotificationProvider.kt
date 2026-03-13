@@ -1,6 +1,7 @@
 package com.gocodalone.workflow.ide.editor
 
-import com.gocodalone.workflow.ide.settings.WorkflowSettings
+import com.gocodalone.workflow.ide.settings.WorkflowProjectSettings
+import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionUiKind
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -21,8 +22,8 @@ class WorkflowDetectionNotificationProvider : EditorNotificationProvider {
         project: Project,
         file: VirtualFile,
     ): Function<in FileEditor, out JComponent?>? {
-        val settings = WorkflowSettings.getInstance()
-        if (settings.suppressDetectionPrompt) return null
+        val projectSettings = WorkflowProjectSettings.getInstance(project)
+        if (projectSettings.suppressDetectionPrompt) return null
         if (isExplicitMatch(file, project)) return null
         if (!isContentMatch(file)) return null
 
@@ -30,7 +31,9 @@ class WorkflowDetectionNotificationProvider : EditorNotificationProvider {
             EditorNotificationPanel(editor, EditorNotificationPanel.Status.Info).apply {
                 text = "This looks like a Workflow config."
                 createActionLabel("Open Visual Editor") {
-                    val action = WorkflowVisualEditorAction()
+                    val action = ActionManager.getInstance()
+                        .getAction("com.gocodalone.workflow.actions.OpenVisualEditor")
+                        ?: return@createActionLabel
                     val dataContext = SimpleDataContext.builder()
                         .add(CommonDataKeys.PROJECT, project)
                         .add(CommonDataKeys.VIRTUAL_FILE, file)
@@ -38,15 +41,15 @@ class WorkflowDetectionNotificationProvider : EditorNotificationProvider {
                     val event = AnActionEvent.createEvent(
                         dataContext, null, "notification", ActionUiKind.NONE, null
                     )
-                    action.actionPerformed(event)
+                    ActionManager.getInstance().tryToExecute(action, event.inputEvent, null, null, true)
                 }
                 createActionLabel("Always for this file") {
                     val relativePath = file.path.removePrefix("${project.basePath}/")
-                    settings.configPaths = settings.configPaths + relativePath
+                    projectSettings.configPaths = projectSettings.configPaths + relativePath
                     EditorNotifications.getInstance(project).updateAllNotifications()
                 }
                 createActionLabel("Don't ask again") {
-                    settings.suppressDetectionPrompt = true
+                    projectSettings.suppressDetectionPrompt = true
                     EditorNotifications.getInstance(project).updateAllNotifications()
                 }
             }
@@ -54,8 +57,8 @@ class WorkflowDetectionNotificationProvider : EditorNotificationProvider {
     }
 
     private fun isExplicitMatch(file: VirtualFile, project: Project): Boolean {
-        val settings = WorkflowSettings.getInstance()
-        val configPaths = settings.configPaths
+        val projectSettings = WorkflowProjectSettings.getInstance(project)
+        val configPaths = projectSettings.configPaths
         if (configPaths.isEmpty()) return false
         val projectBase = project.basePath ?: return false
         val relativePath = file.path.removePrefix("$projectBase/")

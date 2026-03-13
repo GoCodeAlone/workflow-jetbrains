@@ -1,6 +1,6 @@
 package com.gocodalone.workflow.ide.editor
 
-import com.gocodalone.workflow.ide.settings.WorkflowSettings
+import com.gocodalone.workflow.ide.settings.WorkflowProjectSettings
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import java.nio.file.FileSystems
@@ -8,9 +8,9 @@ import java.nio.file.FileSystems
 class WorkflowFileDetector {
     companion object {
         fun isWorkflowFile(project: Project, file: VirtualFile): Boolean {
-            // Layer 1: explicit configPaths from settings
-            val settings = WorkflowSettings.getInstance()
-            val configPaths = settings.configPaths
+            // Layer 1: explicit configPaths from project settings
+            val projectSettings = WorkflowProjectSettings.getInstance(project)
+            val configPaths = projectSettings.configPaths
             if (configPaths.isNotEmpty()) {
                 val projectBase = project.basePath ?: return false
                 val relativePath = file.path.removePrefix("$projectBase/")

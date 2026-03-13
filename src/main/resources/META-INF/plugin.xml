@@ -16,6 +16,7 @@
 
     <depends>com.intellij.modules.platform</depends>
     <depends>org.jetbrains.plugins.yaml</depends>
+    <depends>com.intellij.modules.json</depends>
     <depends optional="true" config-file="workflow-lsp4ij.xml">com.redhat.devtools.lsp4ij</depends>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -23,30 +24,86 @@
         <json.schemaProviderFactory
             implementation="com.gocodalone.workflow.ide.schema.WorkflowSchemaProviderFactory"/>
 
-        <!-- Settings configurable under Tools > Workflow Engine -->
+        <!-- Settings configurable under Tools > Workflow Engine (application-level) -->
         <applicationConfigurable
             parentId="tools"
             instance="com.gocodalone.workflow.ide.settings.WorkflowSettingsConfigurable"
             id="com.gocodalone.workflow.settings"
             displayName="Workflow Engine"/>
 
-        <!-- Persistent settings state -->
+        <!-- Project-level settings configurable (nested under application configurable) -->
+        <projectConfigurable
+            parentId="com.gocodalone.workflow.settings"
+            provider="com.gocodalone.workflow.ide.settings.WorkflowProjectSettingsConfigurableProvider"
+            id="com.gocodalone.workflow.project.settings"
+            displayName="Project Settings"/>
+
+        <!-- Persistent settings state (application-level) -->
         <applicationService
             serviceImplementation="com.gocodalone.workflow.ide.settings.WorkflowSettings"/>
+
+        <!-- Project-level settings (config paths, detection preferences) -->
+        <projectService
+            serviceImplementation="com.gocodalone.workflow.ide.settings.WorkflowProjectSettings"/>
+
+        <!-- Startup activity for MCP registration prompt -->
+        <postStartupActivity
+            implementation="com.gocodalone.workflow.ide.WorkflowStartupActivity"/>
 
         <!-- Live templates for YAML workflow files -->
         <defaultLiveTemplates file="/liveTemplates/workflow.xml"/>
         <liveTemplateContext
             implementation="com.gocodalone.workflow.ide.livetemplate.WorkflowLiveTemplateContext"
             contextId="WORKFLOW_YAML"/>
+
+        <!-- Visual editor tool window -->
+        <toolWindow id="Workflow Visual Editor"
+                    anchor="right"
+                    icon="AllIcons.FileTypes.Diagram"
+                    factoryClass="com.gocodalone.workflow.ide.editor.WorkflowVisualEditorToolWindowFactory"/>
+
+        <!-- Editor notification banner for detected workflow files -->
+        <editorNotificationProvider
+            implementation="com.gocodalone.workflow.ide.editor.WorkflowDetectionNotificationProvider"/>
+
+        <!-- Notification group -->
+        <notificationGroup id="Workflow Engine"
+                           displayType="BALLOON"
+                           isLogByDefault="true"/>
     </extensions>
 
     <actions>
+        <!-- Visual Editor action (in Tools menu, editor tab context menu, and editor popup) -->
+        <action id="com.gocodalone.workflow.actions.OpenVisualEditor"
+                class="com.gocodalone.workflow.ide.editor.WorkflowVisualEditorAction"
+                text="Open Workflow Visual Editor"
+                description="Open the workflow visual editor for this YAML file"
+                icon="AllIcons.FileTypes.Diagram">
+            <add-to-group group-id="EditorTabPopupMenu" anchor="last"/>
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+        </action>
+
+        <!-- Mark as Workflow Config (file/directory context menu) -->
+        <action id="com.gocodalone.workflow.actions.MarkAsWorkflowConfig"
+                class="com.gocodalone.workflow.ide.actions.MarkAsWorkflowConfigAction"
+                text="Mark as Workflow Config"
+                description="Add this file or directory pattern to Workflow Engine config paths">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </action>
+
         <group id="com.gocodalone.workflow.actions.WfctlGroup"
                text="Workflow Engine"
                description="Workflow Engine wfctl commands"
                popup="true">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
+
+            <action id="com.gocodalone.workflow.actions.OpenVisualEditorMenu"
+                    class="com.gocodalone.workflow.ide.editor.WorkflowVisualEditorAction"
+                    text="Open Visual Editor"
+                    description="Open the workflow visual editor for the current file"
+                    icon="AllIcons.FileTypes.Diagram"/>
+
+            <separator/>
 
             <action id="com.gocodalone.workflow.actions.ValidateAction"
                     class="com.gocodalone.workflow.ide.actions.ValidateAction"

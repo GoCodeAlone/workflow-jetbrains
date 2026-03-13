@@ -1,5 +1,6 @@
 package com.gocodalone.workflow.ide.editor
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -11,10 +12,13 @@ import com.intellij.ui.content.ContentFactory
 import com.intellij.ui.jcef.JBCefBrowser
 
 class WorkflowVisualEditorAction : AnAction("Open Visual Editor", "Open workflow visual editor", null) {
+
+    override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT
+
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
         val file = e.getData(CommonDataKeys.VIRTUAL_FILE) ?: return
-        if (!WorkflowFileDetector.isWorkflowFile(project, file)) return
+        if (!file.name.endsWith(".yaml") && !file.name.endsWith(".yml")) return
 
         val toolWindow = ToolWindowManager.getInstance(project)
             .getToolWindow("Workflow Visual Editor") ?: return
@@ -22,7 +26,6 @@ class WorkflowVisualEditorAction : AnAction("Open Visual Editor", "Open workflow
             val browser = JBCefBrowser()
             val bridge = WorkflowBridge(project, file, browser)
 
-            // Load the bundled editor HTML
             val htmlUrl = javaClass.getResource("/editor/index.html")?.toExternalForm() ?: return@show
             browser.loadURL(htmlUrl)
             bridge.initialize()

@@ -34,8 +34,9 @@ jobs:
 
       - name: Install wfctl
         run: |
-          WORKFLOW_VERSION="${{ github.event.client_payload.version }}"
-          curl -fsSL "https://github.com/GoCodeAlone/workflow/releases/download/${WORKFLOW_VERSION}/wfctl-linux-amd64" -o /usr/local/bin/wfctl
+          LATEST_TAG=$(curl -fsSL https://api.github.com/repos/GoCodeAlone/workflow/releases/latest | jq -r .tag_name)
+          echo "WORKFLOW_ENGINE_VERSION=${LATEST_TAG}" >> "$GITHUB_ENV"
+          curl -fsSL "https://github.com/GoCodeAlone/workflow/releases/download/${LATEST_TAG}/wfctl-linux-amd64" -o /usr/local/bin/wfctl
           chmod +x /usr/local/bin/wfctl
 
       - name: Regenerate schema
@@ -43,7 +44,7 @@ jobs:
 
       - name: Render templates
         run: |
-          export WORKFLOW_VERSION="${{ github.event.client_payload.version }}"
+          export WORKFLOW_VERSION="${WORKFLOW_ENGINE_VERSION}"
           envsubst '${WORKFLOW_VERSION}' < README.md.tmpl > README.md
           envsubst '${WORKFLOW_VERSION}' < src/main/resources/META-INF/plugin.xml.tmpl > src/main/resources/META-INF/plugin.xml
 

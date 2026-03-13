@@ -1,11 +1,13 @@
 package com.gocodalone.workflow.ide.schema
 
 import com.gocodalone.workflow.ide.WorkflowBundle
+import com.gocodalone.workflow.ide.settings.WorkflowProjectSettings
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.jetbrains.jsonSchema.extension.JsonSchemaFileProvider
 import com.jetbrains.jsonSchema.extension.JsonSchemaProviderFactory
 import com.jetbrains.jsonSchema.extension.SchemaType
+import java.nio.file.FileSystems
 
 class WorkflowSchemaProviderFactory : JsonSchemaProviderFactory {
     override fun getProviders(project: Project): List<JsonSchemaFileProvider> {
@@ -18,6 +20,26 @@ class WorkflowSchemaProvider(private val project: Project) : JsonSchemaFileProvi
     override fun getName(): String = "Workflow Engine Config"
 
     override fun isAvailable(file: VirtualFile): Boolean {
+        if (!file.name.endsWith(".yaml") && !file.name.endsWith(".yml")) return false
+
+        // Check explicit configPaths from project settings
+        val projectSettings = WorkflowProjectSettings.getInstance(project)
+        val configPaths = projectSettings.configPaths
+        if (configPaths.isNotEmpty()) {
+            val projectBase = project.basePath
+            if (projectBase != null) {
+                val relativePath = file.path.removePrefix("$projectBase/")
+                for (pattern in configPaths) {
+                    try {
+                        val matcher = FileSystems.getDefault().getPathMatcher("glob:$pattern")
+                        if (matcher.matches(java.nio.file.Path.of(relativePath))) return true
+                    } catch (_: Exception) {
+                        // Invalid glob pattern, skip
+                    }
+                }
+            }
+        }
+
         // Match by common workflow config file names
         val name = file.name
         if (name == "workflow.yaml" || name == "workflow.yml" ||
@@ -25,11 +47,9 @@ class WorkflowSchemaProvider(private val project: Project) : JsonSchemaFileProvi
         ) {
             return true
         }
-        // Also match files with workflow-related name patterns
-        if ((name.endsWith(".yaml") || name.endsWith(".yml")) &&
-            (name.contains("workflow") || name.contains("app"))
-        ) {
-            // Check content for the modules: key as a heuristic
+
+        // Check content for modules: key as a heuristic
+        if (name.contains("workflow") || name.contains("app")) {
             try {
                 val text = String(file.contentsToByteArray(), Charsets.UTF_8)
                 if (text.contains(WorkflowBundle.WORKFLOW_CONTENT_KEY)) {

@@ -162,12 +162,12 @@ object BinaryDownloader {
         return future
     }
 
-    private fun downloadWithProgress(
+    fun downloadWithProgress(
         project: Project?,
         binaryName: String,
-        destPath: String,
-        future: CompletableFuture<String?>
-    ) {
+        destPath: String = getDefaultBinaryPath(binaryName),
+        future: CompletableFuture<String?> = CompletableFuture()
+    ): CompletableFuture<String?> {
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Downloading $binaryName...", false) {
             override fun run(indicator: ProgressIndicator) {
                 try {
@@ -212,6 +212,7 @@ object BinaryDownloader {
                 }
             }
         })
+        return future
     }
 
     private fun fetchLatestReleaseTag(): String {

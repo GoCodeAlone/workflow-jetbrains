@@ -7,11 +7,6 @@ import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.util.xmlb.XmlSerializerUtil
 
-/**
- * Persistent application-level settings for the Workflow Engine plugin.
- *
- * Settings are stored in `workflow-engine.xml` in the IDE config directory.
- */
 @Service(Service.Level.APP)
 @State(
     name = "WorkflowEngineSettings",
@@ -28,17 +23,8 @@ class WorkflowSettings : PersistentStateComponent<WorkflowSettings> {
     /** Whether the LSP server integration is enabled. */
     var enableLsp: Boolean = true
 
-    /** Whether to automatically register wfctl as the MCP server with the IDE AI assistant. */
-    var autoRegisterMcp: Boolean = false
-
-    /** Path to the workflow-mcp-server binary. Empty = resolve from PATH. */
-    var mcpServerPath: String = ""
-
-    /** Glob patterns identifying workflow config files (e.g. "config/app.yaml"). */
-    var configPaths: List<String> = emptyList()
-
-    /** Whether to suppress the content-detection notification prompt. */
-    var suppressDetectionPrompt: Boolean = false
+    /** Whether to automatically register wfctl as the MCP server on project open. */
+    var autoRegisterMcp: Boolean = true
 
     override fun getState(): WorkflowSettings = this
 
