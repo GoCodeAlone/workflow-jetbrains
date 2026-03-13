@@ -94,6 +94,7 @@ jobs:
           git add -A
           git diff --cached --quiet && echo "No changes" && exit 0
           git commit -m "chore: sync schema and version to workflow ${WORKFLOW_VERSION} (plugin ${PLUGIN_VERSION})"
+          git pull --rebase
           git push
           if git rev-parse "${PLUGIN_VERSION}" >/dev/null 2>&1; then
             echo "Tag ${PLUGIN_VERSION} already exists, skipping"
