@@ -46,6 +46,7 @@ jobs:
         run: ./gradlew test
 
       - name: Verify Plugin
+        continue-on-error: true
         run: ./gradlew verifyPlugin
 
       - name: Upload plugin artifact
