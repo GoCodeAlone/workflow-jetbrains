@@ -64,9 +64,15 @@ intellijPlatform {
     }
 }
 
+tasks.register<Exec>("npmInstall") {
+    workingDir = file("webview-src")
+    commandLine("npm", "ci")
+}
+
 tasks.register<Exec>("buildWebview") {
     workingDir = file("webview-src")
     commandLine("npx", "vite", "build", "--outDir", "../src/main/resources/editor")
+    dependsOn("npmInstall")
 }
 
 tasks.named("processResources") {

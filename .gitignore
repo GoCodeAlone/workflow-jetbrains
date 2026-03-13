@@ -36,4 +36,3 @@ local.properties
 
 # Webview
 webview-src/node_modules/
-webview-src/package-lock.json
