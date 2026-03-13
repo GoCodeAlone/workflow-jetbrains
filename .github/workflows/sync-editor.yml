@@ -16,12 +16,6 @@ jobs:
         with:
           token: ${{ secrets.REPO_DISPATCH_TOKEN }}
 
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.26'
-          cache: false
-
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -38,13 +32,10 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Install wfctl
-        env:
-          GOPRIVATE: github.com/GoCodeAlone/*
-          GONOSUMCHECK: github.com/GoCodeAlone/*
-          GOFLAGS: -buildvcs=false
         run: |
           WORKFLOW_VERSION="${{ github.event.client_payload.version }}"
-          go install "github.com/GoCodeAlone/workflow/cmd/wfctl@${WORKFLOW_VERSION}"
+          curl -fsSL "https://github.com/GoCodeAlone/workflow/releases/download/${WORKFLOW_VERSION}/wfctl-linux-amd64" -o /usr/local/bin/wfctl
+          chmod +x /usr/local/bin/wfctl
 
       - name: Regenerate schema
         run: wfctl schema --output src/main/resources/schemas/workflow-config.schema.json
