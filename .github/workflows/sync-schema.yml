@@ -1,8 +1,11 @@
-name: Sync Schema on Workflow Release
+name: Sync Schema (Manual Fallback)
 
 on:
-  repository_dispatch:
-    types: [workflow-release]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Workflow engine version tag (e.g. v0.3.30)'
+        required: true
 
 permissions:
   contents: write
@@ -38,7 +41,7 @@ jobs:
           GONOSUMCHECK: github.com/GoCodeAlone/*
           GOFLAGS: -buildvcs=false
         run: |
-          WORKFLOW_VERSION="${{ github.event.client_payload.version }}"
+          WORKFLOW_VERSION="${{ inputs.version }}"
           go install "github.com/GoCodeAlone/workflow/cmd/wfctl@${WORKFLOW_VERSION}"
 
       - name: Regenerate schema
@@ -46,14 +49,14 @@ jobs:
 
       - name: Render templates
         run: |
-          export WORKFLOW_VERSION="${{ github.event.client_payload.version }}"
+          export WORKFLOW_VERSION="${{ inputs.version }}"
           envsubst '${WORKFLOW_VERSION}' < README.md.tmpl > README.md
           envsubst '${WORKFLOW_VERSION}' < src/main/resources/META-INF/plugin.xml.tmpl > src/main/resources/META-INF/plugin.xml
 
       - name: Compute plugin version
         id: version
         run: |
-          WORKFLOW_VERSION="${{ github.event.client_payload.version }}"
+          WORKFLOW_VERSION="${{ inputs.version }}"
           VERSION="${WORKFLOW_VERSION#v}"
           MAJOR=$(echo "$VERSION" | cut -d. -f1)
           MINOR=$(echo "$VERSION" | cut -d. -f2)
@@ -83,7 +86,7 @@ jobs:
 
       - name: Commit and tag
         run: |
-          WORKFLOW_VERSION="${{ github.event.client_payload.version }}"
+          WORKFLOW_VERSION="${{ inputs.version }}"
           PLUGIN_VERSION="v${{ steps.version.outputs.PLUGIN_VERSION }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
