@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { WorkflowEditor } from '@gocodealone/workflow-editor';
 import { useModuleSchemaStore, useWorkflowStore } from '@gocodealone/workflow-editor/stores';
 import { buildYamlLineMap, parseYamlSafe, configToYaml } from '@gocodealone/workflow-editor/utils';
-import { initBridge, sendYamlUpdated, sendNavigateToLine, sendAIRequest } from './bridge';
+import { initBridge, sendYamlUpdated, sendNavigateToLine, sendAIRequest, sendResolveFile, sendSaveFiles } from './bridge';
 import '@xyflow/react/dist/style.css';
 
 function App() {
@@ -88,8 +88,15 @@ function App() {
       initialYaml={yaml}
       embedded
       onChange={(newYaml) => sendYamlUpdated(newYaml)}
-      onSave={async (newYaml) => sendYamlUpdated(newYaml)}
+      onSave={async (newYaml, fileMap) => {
+        if (fileMap && fileMap.size > 0) {
+          sendSaveFiles(fileMap);
+        } else {
+          sendYamlUpdated(newYaml);
+        }
+      }}
       onNavigateToSource={(line, col) => sendNavigateToLine(line, col)}
+      onResolveFile={(relativePath) => sendResolveFile(relativePath)}
       onAIRequest={(context) => sendAIRequest(context)}
     />
   );

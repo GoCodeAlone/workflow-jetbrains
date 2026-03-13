@@ -23,6 +23,8 @@ class WorkflowBridge(
     private val navigateQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
     private val schemaRequestQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
     private val aiRequestQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
+    private val resolveFileQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
+    private val saveFilesQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
     private var updatingFromEditor = false
     private var updatingFromWebview = false
 
@@ -48,6 +50,16 @@ class WorkflowBridge(
 
         aiRequestQuery.addHandler { jsonData ->
             handleAIRequest(jsonData)
+            JBCefJSQuery.Response("")
+        }
+
+        resolveFileQuery.addHandler { jsonData ->
+            handleResolveFile(jsonData)
+            JBCefJSQuery.Response("")
+        }
+
+        saveFilesQuery.addHandler { jsonData ->
+            handleSaveFiles(jsonData)
             JBCefJSQuery.Response("")
         }
 
@@ -79,6 +91,12 @@ class WorkflowBridge(
                 },
                 sendAIRequest: function(data) {
                     ${aiRequestQuery.inject("data")}
+                },
+                sendResolveFile: function(data) {
+                    ${resolveFileQuery.inject("data")}
+                },
+                sendSaveFiles: function(data) {
+                    ${saveFilesQuery.inject("data")}
                 }
             };
             window.dispatchEvent(new Event('hostBridgeReady'));
@@ -154,6 +172,92 @@ class WorkflowBridge(
             "window.onPluginSchemasLoaded && window.onPluginSchemasLoaded(JSON.parse(`$escaped`));",
             "", 0
         )
+    }
+
+    private fun handleResolveFile(jsonData: String) {
+        try {
+            val gson = com.google.gson.Gson()
+            val request = gson.fromJson(jsonData, ResolveFileRequest::class.java)
+            val parentDir = file.parent ?: run {
+                sendResolveFileResponse(request.requestId, null)
+                return
+            }
+            val targetFile = parentDir.findFileByRelativePath(request.relativePath)
+            if (targetFile != null && !targetFile.isDirectory) {
+                val content = String(targetFile.contentsToByteArray(), Charsets.UTF_8)
+                sendResolveFileResponse(request.requestId, content)
+            } else {
+                sendResolveFileResponse(request.requestId, null)
+            }
+        } catch (_: Exception) {
+            // Parse error or file read error — return null
+        }
+    }
+
+    private fun sendResolveFileResponse(requestId: String, content: String?) {
+        val escapedRequestId = requestId.replace("\\", "\\\\").replace("`", "\\`").replace("\$", "\\\$")
+        if (content != null) {
+            val escapedContent = content.replace("\\", "\\\\").replace("`", "\\`").replace("\$", "\\\$")
+            browser.cefBrowser.executeJavaScript(
+                "window.onResolveFileResponse && window.onResolveFileResponse(`$escapedRequestId`, `$escapedContent`);",
+                "", 0
+            )
+        } else {
+            browser.cefBrowser.executeJavaScript(
+                "window.onResolveFileResponse && window.onResolveFileResponse(`$escapedRequestId`, null);",
+                "", 0
+            )
+        }
+    }
+
+    private fun handleSaveFiles(jsonData: String) {
+        val gson = com.google.gson.Gson()
+        val entries = gson.fromJson(jsonData, Array<SaveFileEntry>::class.java) ?: return
+        val parentDir = file.parent ?: return
+
+        ApplicationManager.getApplication().invokeLater {
+            ApplicationManager.getApplication().runWriteAction {
+                for (entry in entries) {
+                    if (entry.path == null) {
+                        // Main file — update the open document
+                        updatingFromWebview = true
+                        val document = FileDocumentManager.getInstance().getDocument(file) ?: continue
+                        document.setText(entry.content)
+                        updatingFromWebview = false
+                    } else {
+                        // Imported file — write relative to document directory
+                        try {
+                            val targetFile = parentDir.findOrCreateFile(entry.path)
+                            if (targetFile != null) {
+                                targetFile.setBinaryContent(entry.content.toByteArray(Charsets.UTF_8))
+                            }
+                        } catch (_: Exception) {
+                            // Log or ignore write errors for imported files
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private data class ResolveFileRequest(
+        val requestId: String,
+        val relativePath: String,
+    )
+
+    private data class SaveFileEntry(
+        val path: String?,
+        val content: String,
+    )
+
+    private fun VirtualFile.findOrCreateFile(relativePath: String): VirtualFile? {
+        val parts = relativePath.split("/")
+        var current: VirtualFile = this
+        for (i in 0 until parts.size - 1) {
+            current = current.findChild(parts[i]) ?: current.createChildDirectory(this, parts[i])
+        }
+        val fileName = parts.last()
+        return current.findChild(fileName) ?: current.createChildData(this, fileName)
     }
 
     private fun handleAIRequest(jsonData: String) {
@@ -280,5 +384,7 @@ class WorkflowBridge(
         navigateQuery.dispose()
         schemaRequestQuery.dispose()
         aiRequestQuery.dispose()
+        resolveFileQuery.dispose()
+        saveFilesQuery.dispose()
     }
 }
