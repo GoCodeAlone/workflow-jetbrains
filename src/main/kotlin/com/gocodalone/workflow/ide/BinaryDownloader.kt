@@ -122,13 +122,19 @@ object BinaryDownloader {
         val destPath = getDefaultBinaryPath(binaryName)
 
         ApplicationManager.getApplication().invokeLater {
-            val notification = NotificationGroupManager.getInstance()
+            val group = NotificationGroupManager.getInstance()
                 .getNotificationGroup(NOTIFICATION_GROUP)
-                .createNotification(
-                    "Workflow Engine",
-                    promptMessage,
-                    NotificationType.INFORMATION
-                )
+            if (group == null) {
+                LOG.warn("Notification group '$NOTIFICATION_GROUP' not registered, skipping download prompt")
+                future.complete(null)
+                return@invokeLater
+            }
+
+            val notification = group.createNotification(
+                "Workflow Engine",
+                promptMessage,
+                NotificationType.INFORMATION
+            )
 
             notification.addAction(object : com.intellij.notification.NotificationAction(downloadAction) {
                 override fun actionPerformed(
@@ -180,12 +186,12 @@ object BinaryDownloader {
                     ApplicationManager.getApplication().invokeLater {
                         NotificationGroupManager.getInstance()
                             .getNotificationGroup(NOTIFICATION_GROUP)
-                            .createNotification(
+                            ?.createNotification(
                                 "$binaryName installed",
                                 "Downloaded $tag to $destPath",
                                 NotificationType.INFORMATION
                             )
-                            .notify(project)
+                            ?.notify(project)
                     }
 
                     future.complete(destPath)
@@ -195,12 +201,12 @@ object BinaryDownloader {
                     ApplicationManager.getApplication().invokeLater {
                         NotificationGroupManager.getInstance()
                             .getNotificationGroup(NOTIFICATION_GROUP)
-                            .createNotification(
+                            ?.createNotification(
                                 "Failed to download $binaryName",
                                 e.message ?: "Unknown error",
                                 NotificationType.ERROR
                             )
-                            .notify(project)
+                            ?.notify(project)
                     }
                     future.complete(null)
                 }
