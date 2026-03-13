@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { WorkflowEditor } from '@gocodealone/workflow-editor';
 import { useModuleSchemaStore, useWorkflowStore } from '@gocodealone/workflow-editor/stores';
-import { buildYamlLineMap, parseYamlSafe } from '@gocodealone/workflow-editor/utils';
+import { buildYamlLineMap, parseYamlSafe, configToYaml } from '@gocodealone/workflow-editor/utils';
 import { initBridge, sendYamlUpdated, sendNavigateToLine, sendAIRequest } from './bridge';
 import '@xyflow/react/dist/style.css';
 
@@ -10,12 +10,26 @@ function App() {
   const [yaml, setYaml] = useState<string>('');
   const initializedRef = useRef(false);
   const yamlRef = useRef<string>('');
+  const fromHostRef = useRef(false);
 
   const loadSchemas = useModuleSchemaStore((s) => s.loadSchemas);
   const loadPluginSchemas = useModuleSchemaStore((s) => s.loadPluginSchemas);
   const setHighlightedNode = useWorkflowStore((s) => s.setHighlightedNode);
   const importFromConfig = useWorkflowStore((s) => s.importFromConfig);
+  const exportToConfig = useWorkflowStore((s) => s.exportToConfig);
   const addToast = useWorkflowStore((s) => s.addToast);
+
+  // Subscribe to store changes and send YAML back to host
+  useEffect(() => {
+    const unsub = useWorkflowStore.subscribe(() => {
+      if (fromHostRef.current) return;
+      const config = exportToConfig();
+      const newYaml = configToYaml(config);
+      yamlRef.current = newYaml;
+      sendYamlUpdated(newYaml);
+    });
+    return unsub;
+  }, [exportToConfig]);
 
   useEffect(() => {
     if (initializedRef.current) return;
@@ -25,6 +39,15 @@ function App() {
       onYamlChanged: (content) => {
         yamlRef.current = content;
         setYaml(content);
+        // Import directly into the store so nodes update
+        fromHostRef.current = true;
+        const { config, error } = parseYamlSafe(content);
+        if (error) {
+          addToast(`YAML parse error: ${error}`, 'error');
+        } else {
+          importFromConfig(config);
+        }
+        fromHostRef.current = false;
       },
       onCursorMoved: (line, _col) => {
         const lineMap = buildYamlLineMap(yamlRef.current);
