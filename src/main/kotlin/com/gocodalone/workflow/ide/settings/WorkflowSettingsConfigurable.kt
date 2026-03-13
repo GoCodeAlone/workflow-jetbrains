@@ -55,13 +55,13 @@ class WorkflowSettingsConfigurable : Configurable {
                     cell(wfctlPathField).align(AlignX.FILL)
                 }
                 row {
-                    comment("Leave blank to resolve wfctl from system PATH")
+                    comment("Leave blank to auto-detect from PATH or download from GitHub Releases")
                 }
                 row("LSP server path:") {
                     cell(lspServerPathField).align(AlignX.FILL)
                 }
                 row {
-                    comment("Leave blank to resolve workflow-lsp-server from system PATH")
+                    comment("Leave blank to auto-detect from PATH or download from GitHub Releases")
                 }
             }
             group("Features") {

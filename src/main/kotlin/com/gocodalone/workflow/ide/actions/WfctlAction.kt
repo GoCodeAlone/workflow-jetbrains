@@ -1,5 +1,7 @@
 package com.gocodalone.workflow.ide.actions
 
+import com.gocodalone.workflow.ide.BinaryDownloader
+import com.gocodalone.workflow.ide.WorkflowBundle
 import com.gocodalone.workflow.ide.settings.WorkflowSettings
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.CapturingProcessRunner
@@ -68,10 +70,24 @@ abstract class WfctlAction(text: String, description: String) : AnAction(text, d
 
     private fun runWfctl(project: Project, args: List<String>, workDir: String?): WfctlResult {
         val settings = WorkflowSettings.getInstance()
-        val wfctlPath = if (settings.wfctlPath.isNotBlank()) settings.wfctlPath else "wfctl"
+        val resolved = BinaryDownloader.resolveFromPathOrCache(WorkflowBundle.WFCTL_BINARY, settings.wfctlPath)
+
+        if (resolved == null) {
+            // Binary not found — prompt user to download
+            BinaryDownloader.promptAndDownload(
+                project,
+                WorkflowBundle.WFCTL_BINARY,
+                "wfctl was not found. Download it from GitHub Releases?"
+            )
+            return WfctlResult(
+                exitCode = -1,
+                stdout = "",
+                stderr = "wfctl not found. A download prompt has been shown — please retry the command after installation."
+            )
+        }
 
         return try {
-            val cmdLine = GeneralCommandLine(listOf(wfctlPath) + args).apply {
+            val cmdLine = GeneralCommandLine(listOf(resolved) + args).apply {
                 if (workDir != null) setWorkDirectory(workDir)
                 withEnvironment(System.getenv())
             }

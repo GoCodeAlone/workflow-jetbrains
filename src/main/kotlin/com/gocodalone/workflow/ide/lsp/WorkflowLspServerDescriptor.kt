@@ -1,5 +1,7 @@
 package com.gocodalone.workflow.ide.lsp
 
+import com.gocodalone.workflow.ide.BinaryDownloader
+import com.gocodalone.workflow.ide.WorkflowBundle
 import com.gocodalone.workflow.ide.settings.WorkflowSettings
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
@@ -44,14 +46,15 @@ class WorkflowLspServerDescriptor(project: Project) {
 
     /**
      * Builds the command line to start the LSP server.
+     * Uses the shared resolution: settings → PATH → downloaded cache.
      */
     fun buildCommandLine(): List<String> {
         val settings = WorkflowSettings.getInstance()
-        val binaryPath = if (settings.lspServerPath.isNotBlank()) {
+        val resolved = BinaryDownloader.resolveFromPathOrCache(
+            WorkflowBundle.LSP_SERVER_BINARY,
             settings.lspServerPath
-        } else {
-            "workflow-lsp-server"
-        }
+        )
+        val binaryPath = resolved ?: WorkflowBundle.LSP_SERVER_BINARY
         return listOf(binaryPath)
     }
 }
