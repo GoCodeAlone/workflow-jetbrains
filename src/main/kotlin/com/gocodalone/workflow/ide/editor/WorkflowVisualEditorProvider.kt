@@ -4,12 +4,20 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.FileEditorManagerEvent
+import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.content.ContentFactory
 import com.intellij.ui.jcef.JBCefBrowser
+import java.awt.BorderLayout
+import javax.swing.JLabel
+import javax.swing.JPanel
+import javax.swing.SwingConstants
 
 class WorkflowVisualEditorAction : AnAction("Open Visual Editor", "Open workflow visual editor", null) {
 
@@ -23,18 +31,7 @@ class WorkflowVisualEditorAction : AnAction("Open Visual Editor", "Open workflow
         val toolWindow = ToolWindowManager.getInstance(project)
             .getToolWindow("Workflow Visual Editor") ?: return
         toolWindow.show {
-            val browser = JBCefBrowser()
-            val bridge = WorkflowBridge(project, file, browser)
-
-            val htmlUrl = javaClass.getResource("/editor/index.html")?.toExternalForm() ?: return@show
-            browser.loadURL(htmlUrl)
-            bridge.initialize()
-
-            val content = ContentFactory.getInstance()
-                .createContent(browser.component, file.name, false)
-            content.setDisposer { bridge.dispose() }
-            toolWindow.contentManager.removeAllContents(true)
-            toolWindow.contentManager.addContent(content)
+            VisualEditorLoader.loadFile(project, file, toolWindow)
         }
     }
 
@@ -48,8 +45,63 @@ class WorkflowVisualEditorAction : AnAction("Open Visual Editor", "Open workflow
 
 class WorkflowVisualEditorToolWindowFactory : ToolWindowFactory {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
-        // Content is created dynamically when action is triggered
+        // Try to load the currently open file
+        val selectedFile = FileEditorManager.getInstance(project).selectedFiles.firstOrNull()
+        if (selectedFile != null && WorkflowFileDetector.isWorkflowFile(project, selectedFile)) {
+            VisualEditorLoader.loadFile(project, selectedFile, toolWindow)
+        } else {
+            VisualEditorLoader.showPlaceholder(toolWindow)
+        }
+
+        // Listen for file selection changes to auto-update the editor
+        project.messageBus.connect(toolWindow.disposable).subscribe(
+            FileEditorManagerListener.FILE_EDITOR_MANAGER,
+            object : FileEditorManagerListener {
+                override fun selectionChanged(event: FileEditorManagerEvent) {
+                    val file = event.newFile ?: return
+                    if (!toolWindow.isVisible) return
+                    if (WorkflowFileDetector.isWorkflowFile(project, file)) {
+                        VisualEditorLoader.loadFile(project, file, toolWindow)
+                    }
+                }
+            }
+        )
     }
 
     override fun shouldBeAvailable(project: Project): Boolean = true
+}
+
+/** Shared logic for loading workflow files into the visual editor tool window. */
+private object VisualEditorLoader {
+    fun showPlaceholder(toolWindow: ToolWindow) {
+        val label = JLabel(
+            "<html><center>Open a workflow YAML file to see the visual editor.<br><br>" +
+                "You can also right-click a YAML file tab<br>and select " +
+                "<b>Open Workflow Visual Editor</b>.</center></html>",
+            SwingConstants.CENTER
+        )
+        val panel = JPanel(BorderLayout()).apply { add(label, BorderLayout.CENTER) }
+        val content = ContentFactory.getInstance().createContent(panel, "Visual Editor", false)
+        toolWindow.contentManager.removeAllContents(true)
+        toolWindow.contentManager.addContent(content)
+    }
+
+    fun loadFile(project: Project, file: VirtualFile, toolWindow: ToolWindow) {
+        val htmlUrl = javaClass.getResource("/editor/index.html")?.toExternalForm()
+        if (htmlUrl == null) {
+            showPlaceholder(toolWindow)
+            return
+        }
+
+        val browser = JBCefBrowser()
+        val bridge = WorkflowBridge(project, file, browser)
+        browser.loadURL(htmlUrl)
+        bridge.initialize()
+
+        val content = ContentFactory.getInstance()
+            .createContent(browser.component, file.name, false)
+        content.setDisposer { bridge.dispose() }
+        toolWindow.contentManager.removeAllContents(true)
+        toolWindow.contentManager.addContent(content)
+    }
 }
