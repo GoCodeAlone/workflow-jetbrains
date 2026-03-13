@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: write
+  packages: read
 
 jobs:
   sync:
@@ -52,7 +53,7 @@ jobs:
           EDITOR_VERSION="${{ github.event.client_payload.version }}"
           npm install "@gocodealone/workflow-editor@${EDITOR_VERSION#v}"
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build webview
         working-directory: webview-src
@@ -60,7 +61,7 @@ jobs:
           npm ci
           npx vite build --outDir ../src/main/resources/editor
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Compute plugin version
         id: version
@@ -90,7 +91,7 @@ jobs:
       - name: Build and test plugin
         run: ./gradlew buildPlugin test
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Commit and tag
         run: |
