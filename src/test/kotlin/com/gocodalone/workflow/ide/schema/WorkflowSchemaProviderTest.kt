@@ -1,0 +1,69 @@
+package com.gocodalone.workflow.ide.schema
+
+import com.gocodalone.workflow.ide.settings.WorkflowProjectSettings
+import com.intellij.testFramework.fixtures.BasePlatformTestCase
+
+class WorkflowSchemaProviderTest : BasePlatformTestCase() {
+
+    override fun tearDown() {
+        try {
+            WorkflowProjectSettings.getInstance(project).configPaths = emptyList()
+        } catch (_: Exception) {}
+        super.tearDown()
+    }
+
+    fun testSchemaFileIsResolvable() {
+        val provider = WorkflowSchemaProvider(project)
+        val schemaFile = provider.schemaFile
+        assertNotNull("Schema file must be resolvable from classpath", schemaFile)
+    }
+
+    fun testSchemaAppliesToWorkflowYaml() {
+        val file = myFixture.configureByText("workflow.yaml", "modules: []")
+        val provider = WorkflowSchemaProvider(project)
+        assertTrue(
+            "Schema should apply to workflow.yaml",
+            provider.isAvailable(file.virtualFile)
+        )
+    }
+
+    fun testSchemaAppliesToAppYaml() {
+        val file = myFixture.configureByText("app.yaml", "modules: []")
+        val provider = WorkflowSchemaProvider(project)
+        assertTrue(
+            "Schema should apply to app.yaml",
+            provider.isAvailable(file.virtualFile)
+        )
+    }
+
+    fun testSchemaDoesNotApplyToGenericYaml() {
+        val file = myFixture.configureByText("database.yaml", "host: localhost")
+        val provider = WorkflowSchemaProvider(project)
+        assertFalse(
+            "Schema should not apply to generic YAML without workflow keys",
+            provider.isAvailable(file.virtualFile)
+        )
+    }
+
+    fun testSchemaDoesNotApplyToNonYaml() {
+        val file = myFixture.configureByText("main.go", "package main")
+        val provider = WorkflowSchemaProvider(project)
+        assertFalse(
+            "Schema should not apply to non-YAML files",
+            provider.isAvailable(file.virtualFile)
+        )
+    }
+
+    fun testSchemaAppliesToConfigPathsMatch() {
+        WorkflowProjectSettings.getInstance(project).configPaths = listOf("config/**/*.yaml")
+        // BasePlatformTestCase files are created in a temp dir, so we test with a
+        // pattern that matches any .yaml file
+        WorkflowProjectSettings.getInstance(project).configPaths = listOf("**/*.yaml")
+        val file = myFixture.configureByText("custom.yaml", "key: value")
+        val provider = WorkflowSchemaProvider(project)
+        assertTrue(
+            "Schema should apply when file matches configPaths glob",
+            provider.isAvailable(file.virtualFile)
+        )
+    }
+}
