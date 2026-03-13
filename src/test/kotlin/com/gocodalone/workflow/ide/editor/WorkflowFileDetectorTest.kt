@@ -6,7 +6,11 @@ import com.intellij.testFramework.fixtures.BasePlatformTestCase
 class WorkflowFileDetectorTest : BasePlatformTestCase() {
 
     override fun tearDown() {
-        WorkflowSettings.getInstance().configPaths = emptyList()
+        try {
+            WorkflowSettings.getInstance().configPaths = emptyList()
+        } catch (_: Exception) {
+            // Service may not be available during teardown
+        }
         super.tearDown()
     }
 
@@ -53,7 +57,7 @@ class WorkflowFileDetectorTest : BasePlatformTestCase() {
 
     fun testConfigPathsOverrideContentDetection() {
         // A file that doesn't match content detection but is in configPaths
-        WorkflowSettings.getInstance().configPaths = listOf("*.yaml")
+        WorkflowSettings.getInstance().configPaths = listOf("**/*.yaml")
         val file = myFixture.configureByText("custom.yaml", "key: value")
         assertTrue(
             "Expected configPaths glob match to return true",

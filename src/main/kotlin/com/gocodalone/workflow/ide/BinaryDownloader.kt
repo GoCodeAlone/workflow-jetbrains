@@ -60,7 +60,12 @@ object BinaryDownloader {
     fun getDefaultBinaryPath(binaryName: String): String {
         val suffix = getPlatformSuffix()
         val fileName = if (isWindows()) "$binaryName.exe" else binaryName
-        val pluginDir = File(PathManager.getPluginsPath(), "workflow-engine/bin/$suffix")
+        val basePath = try {
+            PathManager.getPluginsPath()
+        } catch (_: Exception) {
+            null
+        } ?: System.getProperty("java.io.tmpdir")
+        val pluginDir = File(basePath, "workflow-engine/bin/$suffix")
         return File(pluginDir, fileName).absolutePath
     }
 
