@@ -28,8 +28,9 @@ out/
 # Kotlin
 *.kotlin_module
 
-# Plugin sandbox (IntelliJ Platform Gradle Plugin)
+# IntelliJ Platform Gradle Plugin
 .plugin-sandbox/
+.intellijPlatform/
 
 # Local env
 local.properties
