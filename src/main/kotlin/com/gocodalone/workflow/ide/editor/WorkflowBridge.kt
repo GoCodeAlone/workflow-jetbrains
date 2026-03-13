@@ -315,14 +315,22 @@ class WorkflowBridge(
                 appendLine("```yaml")
                 appendLine(context.yaml)
                 appendLine("```")
-                appendLine()
-                appendLine("User request: ${context.userPrompt}")
+                if (context.userPrompt.isNotBlank()) {
+                    appendLine()
+                    appendLine("User request: ${context.userPrompt}")
+                }
             }
 
             ApplicationManager.getApplication().invokeLater {
                 // Copy to clipboard so user can paste into AI chat
                 val clipboard = java.awt.Toolkit.getDefaultToolkit().systemClipboard
                 clipboard.setContents(java.awt.datatransfer.StringSelection(prompt), null)
+
+                val notificationMessage = if (context.userPrompt.isBlank()) {
+                    "Workflow context copied to clipboard. Paste into the AI chat and describe what you want."
+                } else {
+                    "Prompt copied to clipboard. Paste it in the AI Assistant chat."
+                }
 
                 // Try to open AI Assistant chat
                 try {
@@ -337,31 +345,22 @@ class WorkflowBridge(
                             aiAction, null, "", dataContext
                         )
                         aiAction.actionPerformed(event)
-
-                        com.intellij.notification.NotificationGroupManager.getInstance()
-                            .getNotificationGroup("Workflow Engine")
-                            ?.createNotification(
-                                "AI Design",
-                                "Prompt copied to clipboard. Paste it in the AI Assistant chat.",
-                                com.intellij.notification.NotificationType.INFORMATION
-                            )
-                            ?.notify(project)
-                    } else {
-                        com.intellij.notification.NotificationGroupManager.getInstance()
-                            .getNotificationGroup("Workflow Engine")
-                            ?.createNotification(
-                                "AI Design",
-                                "Prompt copied to clipboard. Open your AI assistant and paste to get help designing your workflow.",
-                                com.intellij.notification.NotificationType.INFORMATION
-                            )
-                            ?.notify(project)
                     }
+
+                    com.intellij.notification.NotificationGroupManager.getInstance()
+                        .getNotificationGroup("Workflow Engine")
+                        ?.createNotification(
+                            "AI Design",
+                            notificationMessage,
+                            com.intellij.notification.NotificationType.INFORMATION
+                        )
+                        ?.notify(project)
                 } catch (_: Exception) {
                     com.intellij.notification.NotificationGroupManager.getInstance()
                         .getNotificationGroup("Workflow Engine")
                         ?.createNotification(
                             "AI Design",
-                            "Prompt copied to clipboard. Open your AI assistant and paste to get help.",
+                            notificationMessage,
                             com.intellij.notification.NotificationType.INFORMATION
                         )
                         ?.notify(project)
