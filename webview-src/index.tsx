@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { WorkflowEditor } from '@gocodealone/workflow-editor';
 import { useModuleSchemaStore, useWorkflowStore } from '@gocodealone/workflow-editor/stores';
-import { buildYamlLineMap } from '@gocodealone/workflow-editor/utils';
-import { initBridge, sendYamlUpdated, sendNavigateToLine } from './bridge';
+import { buildYamlLineMap, parseYamlSafe } from '@gocodealone/workflow-editor/utils';
+import { initBridge, sendYamlUpdated, sendNavigateToLine, sendAIRequest } from './bridge';
 import '@xyflow/react/dist/style.css';
 
 function App() {
@@ -14,6 +14,8 @@ function App() {
   const loadSchemas = useModuleSchemaStore((s) => s.loadSchemas);
   const loadPluginSchemas = useModuleSchemaStore((s) => s.loadPluginSchemas);
   const setHighlightedNode = useWorkflowStore((s) => s.setHighlightedNode);
+  const importFromConfig = useWorkflowStore((s) => s.importFromConfig);
+  const addToast = useWorkflowStore((s) => s.addToast);
 
   useEffect(() => {
     if (initializedRef.current) return;
@@ -45,15 +47,27 @@ function App() {
           loadPluginSchemas(plugins as Parameters<typeof loadPluginSchemas>[0]);
         }
       },
+      onAIResponse: (content) => {
+        const { config, error } = parseYamlSafe(content);
+        if (error) {
+          addToast(`AI response parse error: ${error}`, 'error');
+        } else {
+          importFromConfig(config);
+          sendYamlUpdated(content);
+          addToast('AI design applied', 'success');
+        }
+      },
     });
-  }, [loadSchemas, loadPluginSchemas, setHighlightedNode]);
+  }, [loadSchemas, loadPluginSchemas, setHighlightedNode, importFromConfig, addToast]);
 
   return (
     <WorkflowEditor
       initialYaml={yaml}
+      embedded
       onChange={(newYaml) => sendYamlUpdated(newYaml)}
       onSave={async (newYaml) => sendYamlUpdated(newYaml)}
       onNavigateToSource={(line, col) => sendNavigateToLine(line, col)}
+      onAIRequest={(context) => sendAIRequest(context)}
     />
   );
 }

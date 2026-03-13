@@ -22,6 +22,7 @@ class WorkflowBridge(
     private val yamlUpdatedQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
     private val navigateQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
     private val schemaRequestQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
+    private val aiRequestQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
     private var updatingFromEditor = false
     private var updatingFromWebview = false
 
@@ -42,6 +43,11 @@ class WorkflowBridge(
 
         schemaRequestQuery.addHandler {
             sendSchemas()
+            JBCefJSQuery.Response("")
+        }
+
+        aiRequestQuery.addHandler { jsonData ->
+            handleAIRequest(jsonData)
             JBCefJSQuery.Response("")
         }
 
@@ -70,6 +76,9 @@ class WorkflowBridge(
                 },
                 sendRequestSchemas: function() {
                     ${schemaRequestQuery.inject("''")}
+                },
+                sendAIRequest: function(data) {
+                    ${aiRequestQuery.inject("data")}
                 }
             };
             window.dispatchEvent(new Event('hostBridgeReady'));
@@ -147,9 +156,129 @@ class WorkflowBridge(
         )
     }
 
+    private fun handleAIRequest(jsonData: String) {
+        ApplicationManager.getApplication().executeOnPooledThread {
+            try {
+                val gson = com.google.gson.Gson()
+                val context = gson.fromJson(jsonData, AIRequestContext::class.java)
+
+                // Try to invoke JetBrains AI Assistant
+                val aiAvailable = try {
+                    Class.forName("com.intellij.ai.AiService")
+                    true
+                } catch (_: ClassNotFoundException) {
+                    false
+                }
+
+                if (aiAvailable) {
+                    invokeAIAssistant(context)
+                } else {
+                    // Fall back: show notification suggesting AI Assistant installation
+                    ApplicationManager.getApplication().invokeLater {
+                        val group = com.intellij.notification.NotificationGroupManager.getInstance()
+                            .getNotificationGroup("Workflow Engine") ?: return@invokeLater
+                        group.createNotification(
+                            "AI Design",
+                            "Install <a href=\"https://plugins.jetbrains.com/plugin/22282-ai-assistant\">JetBrains AI Assistant</a> for AI-assisted workflow design.",
+                            com.intellij.notification.NotificationType.INFORMATION
+                        ).setListener(com.intellij.notification.NotificationListener.URL_OPENING_LISTENER)
+                            .notify(project)
+                    }
+                }
+            } catch (e: Exception) {
+                ApplicationManager.getApplication().invokeLater {
+                    com.intellij.notification.NotificationGroupManager.getInstance()
+                        .getNotificationGroup("Workflow Engine")
+                        ?.createNotification(
+                            "AI Design Failed",
+                            e.message ?: "Unknown error",
+                            com.intellij.notification.NotificationType.ERROR
+                        )
+                        ?.notify(project)
+                }
+            }
+        }
+    }
+
+    private fun invokeAIAssistant(context: AIRequestContext) {
+        try {
+            val prompt = buildString {
+                appendLine("You are a Workflow Engine configuration expert.")
+                appendLine("Available module types: ${context.moduleTypes.joinToString(", ")}")
+                appendLine("Return ONLY the complete updated YAML config. No explanations, no markdown fences.")
+                appendLine()
+                appendLine("Current workflow YAML:")
+                appendLine("```yaml")
+                appendLine(context.yaml)
+                appendLine("```")
+                appendLine()
+                appendLine("User request: ${context.userPrompt}")
+            }
+
+            ApplicationManager.getApplication().invokeLater {
+                // Copy to clipboard so user can paste into AI chat
+                val clipboard = java.awt.Toolkit.getDefaultToolkit().systemClipboard
+                clipboard.setContents(java.awt.datatransfer.StringSelection(prompt), null)
+
+                // Try to open AI Assistant chat
+                try {
+                    val actionManager = com.intellij.openapi.actionSystem.ActionManager.getInstance()
+                    val aiAction = actionManager.getAction("ActivateAIAssistantToolWindow")
+                        ?: actionManager.getAction("AIAssistant.OpenChat")
+                    if (aiAction != null) {
+                        val dataContext = com.intellij.openapi.actionSystem.impl.SimpleDataContext.builder()
+                            .add(com.intellij.openapi.actionSystem.CommonDataKeys.PROJECT, project)
+                            .build()
+                        val event = com.intellij.openapi.actionSystem.AnActionEvent.createFromAnAction(
+                            aiAction, null, "", dataContext
+                        )
+                        aiAction.actionPerformed(event)
+
+                        com.intellij.notification.NotificationGroupManager.getInstance()
+                            .getNotificationGroup("Workflow Engine")
+                            ?.createNotification(
+                                "AI Design",
+                                "Prompt copied to clipboard. Paste it in the AI Assistant chat.",
+                                com.intellij.notification.NotificationType.INFORMATION
+                            )
+                            ?.notify(project)
+                    } else {
+                        com.intellij.notification.NotificationGroupManager.getInstance()
+                            .getNotificationGroup("Workflow Engine")
+                            ?.createNotification(
+                                "AI Design",
+                                "Prompt copied to clipboard. Open your AI assistant and paste to get help designing your workflow.",
+                                com.intellij.notification.NotificationType.INFORMATION
+                            )
+                            ?.notify(project)
+                    }
+                } catch (_: Exception) {
+                    com.intellij.notification.NotificationGroupManager.getInstance()
+                        .getNotificationGroup("Workflow Engine")
+                        ?.createNotification(
+                            "AI Design",
+                            "Prompt copied to clipboard. Open your AI assistant and paste to get help.",
+                            com.intellij.notification.NotificationType.INFORMATION
+                        )
+                        ?.notify(project)
+                }
+            }
+        } catch (e: Exception) {
+            com.intellij.openapi.diagnostic.Logger.getInstance(WorkflowBridge::class.java)
+                .warn("AI Assistant invocation failed: ${e.message}")
+        }
+    }
+
+    private data class AIRequestContext(
+        val yaml: String,
+        val moduleTypes: List<String>,
+        val userPrompt: String,
+    )
+
     fun dispose() {
         yamlUpdatedQuery.dispose()
         navigateQuery.dispose()
         schemaRequestQuery.dispose()
+        aiRequestQuery.dispose()
     }
 }
