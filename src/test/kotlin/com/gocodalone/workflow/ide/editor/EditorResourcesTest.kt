@@ -92,6 +92,14 @@ class EditorResourcesTest : BasePlatformTestCase() {
         }
     }
 
+    fun testSchemeHandlerBaseUrlIsFakeHttps() {
+        val url = EditorSchemeHandlerFactory.BASE_URL
+        assertTrue("BASE_URL must use https scheme", url.startsWith("https://"))
+        assertFalse("BASE_URL must NOT resolve to a real domain", url.contains(".com"))
+        assertFalse("BASE_URL must NOT resolve to a real domain", url.contains(".io"))
+        assertTrue("BASE_URL must use the fake domain", url.contains(EditorSchemeHandlerFactory.DOMAIN))
+    }
+
     fun testSchemeHandlerDoesNotResolveNonexistent() {
         val stream = EditorSchemeHandlerFactory::class.java.getResourceAsStream("/editor/nonexistent.xyz")
         assertNull("Nonexistent resource should return null", stream)

@@ -90,9 +90,11 @@ private object VisualEditorLoader {
     }
 
     fun loadFile(project: Project, file: VirtualFile, toolWindow: ToolWindow) {
+        val browser = JBCefBrowser()
+
+        // Register scheme handler AFTER browser creation ensures CEF is initialized
         ensureSchemeHandler()
 
-        val browser = JBCefBrowser()
         val bridge = WorkflowBridge(project, file, browser)
         browser.loadURL(EditorSchemeHandlerFactory.BASE_URL)
         bridge.initialize()
@@ -106,11 +108,15 @@ private object VisualEditorLoader {
 
     private fun ensureSchemeHandler() {
         if (schemeHandlerRegistered) return
-        schemeHandlerRegistered = true
-        CefApp.getInstance().registerSchemeHandlerFactory(
-            "https",
-            EditorSchemeHandlerFactory.DOMAIN,
-            EditorSchemeHandlerFactory()
-        )
+        try {
+            CefApp.getInstance().registerSchemeHandlerFactory(
+                "https",
+                EditorSchemeHandlerFactory.DOMAIN,
+                EditorSchemeHandlerFactory()
+            )
+            schemeHandlerRegistered = true
+        } catch (e: Exception) {
+            // CEF not ready — will retry on next loadFile call
+        }
     }
 }
