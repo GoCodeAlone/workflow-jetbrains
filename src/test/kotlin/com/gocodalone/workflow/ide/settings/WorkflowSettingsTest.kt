@@ -1,5 +1,6 @@
 package com.gocodalone.workflow.ide.settings
 
+import com.gocodalone.workflow.ide.WorkflowBundle
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 
 class WorkflowSettingsTest : BasePlatformTestCase() {
@@ -38,5 +39,34 @@ class WorkflowSettingsTest : BasePlatformTestCase() {
 
         // Cleanup
         settings.configPaths = emptyList()
+    }
+
+    fun testWorkflowBundleConstants() {
+        assertEquals("wfctl", WorkflowBundle.WFCTL_BINARY)
+        assertEquals("workflow-lsp-server", WorkflowBundle.LSP_SERVER_BINARY)
+        assertEquals("modules:", WorkflowBundle.WORKFLOW_CONTENT_KEY)
+        assertTrue(
+            "File patterns should include workflow.yaml",
+            WorkflowBundle.WORKFLOW_FILE_PATTERNS.contains("workflow.yaml")
+        )
+        assertTrue(
+            "File patterns should include app.yaml",
+            WorkflowBundle.WORKFLOW_FILE_PATTERNS.contains("app.yaml")
+        )
+        assertTrue(
+            "File patterns should include workflow.yml",
+            WorkflowBundle.WORKFLOW_FILE_PATTERNS.contains("workflow.yml")
+        )
+        assertTrue(
+            "File patterns should include app.yml",
+            WorkflowBundle.WORKFLOW_FILE_PATTERNS.contains("app.yml")
+        )
+    }
+
+    fun testWorkflowBundleGitHubReleasesUrl() {
+        assertTrue(
+            "GitHub releases URL should point to GoCodeAlone/workflow",
+            WorkflowBundle.GITHUB_RELEASES_URL.contains("GoCodeAlone/workflow")
+        )
     }
 }
