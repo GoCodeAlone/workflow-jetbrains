@@ -107,12 +107,17 @@
               "step.ai_extract",
               "step.artifact_pull",
               "step.artifact_push",
+              "step.auth_required",
+              "step.auth_validate",
+              "step.authz_check",
               "step.base64_decode",
               "step.build_ui",
               "step.cache_delete",
               "step.cache_get",
               "step.cache_set",
               "step.circuit_breaker",
+              "step.cli_invoke",
+              "step.cli_print",
               "step.conditional",
               "step.constraint_check",
               "step.db_create_partition",
@@ -128,17 +133,27 @@
               "step.docker_push",
               "step.docker_run",
               "step.drift_check",
+              "step.event_decrypt",
               "step.event_publish",
               "step.feature_flag",
               "step.ff_gate",
+              "step.field_reencrypt",
               "step.foreach",
               "step.gate",
+              "step.graphql",
               "step.hash",
               "step.http_call",
               "step.http_proxy",
               "step.jq",
+              "step.json_parse",
               "step.json_response",
               "step.log",
+              "step.m2m_token",
+              "step.nosql_get",
+              "step.nosql_put",
+              "step.nosql_query",
+              "step.oidc_auth_url",
+              "step.oidc_callback",
               "step.parallel",
               "step.platform_apply",
               "step.platform_destroy",
@@ -146,18 +161,24 @@
               "step.platform_template",
               "step.publish",
               "step.rate_limit",
+              "step.raw_response",
               "step.regex_match",
               "step.request_parse",
               "step.resilient_circuit_breaker",
               "step.retry_with_backoff",
               "step.s3_upload",
+              "step.sandbox_exec",
               "step.scan_container",
               "step.scan_deps",
               "step.scan_sast",
+              "step.secret_fetch",
               "step.set",
               "step.shell_exec",
+              "step.statemachine_get",
+              "step.statemachine_transition",
               "step.static_file",
               "step.sub_workflow",
+              "step.token_revoke",
               "step.transform",
               "step.ui_scaffold",
               "step.ui_scaffold_analyze",
@@ -2253,6 +2274,130 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "step.auth_required"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "roles": {
+                      "description": "Required roles (any match grants access)",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "scopes": {
+                      "description": "Required OAuth2 scopes",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.auth_validate"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "auth_module",
+                    "token_source"
+                  ],
+                  "properties": {
+                    "auth_module": {
+                      "description": "Service name of AuthProvider module",
+                      "type": "string"
+                    },
+                    "subject_field": {
+                      "description": "Output field name for 'sub' claim",
+                      "type": "string"
+                    },
+                    "token_source": {
+                      "description": "Dot-path to Bearer token in pipeline context",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.authz_check"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "module",
+                    "subject",
+                    "object",
+                    "action"
+                  ],
+                  "properties": {
+                    "action": {
+                      "description": "Action (template expression)",
+                      "type": "string"
+                    },
+                    "module": {
+                      "description": "Authorization module name",
+                      "type": "string"
+                    },
+                    "object": {
+                      "description": "Object (template expression)",
+                      "type": "string"
+                    },
+                    "subject": {
+                      "description": "Subject (template expression)",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "step.base64_decode"
                   ]
                 }
@@ -2521,6 +2666,80 @@
                       "description": "Time to wait before trying half-open",
                       "type": "string",
                       "default": "30s"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.cli_invoke"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "command"
+                  ],
+                  "properties": {
+                    "command": {
+                      "description": "Registered command name",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.cli_print"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "description": "Message template",
+                      "type": "string"
+                    },
+                    "newline": {
+                      "description": "Append trailing newline",
+                      "type": "boolean"
+                    },
+                    "target": {
+                      "description": "Output destination",
+                      "type": "string",
+                      "enum": [
+                        "stdout",
+                        "stderr"
+                      ]
                     }
                   },
                   "additionalProperties": false
@@ -3235,6 +3454,34 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "step.event_decrypt"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "key_id": {
+                      "description": "Key ID override",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "step.event_publish"
                   ]
                 }
@@ -3386,6 +3633,41 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "step.field_reencrypt"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "module"
+                  ],
+                  "properties": {
+                    "module": {
+                      "description": "Service name of ProtectedFieldManager",
+                      "type": "string"
+                    },
+                    "tenant_id": {
+                      "description": "Template expression for tenant ID",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "step.foreach"
                   ]
                 }
@@ -3483,6 +3765,61 @@
                         "automated",
                         "scheduled"
                       ]
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.graphql"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "url"
+                  ],
+                  "properties": {
+                    "auth": {
+                      "description": "Authentication config",
+                      "type": "object"
+                    },
+                    "data_path": {
+                      "description": "Dot-path to extract nested data",
+                      "type": "string"
+                    },
+                    "headers": {
+                      "description": "Custom HTTP headers",
+                      "type": "object"
+                    },
+                    "query": {
+                      "description": "GraphQL query or mutation",
+                      "type": "string"
+                    },
+                    "timeout": {
+                      "description": "Request timeout",
+                      "type": "string"
+                    },
+                    "url": {
+                      "description": "GraphQL endpoint URL",
+                      "type": "string"
+                    },
+                    "variables": {
+                      "description": "Query variables",
+                      "type": "object"
                     }
                   },
                   "additionalProperties": false
@@ -3675,6 +4012,41 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "step.json_parse"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "source"
+                  ],
+                  "properties": {
+                    "source": {
+                      "description": "Dot-path to JSON string value",
+                      "type": "string"
+                    },
+                    "target": {
+                      "description": "Output key name for parsed result",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "step.json_response"
                   ]
                 }
@@ -3742,6 +4114,240 @@
                     },
                     "message": {
                       "description": "Message template (supports {{ .field }} expressions)",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.m2m_token"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "action"
+                  ],
+                  "properties": {
+                    "action": {
+                      "type": "string",
+                      "enum": [
+                        "generate",
+                        "validate",
+                        "revoke",
+                        "introspect"
+                      ]
+                    },
+                    "claims": {
+                      "description": "Custom claims",
+                      "type": "object"
+                    },
+                    "ttl": {
+                      "description": "Token time-to-live",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.nosql_get"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "store",
+                    "key"
+                  ],
+                  "properties": {
+                    "key": {
+                      "description": "Document key",
+                      "type": "string"
+                    },
+                    "store": {
+                      "description": "NoSQL store module name",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.nosql_put"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "store",
+                    "key"
+                  ],
+                  "properties": {
+                    "item": {
+                      "description": "Document to store",
+                      "type": "object"
+                    },
+                    "key": {
+                      "description": "Document key",
+                      "type": "string"
+                    },
+                    "store": {
+                      "description": "NoSQL store module name",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.nosql_query"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "store"
+                  ],
+                  "properties": {
+                    "prefix": {
+                      "description": "Key prefix to filter documents",
+                      "type": "string"
+                    },
+                    "store": {
+                      "description": "NoSQL store module name",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.oidc_auth_url"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "provider",
+                    "redirect_uri"
+                  ],
+                  "properties": {
+                    "provider": {
+                      "description": "OIDC provider name",
+                      "type": "string"
+                    },
+                    "redirect_uri": {
+                      "description": "Redirect URI after authentication",
+                      "type": "string"
+                    },
+                    "scopes": {
+                      "description": "OAuth2 scopes to request",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.oidc_callback"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "provider",
+                    "redirect_uri"
+                  ],
+                  "properties": {
+                    "provider": {
+                      "description": "OIDC provider name",
+                      "type": "string"
+                    },
+                    "redirect_uri": {
+                      "description": "Redirect URI (must match auth URL)",
                       "type": "string"
                     }
                   },
@@ -4029,6 +4635,53 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "step.raw_response"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "content_type"
+                  ],
+                  "properties": {
+                    "body": {
+                      "description": "Response body",
+                      "type": "string"
+                    },
+                    "body_from": {
+                      "description": "Dot-path to body value",
+                      "type": "string"
+                    },
+                    "content_type": {
+                      "description": "Content-Type header",
+                      "type": "string"
+                    },
+                    "headers": {
+                      "description": "Custom response headers",
+                      "type": "object"
+                    },
+                    "status": {
+                      "description": "HTTP status code",
+                      "type": "number"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "step.regex_match"
                   ]
                 }
@@ -4261,6 +4914,62 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "step.sandbox_exec"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "command": {
+                      "description": "Command to execute",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "env": {
+                      "description": "Environment variables",
+                      "type": "object"
+                    },
+                    "image": {
+                      "description": "Container image URI",
+                      "type": "string"
+                    },
+                    "memory_limit": {
+                      "description": "Memory limit (e.g. 128m)",
+                      "type": "string"
+                    },
+                    "security_profile": {
+                      "description": "Security profile",
+                      "type": "string",
+                      "enum": [
+                        "strict",
+                        "standard",
+                        "permissive"
+                      ]
+                    },
+                    "timeout": {
+                      "description": "Execution timeout",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "step.scan_container"
                   ]
                 }
@@ -4455,6 +5164,42 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "step.secret_fetch"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "module",
+                    "secrets"
+                  ],
+                  "properties": {
+                    "module": {
+                      "description": "Secrets module name",
+                      "type": "string"
+                    },
+                    "secrets": {
+                      "description": "Map of output key to secret ID/ARN",
+                      "type": "object"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "step.set"
                   ]
                 }
@@ -4541,6 +5286,83 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "step.statemachine_get"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "engine",
+                    "instanceId"
+                  ],
+                  "properties": {
+                    "engine": {
+                      "description": "State machine engine module name",
+                      "type": "string"
+                    },
+                    "instanceId": {
+                      "description": "State machine instance ID",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.statemachine_transition"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "engine",
+                    "instanceId",
+                    "transition"
+                  ],
+                  "properties": {
+                    "engine": {
+                      "description": "State machine engine module name",
+                      "type": "string"
+                    },
+                    "instanceId": {
+                      "description": "State machine instance ID",
+                      "type": "string"
+                    },
+                    "transition": {
+                      "description": "Transition name to trigger",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "step.static_file"
                   ]
                 }
@@ -4609,6 +5431,42 @@
                     },
                     "workflow": {
                       "description": "Qualified workflow name (plugin:workflow-name)",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.token_revoke"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "blacklist_module",
+                    "token_source"
+                  ],
+                  "properties": {
+                    "blacklist_module": {
+                      "description": "TokenBlacklist module name",
+                      "type": "string"
+                    },
+                    "token_source": {
+                      "description": "Dot-path to Bearer token",
                       "type": "string"
                     }
                   },
@@ -5272,12 +6130,17 @@
                     "step.ai_extract",
                     "step.artifact_pull",
                     "step.artifact_push",
+                    "step.auth_required",
+                    "step.auth_validate",
+                    "step.authz_check",
                     "step.base64_decode",
                     "step.build_ui",
                     "step.cache_delete",
                     "step.cache_get",
                     "step.cache_set",
                     "step.circuit_breaker",
+                    "step.cli_invoke",
+                    "step.cli_print",
                     "step.conditional",
                     "step.constraint_check",
                     "step.db_create_partition",
@@ -5293,17 +6156,27 @@
                     "step.docker_push",
                     "step.docker_run",
                     "step.drift_check",
+                    "step.event_decrypt",
                     "step.event_publish",
                     "step.feature_flag",
                     "step.ff_gate",
+                    "step.field_reencrypt",
                     "step.foreach",
                     "step.gate",
+                    "step.graphql",
                     "step.hash",
                     "step.http_call",
                     "step.http_proxy",
                     "step.jq",
+                    "step.json_parse",
                     "step.json_response",
                     "step.log",
+                    "step.m2m_token",
+                    "step.nosql_get",
+                    "step.nosql_put",
+                    "step.nosql_query",
+                    "step.oidc_auth_url",
+                    "step.oidc_callback",
                     "step.parallel",
                     "step.platform_apply",
                     "step.platform_destroy",
@@ -5311,18 +6184,24 @@
                     "step.platform_template",
                     "step.publish",
                     "step.rate_limit",
+                    "step.raw_response",
                     "step.regex_match",
                     "step.request_parse",
                     "step.resilient_circuit_breaker",
                     "step.retry_with_backoff",
                     "step.s3_upload",
+                    "step.sandbox_exec",
                     "step.scan_container",
                     "step.scan_deps",
                     "step.scan_sast",
+                    "step.secret_fetch",
                     "step.set",
                     "step.shell_exec",
+                    "step.statemachine_get",
+                    "step.statemachine_transition",
                     "step.static_file",
                     "step.sub_workflow",
+                    "step.token_revoke",
                     "step.transform",
                     "step.ui_scaffold",
                     "step.ui_scaffold_analyze",
@@ -5578,6 +6457,130 @@
                           },
                           "source_path": {
                             "description": "Local file path to read and push",
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.auth_required"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "properties": {
+                          "roles": {
+                            "description": "Required roles (any match grants access)",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "scopes": {
+                            "description": "Required OAuth2 scopes",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.auth_validate"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "auth_module",
+                          "token_source"
+                        ],
+                        "properties": {
+                          "auth_module": {
+                            "description": "Service name of AuthProvider module",
+                            "type": "string"
+                          },
+                          "subject_field": {
+                            "description": "Output field name for 'sub' claim",
+                            "type": "string"
+                          },
+                          "token_source": {
+                            "description": "Dot-path to Bearer token in pipeline context",
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.authz_check"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "module",
+                          "subject",
+                          "object",
+                          "action"
+                        ],
+                        "properties": {
+                          "action": {
+                            "description": "Action (template expression)",
+                            "type": "string"
+                          },
+                          "module": {
+                            "description": "Authorization module name",
+                            "type": "string"
+                          },
+                          "object": {
+                            "description": "Object (template expression)",
+                            "type": "string"
+                          },
+                          "subject": {
+                            "description": "Subject (template expression)",
                             "type": "string"
                           }
                         },
@@ -5862,6 +6865,80 @@
                             "description": "Time to wait before trying half-open",
                             "type": "string",
                             "default": "30s"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.cli_invoke"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "command"
+                        ],
+                        "properties": {
+                          "command": {
+                            "description": "Registered command name",
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.cli_print"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "message"
+                        ],
+                        "properties": {
+                          "message": {
+                            "description": "Message template",
+                            "type": "string"
+                          },
+                          "newline": {
+                            "description": "Append trailing newline",
+                            "type": "boolean"
+                          },
+                          "target": {
+                            "description": "Output destination",
+                            "type": "string",
+                            "enum": [
+                              "stdout",
+                              "stderr"
+                            ]
                           }
                         },
                         "additionalProperties": false
@@ -6576,6 +7653,34 @@
                     "properties": {
                       "type": {
                         "enum": [
+                          "step.event_decrypt"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "properties": {
+                          "key_id": {
+                            "description": "Key ID override",
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
                           "step.event_publish"
                         ]
                       }
@@ -6727,6 +7832,41 @@
                     "properties": {
                       "type": {
                         "enum": [
+                          "step.field_reencrypt"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "module"
+                        ],
+                        "properties": {
+                          "module": {
+                            "description": "Service name of ProtectedFieldManager",
+                            "type": "string"
+                          },
+                          "tenant_id": {
+                            "description": "Template expression for tenant ID",
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
                           "step.foreach"
                         ]
                       }
@@ -6824,6 +7964,61 @@
                               "automated",
                               "scheduled"
                             ]
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.graphql"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "url"
+                        ],
+                        "properties": {
+                          "auth": {
+                            "description": "Authentication config",
+                            "type": "object"
+                          },
+                          "data_path": {
+                            "description": "Dot-path to extract nested data",
+                            "type": "string"
+                          },
+                          "headers": {
+                            "description": "Custom HTTP headers",
+                            "type": "object"
+                          },
+                          "query": {
+                            "description": "GraphQL query or mutation",
+                            "type": "string"
+                          },
+                          "timeout": {
+                            "description": "Request timeout",
+                            "type": "string"
+                          },
+                          "url": {
+                            "description": "GraphQL endpoint URL",
+                            "type": "string"
+                          },
+                          "variables": {
+                            "description": "Query variables",
+                            "type": "object"
                           }
                         },
                         "additionalProperties": false
@@ -7016,6 +8211,41 @@
                     "properties": {
                       "type": {
                         "enum": [
+                          "step.json_parse"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "source"
+                        ],
+                        "properties": {
+                          "source": {
+                            "description": "Dot-path to JSON string value",
+                            "type": "string"
+                          },
+                          "target": {
+                            "description": "Output key name for parsed result",
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
                           "step.json_response"
                         ]
                       }
@@ -7083,6 +8313,240 @@
                           },
                           "message": {
                             "description": "Message template (supports {{ .field }} expressions)",
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.m2m_token"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "action"
+                        ],
+                        "properties": {
+                          "action": {
+                            "type": "string",
+                            "enum": [
+                              "generate",
+                              "validate",
+                              "revoke",
+                              "introspect"
+                            ]
+                          },
+                          "claims": {
+                            "description": "Custom claims",
+                            "type": "object"
+                          },
+                          "ttl": {
+                            "description": "Token time-to-live",
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.nosql_get"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "store",
+                          "key"
+                        ],
+                        "properties": {
+                          "key": {
+                            "description": "Document key",
+                            "type": "string"
+                          },
+                          "store": {
+                            "description": "NoSQL store module name",
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.nosql_put"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "store",
+                          "key"
+                        ],
+                        "properties": {
+                          "item": {
+                            "description": "Document to store",
+                            "type": "object"
+                          },
+                          "key": {
+                            "description": "Document key",
+                            "type": "string"
+                          },
+                          "store": {
+                            "description": "NoSQL store module name",
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.nosql_query"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "store"
+                        ],
+                        "properties": {
+                          "prefix": {
+                            "description": "Key prefix to filter documents",
+                            "type": "string"
+                          },
+                          "store": {
+                            "description": "NoSQL store module name",
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.oidc_auth_url"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "provider",
+                          "redirect_uri"
+                        ],
+                        "properties": {
+                          "provider": {
+                            "description": "OIDC provider name",
+                            "type": "string"
+                          },
+                          "redirect_uri": {
+                            "description": "Redirect URI after authentication",
+                            "type": "string"
+                          },
+                          "scopes": {
+                            "description": "OAuth2 scopes to request",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.oidc_callback"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "provider",
+                          "redirect_uri"
+                        ],
+                        "properties": {
+                          "provider": {
+                            "description": "OIDC provider name",
+                            "type": "string"
+                          },
+                          "redirect_uri": {
+                            "description": "Redirect URI (must match auth URL)",
                             "type": "string"
                           }
                         },
@@ -7370,6 +8834,53 @@
                     "properties": {
                       "type": {
                         "enum": [
+                          "step.raw_response"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "content_type"
+                        ],
+                        "properties": {
+                          "body": {
+                            "description": "Response body",
+                            "type": "string"
+                          },
+                          "body_from": {
+                            "description": "Dot-path to body value",
+                            "type": "string"
+                          },
+                          "content_type": {
+                            "description": "Content-Type header",
+                            "type": "string"
+                          },
+                          "headers": {
+                            "description": "Custom response headers",
+                            "type": "object"
+                          },
+                          "status": {
+                            "description": "HTTP status code",
+                            "type": "number"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
                           "step.regex_match"
                         ]
                       }
@@ -7602,6 +9113,62 @@
                     "properties": {
                       "type": {
                         "enum": [
+                          "step.sandbox_exec"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "properties": {
+                          "command": {
+                            "description": "Command to execute",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "env": {
+                            "description": "Environment variables",
+                            "type": "object"
+                          },
+                          "image": {
+                            "description": "Container image URI",
+                            "type": "string"
+                          },
+                          "memory_limit": {
+                            "description": "Memory limit (e.g. 128m)",
+                            "type": "string"
+                          },
+                          "security_profile": {
+                            "description": "Security profile",
+                            "type": "string",
+                            "enum": [
+                              "strict",
+                              "standard",
+                              "permissive"
+                            ]
+                          },
+                          "timeout": {
+                            "description": "Execution timeout",
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
                           "step.scan_container"
                         ]
                       }
@@ -7796,6 +9363,42 @@
                     "properties": {
                       "type": {
                         "enum": [
+                          "step.secret_fetch"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "module",
+                          "secrets"
+                        ],
+                        "properties": {
+                          "module": {
+                            "description": "Secrets module name",
+                            "type": "string"
+                          },
+                          "secrets": {
+                            "description": "Map of output key to secret ID/ARN",
+                            "type": "object"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
                           "step.set"
                         ]
                       }
@@ -7882,6 +9485,83 @@
                     "properties": {
                       "type": {
                         "enum": [
+                          "step.statemachine_get"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "engine",
+                          "instanceId"
+                        ],
+                        "properties": {
+                          "engine": {
+                            "description": "State machine engine module name",
+                            "type": "string"
+                          },
+                          "instanceId": {
+                            "description": "State machine instance ID",
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.statemachine_transition"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "engine",
+                          "instanceId",
+                          "transition"
+                        ],
+                        "properties": {
+                          "engine": {
+                            "description": "State machine engine module name",
+                            "type": "string"
+                          },
+                          "instanceId": {
+                            "description": "State machine instance ID",
+                            "type": "string"
+                          },
+                          "transition": {
+                            "description": "Transition name to trigger",
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
                           "step.static_file"
                         ]
                       }
@@ -7950,6 +9630,42 @@
                           },
                           "workflow": {
                             "description": "Qualified workflow name (plugin:workflow-name)",
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.token_revoke"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "blacklist_module",
+                          "token_source"
+                        ],
+                        "properties": {
+                          "blacklist_module": {
+                            "description": "TokenBlacklist module name",
+                            "type": "string"
+                          },
+                          "token_source": {
+                            "description": "Dot-path to Bearer token",
                             "type": "string"
                           }
                         },
