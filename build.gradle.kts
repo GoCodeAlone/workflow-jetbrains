@@ -23,6 +23,7 @@ dependencies {
     intellijPlatform {
         intellijIdeaCommunity(providers.gradleProperty("platformVersion").get())
         bundledPlugin("org.jetbrains.plugins.yaml")
+        bundledPlugin("com.intellij.modules.json")
 
         // LSP4IJ for LSP client support
         plugin("com.redhat.devtools.lsp4ij:0.7.0")
@@ -42,7 +43,7 @@ intellijPlatform {
         version = providers.gradleProperty("pluginVersion")
 
         ideaVersion {
-            sinceBuild = "242"
+            sinceBuild = "252"
             untilBuild = provider { null }
         }
     }
@@ -59,8 +60,8 @@ intellijPlatform {
 
     pluginVerification {
         ides {
-            create(org.jetbrains.intellij.platform.gradle.IntelliJPlatformType.IntellijIdeaCommunity, "2024.2")
-            create(org.jetbrains.intellij.platform.gradle.IntelliJPlatformType.IntellijIdeaCommunity, "2024.3")
+            create(org.jetbrains.intellij.platform.gradle.IntelliJPlatformType.IntellijIdeaCommunity, "2025.1")
+            create(org.jetbrains.intellij.platform.gradle.IntelliJPlatformType.IntellijIdeaCommunity, "2025.2")
         }
     }
 }
