@@ -48,16 +48,14 @@ class WorkflowSchemaProvider(private val project: Project) : JsonSchemaFileProvi
             return true
         }
 
-        // Check content for modules: key as a heuristic
-        if (name.contains("workflow") || name.contains("app")) {
-            try {
-                val text = String(file.contentsToByteArray(), Charsets.UTF_8)
-                if (text.contains(WorkflowBundle.WORKFLOW_CONTENT_KEY)) {
-                    return true
-                }
-            } catch (_: Exception) {
-                // Ignore read errors
+        // Content-based: any YAML with modules: key
+        try {
+            val text = String(file.contentsToByteArray(), Charsets.UTF_8)
+            if (text.contains(WorkflowBundle.WORKFLOW_CONTENT_KEY)) {
+                return true
             }
+        } catch (_: Exception) {
+            // Ignore read errors
         }
         return false
     }

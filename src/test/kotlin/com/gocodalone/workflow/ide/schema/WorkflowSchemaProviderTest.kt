@@ -54,6 +54,25 @@ class WorkflowSchemaProviderTest : BasePlatformTestCase() {
         )
     }
 
+    fun testSchemaAppliesToContentMatchedYamlWithArbitraryName() {
+        val file = myFixture.configureByText(
+            "routes.yaml",
+            """
+            modules:
+              - name: web
+                type: http.server
+            workflows:
+              http:
+                routes: []
+            """.trimIndent()
+        )
+        val provider = WorkflowSchemaProvider(project)
+        assertTrue(
+            "Schema should apply to any YAML with modules: content, regardless of filename",
+            provider.isAvailable(file.virtualFile)
+        )
+    }
+
     fun testSchemaAppliesToConfigPathsMatch() {
         WorkflowProjectSettings.getInstance(project).configPaths = listOf("config/**/*.yaml")
         // BasePlatformTestCase files are created in a temp dir, so we test with a
