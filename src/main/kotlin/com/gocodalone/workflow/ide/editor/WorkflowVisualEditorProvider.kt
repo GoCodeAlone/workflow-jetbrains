@@ -14,6 +14,7 @@ import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.content.ContentFactory
 import com.intellij.ui.jcef.JBCefBrowser
+import org.cef.CefApp
 import java.awt.BorderLayout
 import javax.swing.JLabel
 import javax.swing.JPanel
@@ -73,6 +74,8 @@ class WorkflowVisualEditorToolWindowFactory : ToolWindowFactory {
 
 /** Shared logic for loading workflow files into the visual editor tool window. */
 private object VisualEditorLoader {
+    private var schemeHandlerRegistered = false
+
     fun showPlaceholder(toolWindow: ToolWindow) {
         val label = JLabel(
             "<html><center>Open a workflow YAML file to see the visual editor.<br><br>" +
@@ -87,15 +90,11 @@ private object VisualEditorLoader {
     }
 
     fun loadFile(project: Project, file: VirtualFile, toolWindow: ToolWindow) {
-        val htmlUrl = javaClass.getResource("/editor/index.html")?.toExternalForm()
-        if (htmlUrl == null) {
-            showPlaceholder(toolWindow)
-            return
-        }
+        ensureSchemeHandler()
 
         val browser = JBCefBrowser()
         val bridge = WorkflowBridge(project, file, browser)
-        browser.loadURL(htmlUrl)
+        browser.loadURL(EditorSchemeHandlerFactory.BASE_URL)
         bridge.initialize()
 
         val content = ContentFactory.getInstance()
@@ -103,5 +102,15 @@ private object VisualEditorLoader {
         content.setDisposer { bridge.dispose() }
         toolWindow.contentManager.removeAllContents(true)
         toolWindow.contentManager.addContent(content)
+    }
+
+    private fun ensureSchemeHandler() {
+        if (schemeHandlerRegistered) return
+        schemeHandlerRegistered = true
+        CefApp.getInstance().registerSchemeHandlerFactory(
+            "https",
+            EditorSchemeHandlerFactory.DOMAIN,
+            EditorSchemeHandlerFactory()
+        )
     }
 }
