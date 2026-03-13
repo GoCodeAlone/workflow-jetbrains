@@ -97,6 +97,8 @@ jobs:
 
       - name: Build and test plugin
         run: ./gradlew buildPlugin test
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Commit and tag
         run: |
