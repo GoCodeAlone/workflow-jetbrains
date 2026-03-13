@@ -1,5 +1,6 @@
 package com.gocodalone.workflow.ide.editor
 
+import com.intellij.openapi.actionSystem.ActionUiKind
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
@@ -14,7 +15,7 @@ class WorkflowVisualEditorTest : BasePlatformTestCase() {
             .add(CommonDataKeys.PROJECT, project)
             .add(CommonDataKeys.VIRTUAL_FILE, file.virtualFile)
             .build()
-        val event = AnActionEvent.createFromDataContext("test", null, dataContext)
+        val event = AnActionEvent.createEvent(dataContext, null, "test", ActionUiKind.NONE, null)
         action.update(event)
         assertTrue(
             "Expected action to be enabled for YAML file",
@@ -29,7 +30,7 @@ class WorkflowVisualEditorTest : BasePlatformTestCase() {
             .add(CommonDataKeys.PROJECT, project)
             .add(CommonDataKeys.VIRTUAL_FILE, file.virtualFile)
             .build()
-        val event = AnActionEvent.createFromDataContext("test", null, dataContext)
+        val event = AnActionEvent.createEvent(dataContext, null, "test", ActionUiKind.NONE, null)
         action.update(event)
         assertFalse(
             "Expected action to be disabled for non-YAML file",

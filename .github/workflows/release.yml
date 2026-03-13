@@ -5,15 +5,24 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+  packages: read
+
 jobs:
   release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@gocodealone'
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -22,9 +31,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-home-cache-cleanup: true
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Extract version from tag
         id: version
@@ -32,6 +39,8 @@ jobs:
 
       - name: Build Plugin
         run: ./gradlew buildPlugin
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run Tests
         run: ./gradlew test

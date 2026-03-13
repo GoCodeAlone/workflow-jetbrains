@@ -9,6 +9,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.jcef.JBCefBrowser
+import com.intellij.ui.jcef.JBCefBrowserBase
 import com.intellij.ui.jcef.JBCefJSQuery
 import org.cef.browser.CefBrowser
 import org.cef.handler.CefLoadHandlerAdapter
@@ -18,9 +19,9 @@ class WorkflowBridge(
     private val file: VirtualFile,
     private val browser: JBCefBrowser,
 ) {
-    private val yamlUpdatedQuery = JBCefJSQuery.create(browser)
-    private val navigateQuery = JBCefJSQuery.create(browser)
-    private val schemaRequestQuery = JBCefJSQuery.create(browser)
+    private val yamlUpdatedQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
+    private val navigateQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
+    private val schemaRequestQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
     private var updatingFromEditor = false
     private var updatingFromWebview = false
 

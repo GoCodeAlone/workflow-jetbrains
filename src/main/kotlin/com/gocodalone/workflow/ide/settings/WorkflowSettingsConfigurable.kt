@@ -32,18 +32,18 @@ class WorkflowSettingsConfigurable : Configurable {
     override fun createComponent(): JComponent {
         wfctlPathField = TextFieldWithBrowseButton()
         wfctlPathField.addBrowseFolderListener(
-            "Select wfctl Binary",
-            "Path to the wfctl command-line tool",
             null,
-            FileChooserDescriptorFactory.createSingleFileDescriptor()
+            FileChooserDescriptorFactory.singleFile()
+                .withTitle("Select wfctl Binary")
+                .withDescription("Path to the wfctl command-line tool")
         )
 
         lspServerPathField = TextFieldWithBrowseButton()
         lspServerPathField.addBrowseFolderListener(
-            "Select workflow-lsp-server Binary",
-            "Path to the Workflow Engine LSP server binary",
             null,
-            FileChooserDescriptorFactory.createSingleFileDescriptor()
+            FileChooserDescriptorFactory.singleFile()
+                .withTitle("Select workflow-lsp-server Binary")
+                .withDescription("Path to the Workflow Engine LSP server binary")
         )
 
         enableLspCheckbox = JBCheckBox("Enable LSP server integration (requires workflow-lsp-server)")
