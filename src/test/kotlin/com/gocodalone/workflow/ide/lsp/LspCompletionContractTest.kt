@@ -147,7 +147,7 @@ class LspCompletionContractTest : TestCase() {
             "sum", "pluck", "flatten", "unique", "groupBy", "sortBy",
             "first", "last", "min", "max"
         )
-        assertEquals("Must have 38 template functions", 38, expectedFunctions.size)
+        assertEquals("Must have 40 template functions", 40, expectedFunctions.size)
     }
 
     fun testCorePipelineTemplateFunctions() {
