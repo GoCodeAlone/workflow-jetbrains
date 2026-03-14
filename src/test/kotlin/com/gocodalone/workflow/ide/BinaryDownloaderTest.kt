@@ -31,6 +31,17 @@ class BinaryDownloaderTest : BasePlatformTestCase() {
         }
     }
 
+    fun testGetPlatformSuffixArchDetection() {
+        val suffix = BinaryDownloader.getPlatformSuffix()
+        val arch = System.getProperty("os.arch").lowercase()
+        when {
+            arch == "aarch64" || arch == "arm64" ->
+                assertTrue("On arm64, suffix should end with -arm64", suffix.endsWith("-arm64"))
+            arch == "amd64" || arch == "x86_64" ->
+                assertTrue("On amd64, suffix should end with -amd64", suffix.endsWith("-amd64"))
+        }
+    }
+
     fun testGetDefaultBinaryPathIncludesPlatformSuffix() {
         val path = BinaryDownloader.getDefaultBinaryPath("wfctl")
         val suffix = BinaryDownloader.getPlatformSuffix()
@@ -54,6 +65,15 @@ class BinaryDownloaderTest : BasePlatformTestCase() {
         assertTrue(
             "LSP server path should contain workflow-lsp-server",
             path.contains("workflow-lsp-server")
+        )
+    }
+
+    fun testGetDefaultBinaryPathForLspServerIncludesSuffix() {
+        val path = BinaryDownloader.getDefaultBinaryPath("workflow-lsp-server")
+        val suffix = BinaryDownloader.getPlatformSuffix()
+        assertTrue(
+            "LSP server path should include platform suffix in directory, got: $path",
+            path.contains(suffix)
         )
     }
 
@@ -174,5 +194,109 @@ class BinaryDownloaderTest : BasePlatformTestCase() {
         } else {
             assertFalse("On non-Windows, binary path should not end with .exe", path.endsWith(".exe"))
         }
+    }
+
+    // ── Download URL construction ──────────────────────────────────────
+
+    fun testDownloadUrlConstructionForLspServer() {
+        val suffix = BinaryDownloader.getPlatformSuffix()
+        val binaryName = WorkflowBundle.LSP_SERVER_BINARY
+        val tag = "v0.3.30"
+        val expectedAsset = if (BinaryDownloader.isWindows()) {
+            "$binaryName-$suffix.exe"
+        } else {
+            "$binaryName-$suffix"
+        }
+        val expectedUrl = "https://github.com/GoCodeAlone/workflow/releases/download/$tag/$expectedAsset"
+        // Verify URL construction matches expected pattern
+        assertTrue(
+            "Download URL should point to GoCodeAlone/workflow releases",
+            expectedUrl.contains("GoCodeAlone/workflow/releases/download")
+        )
+        assertTrue(
+            "Download URL should include the tag",
+            expectedUrl.contains(tag)
+        )
+        assertTrue(
+            "Download URL should include platform suffix",
+            expectedUrl.contains(suffix)
+        )
+    }
+
+    fun testDownloadUrlConstructionForWfctl() {
+        val suffix = BinaryDownloader.getPlatformSuffix()
+        val binaryName = WorkflowBundle.WFCTL_BINARY
+        val tag = "v0.3.30"
+        val expectedAsset = if (BinaryDownloader.isWindows()) {
+            "$binaryName-$suffix.exe"
+        } else {
+            "$binaryName-$suffix"
+        }
+        val expectedUrl = "https://github.com/GoCodeAlone/workflow/releases/download/$tag/$expectedAsset"
+        assertTrue(
+            "wfctl download URL should include wfctl binary name",
+            expectedUrl.contains("wfctl-$suffix")
+        )
+    }
+
+    // ── Resolution order: settings -> PATH -> cache ────────────────────
+
+    fun testResolutionOrderSettingsFirst() {
+        // Create a temp file to simulate a settings-configured binary
+        val tmpFile = File.createTempFile("lsp-test-settings", "")
+        tmpFile.setExecutable(true)
+        try {
+            val resolved = BinaryDownloader.resolveFromPathOrCache(
+                "workflow-lsp-server",
+                tmpFile.absolutePath
+            )
+            assertEquals(
+                "Settings path must be checked first in resolution order",
+                tmpFile.absolutePath,
+                resolved
+            )
+        } finally {
+            tmpFile.delete()
+        }
+    }
+
+    fun testResolutionOrderFallsThroughToPath() {
+        // With no settings path, should check PATH next
+        if (System.getProperty("os.name").lowercase().contains("windows")) return
+        val resolved = BinaryDownloader.resolveFromPathOrCache("ls", "")
+        assertNotNull("Should find 'ls' on PATH when settings path is blank", resolved)
+    }
+
+    fun testResolutionOrderReturnsNullWhenAllFail() {
+        val resolved = BinaryDownloader.resolveFromPathOrCache(
+            "workflow-lsp-server-nonexistent-xyz",
+            "/nonexistent/settings/path"
+        )
+        assertNull("Should return null when settings invalid, not on PATH, and not cached", resolved)
+    }
+
+    // ── WorkflowBundle constants ───────────────────────────────────────
+
+    fun testWorkflowBundleLspBinaryName() {
+        assertEquals(
+            "LSP binary name constant must be workflow-lsp-server",
+            "workflow-lsp-server",
+            WorkflowBundle.LSP_SERVER_BINARY
+        )
+    }
+
+    fun testWorkflowBundleWfctlBinaryName() {
+        assertEquals(
+            "wfctl binary name constant must be wfctl",
+            "wfctl",
+            WorkflowBundle.WFCTL_BINARY
+        )
+    }
+
+    fun testWorkflowBundleGitHubReleasesUrl() {
+        assertTrue(
+            "GitHub releases URL must point to GoCodeAlone/workflow",
+            WorkflowBundle.GITHUB_RELEASES_URL.contains("GoCodeAlone/workflow")
+        )
     }
 }

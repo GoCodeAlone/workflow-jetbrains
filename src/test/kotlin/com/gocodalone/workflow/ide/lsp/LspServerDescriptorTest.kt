@@ -1,8 +1,11 @@
 package com.gocodalone.workflow.ide.lsp
 
+import com.gocodalone.workflow.ide.WorkflowBundle
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 
 class LspServerDescriptorTest : BasePlatformTestCase() {
+
+    // ── File pattern matching ──────────────────────────────────────────
 
     fun testIsSupportedFileForWorkflowYaml() {
         val descriptor = WorkflowLspServerDescriptor(project)
@@ -40,6 +43,8 @@ class LspServerDescriptorTest : BasePlatformTestCase() {
         )
     }
 
+    // ── Content-based detection ────────────────────────────────────────
+
     fun testIsSupportedFileForArbitraryYamlWithModulesAndWorkflows() {
         val descriptor = WorkflowLspServerDescriptor(project)
         val content = """
@@ -73,6 +78,27 @@ class LspServerDescriptorTest : BasePlatformTestCase() {
             descriptor.isSupportedFile(file.virtualFile)
         )
     }
+
+    fun testIsSupportedFileForContentWithModulesWorkflowsAndTriggers() {
+        val descriptor = WorkflowLspServerDescriptor(project)
+        val content = """
+            modules:
+              - name: web
+                type: http.server
+            workflows:
+              http:
+                routes: []
+            triggers:
+              - type: http
+        """.trimIndent()
+        val file = myFixture.configureByText("complex.yaml", content)
+        assertTrue(
+            "YAML with modules: + workflows: + triggers: should be supported",
+            descriptor.isSupportedFile(file.virtualFile)
+        )
+    }
+
+    // ── Rejection of non-workflow files ─────────────────────────────────
 
     fun testIsSupportedFileRejectsGenericYaml() {
         val descriptor = WorkflowLspServerDescriptor(project)
@@ -111,6 +137,56 @@ class LspServerDescriptorTest : BasePlatformTestCase() {
         )
     }
 
+    fun testIsSupportedFileRejectsDockerCompose() {
+        val descriptor = WorkflowLspServerDescriptor(project)
+        val content = """
+            version: '3.8'
+            services:
+              web:
+                image: nginx
+        """.trimIndent()
+        val file = myFixture.configureByText("docker-compose.yaml", content)
+        assertFalse(
+            "Docker compose YAML should not be supported",
+            descriptor.isSupportedFile(file.virtualFile)
+        )
+    }
+
+    fun testIsSupportedFileRejectsKubernetesManifest() {
+        val descriptor = WorkflowLspServerDescriptor(project)
+        val content = """
+            apiVersion: apps/v1
+            kind: Deployment
+            metadata:
+              name: web
+        """.trimIndent()
+        val file = myFixture.configureByText("deployment.yaml", content)
+        assertFalse(
+            "Kubernetes manifest YAML should not be supported",
+            descriptor.isSupportedFile(file.virtualFile)
+        )
+    }
+
+    fun testIsSupportedFileRejectsMarkdown() {
+        val descriptor = WorkflowLspServerDescriptor(project)
+        val file = myFixture.configureByText("README.md", "# Workflow\nmodules:\nworkflows:")
+        assertFalse(
+            "Markdown files should not be supported even with workflow keywords",
+            descriptor.isSupportedFile(file.virtualFile)
+        )
+    }
+
+    fun testIsSupportedFileRejectsEmptyYaml() {
+        val descriptor = WorkflowLspServerDescriptor(project)
+        val file = myFixture.configureByText("empty.yaml", "")
+        assertFalse(
+            "Empty YAML files should not be supported",
+            descriptor.isSupportedFile(file.virtualFile)
+        )
+    }
+
+    // ── Command line construction ──────────────────────────────────────
+
     fun testBuildCommandLineReturnsNonEmptyList() {
         val descriptor = WorkflowLspServerDescriptor(project)
         val cmd = descriptor.buildCommandLine()
@@ -130,5 +206,23 @@ class LspServerDescriptorTest : BasePlatformTestCase() {
         val descriptor = WorkflowLspServerDescriptor(project)
         val cmd = descriptor.buildCommandLine()
         assertEquals("Command line should have exactly one element", 1, cmd.size)
+    }
+
+    // ── WorkflowBundle file patterns ───────────────────────────────────
+
+    fun testWorkflowFilePatternsIncludeAllKnownNames() {
+        val patterns = WorkflowBundle.WORKFLOW_FILE_PATTERNS
+        assertTrue("Must include workflow.yaml", patterns.contains("workflow.yaml"))
+        assertTrue("Must include workflow.yml", patterns.contains("workflow.yml"))
+        assertTrue("Must include app.yaml", patterns.contains("app.yaml"))
+        assertTrue("Must include app.yml", patterns.contains("app.yml"))
+    }
+
+    fun testWorkflowContentKeyIsModules() {
+        assertEquals(
+            "Content detection key must be 'modules:'",
+            "modules:",
+            WorkflowBundle.WORKFLOW_CONTENT_KEY
+        )
     }
 }
