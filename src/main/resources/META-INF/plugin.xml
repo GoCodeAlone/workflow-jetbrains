@@ -62,6 +62,13 @@
                     icon="AllIcons.FileTypes.Diagram"
                     factoryClass="com.gocodalone.workflow.ide.editor.WorkflowVisualEditorToolWindowFactory"/>
 
+        <!-- Plugin marketplace tool window -->
+        <toolWindow id="Workflow Marketplace"
+                    anchor="right"
+                    doNotActivateOnStart="true"
+                    icon="AllIcons.Actions.Download"
+                    factoryClass="com.gocodalone.workflow.ide.marketplace.MarketplaceToolWindowFactory"/>
+
         <!-- Editor notification banner for detected workflow files -->
         <editorNotificationProvider
             implementation="com.gocodalone.workflow.ide.editor.WorkflowDetectionNotificationProvider"/>
