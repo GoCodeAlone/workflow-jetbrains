@@ -52,29 +52,19 @@ class MarketplacePanel(private val project: Project) : JPanel(BorderLayout()) {
         ApplicationManager.getApplication().executeOnPooledThread {
             try {
                 val json = HttpRequests.request(REGISTRY_URL).readString()
-                val type = object : TypeToken<List<Map<String, Any>>>() {}.type
-                val plugins: List<Map<String, Any>> = Gson().fromJson(json, type)
+                val allPlugins = parseRegistryIndex(json)
+                val publicPlugins = filterPublicPlugins(allPlugins)
                 SwingUtilities.invokeLater {
                     tableModel.rowCount = 0
-                    var shown = 0
-                    for (p in plugins) {
-                        // Gson deserialises JSON booleans as Boolean, but guard against
-                        // string "true"/"false" in case the registry schema evolves.
-                        val isPrivate = when (val raw = p["private"]) {
-                            is Boolean -> raw
-                            is String -> raw.equals("true", ignoreCase = true)
-                            else -> false
-                        }
-                        if (!isPrivate) {
-                            tableModel.addRow(arrayOf(
-                                p["name"]?.toString() ?: "",
-                                p["version"]?.toString() ?: "",
-                                p["tier"]?.toString() ?: "",
-                                p["description"]?.toString() ?: ""
-                            ))
-                            shown++
-                        }
+                    for (p in publicPlugins) {
+                        tableModel.addRow(arrayOf(
+                            p["name"]?.toString() ?: "",
+                            p["version"]?.toString() ?: "",
+                            p["tier"]?.toString() ?: "",
+                            p["description"]?.toString() ?: ""
+                        ))
                     }
+                    val shown = publicPlugins.size
                     statusLabel.text = if (shown == 0) "No public plugins found." else "$shown plugin(s) available."
                 }
             } catch (e: HttpRequests.HttpStatusException) {
@@ -94,5 +84,30 @@ class MarketplacePanel(private val project: Project) : JPanel(BorderLayout()) {
                 }
             }
         }
+    }
+}
+
+/**
+ * Parses the registry index JSON into a list of plugin maps.
+ * Returns an empty list if the JSON is null, empty, or malformed.
+ */
+internal fun parseRegistryIndex(json: String): List<Map<String, Any>> {
+    if (json.isBlank()) return emptyList()
+    val type = object : TypeToken<List<Map<String, Any>>>() {}.type
+    return Gson().fromJson<List<Map<String, Any>>>(json, type) ?: emptyList()
+}
+
+/**
+ * Filters out private plugins. Handles boolean and string "true"/"false"
+ * for the `private` field, defaulting to public when the field is absent.
+ */
+internal fun filterPublicPlugins(plugins: List<Map<String, Any>>): List<Map<String, Any>> {
+    return plugins.filter { p ->
+        val isPrivate = when (val raw = p["private"]) {
+            is Boolean -> raw
+            is String -> raw.equals("true", ignoreCase = true)
+            else -> false
+        }
+        !isPrivate
     }
 }
