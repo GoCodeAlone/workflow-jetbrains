@@ -25,6 +25,7 @@ class WorkflowBridge(
     private val aiRequestQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
     private val resolveFileQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
     private val saveFilesQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
+    private val layoutQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
     private var updatingFromEditor = false
     private var updatingFromWebview = false
 
@@ -63,6 +64,13 @@ class WorkflowBridge(
             JBCefJSQuery.Response("")
         }
 
+        this.layoutQuery.addHandler { layoutJson ->
+            val yamlPath = file.path
+            val sidecarPath = yamlPath.replace(Regex("\\.ya?ml$"), ".workflow-editor.json")
+            java.io.File(sidecarPath).writeText(layoutJson)
+            null
+        }
+
         // Inject bridge functions after page load
         browser.jbCefClient.addLoadHandler(object : CefLoadHandlerAdapter() {
             override fun onLoadEnd(b: CefBrowser?, frame: org.cef.browser.CefFrame?, httpStatusCode: Int) {
@@ -97,6 +105,9 @@ class WorkflowBridge(
                 },
                 sendSaveFiles: function(data) {
                     ${saveFilesQuery.inject("data")}
+                },
+                saveLayout: function(json) {
+                    ${layoutQuery.inject("json")}
                 }
             };
             window.dispatchEvent(new Event('hostBridgeReady'));
@@ -116,6 +127,16 @@ class WorkflowBridge(
             "", 0
         )
         updatingFromEditor = false
+
+        val sidecarPath = file.path.replace(Regex("\\.ya?ml$"), ".workflow-editor.json")
+        val sidecarFile = java.io.File(sidecarPath)
+        if (sidecarFile.exists()) {
+            val escaped = sidecarFile.readText()
+                .replace("\\", "\\\\")
+                .replace("`", "\\`")
+                .replace("\$", "\\\$")
+            browser.cefBrowser.executeJavaScript("window.onLayoutLoaded && window.onLayoutLoaded(JSON.parse(`$escaped`))", "", 0)
+        }
     }
 
     private fun handleYamlFromWebview(content: String) {
@@ -385,5 +406,6 @@ class WorkflowBridge(
         aiRequestQuery.dispose()
         resolveFileQuery.dispose()
         saveFilesQuery.dispose()
+        layoutQuery.dispose()
     }
 }
