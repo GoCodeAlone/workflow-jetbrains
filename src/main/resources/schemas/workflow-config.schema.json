@@ -48,13 +48,23 @@
             "description": "Module type identifier (built-in or plugin-provided)",
             "type": "string",
             "enum": [
+              "actor.pool",
+              "actor.system",
               "api.command",
               "api.gateway",
               "api.handler",
               "api.query",
+              "app.container",
+              "argo.workflows",
               "auth.jwt",
+              "auth.m2m",
+              "auth.oauth2",
+              "auth.token-blacklist",
               "auth.user-store",
+              "aws.codebuild",
               "cache.modular",
+              "cache.redis",
+              "cloud.account",
               "config.provider",
               "data.transformer",
               "database.partitioned",
@@ -63,11 +73,14 @@
               "dynamic.component",
               "eventstore.service",
               "featureflag.service",
+              "gitlab.client",
+              "gitlab.webhook",
               "health.checker",
               "http.handler",
               "http.middleware.auth",
               "http.middleware.cors",
               "http.middleware.logging",
+              "http.middleware.otel",
               "http.middleware.ratelimit",
               "http.middleware.requestid",
               "http.middleware.securityheaders",
@@ -75,6 +88,7 @@
               "http.router",
               "http.server",
               "http.simple_proxy",
+              "iac.state",
               "jsonschema.modular",
               "license.validator",
               "log.collector",
@@ -84,33 +98,73 @@
               "messaging.kafka",
               "messaging.nats",
               "metrics.collector",
+              "nosql.dynamodb",
+              "nosql.memory",
+              "nosql.mongodb",
+              "nosql.redis",
               "notification.slack",
               "observability.otel",
               "openapi",
               "openapi.consumer",
               "openapi.generator",
               "persistence.store",
+              "platform.apigateway",
+              "platform.autoscaling",
               "platform.context",
+              "platform.dns",
+              "platform.do_app",
+              "platform.do_database",
+              "platform.do_dns",
+              "platform.do_networking",
+              "platform.doks",
+              "platform.ecs",
+              "platform.kubernetes",
+              "platform.networking",
               "platform.provider",
+              "platform.region",
+              "platform.region_router",
               "platform.resource",
+              "policy.mock",
               "processing.step",
               "reverseproxy",
               "scheduler.modular",
               "secrets.aws",
               "secrets.vault",
+              "security.field-protection",
+              "security.scanner",
               "state.connector",
               "state.tracker",
               "statemachine.engine",
               "static.fileserver",
+              "step.actor_ask",
+              "step.actor_send",
               "step.ai_classify",
               "step.ai_complete",
               "step.ai_extract",
+              "step.apigw_apply",
+              "step.apigw_destroy",
+              "step.apigw_plan",
+              "step.apigw_status",
+              "step.app_deploy",
+              "step.app_rollback",
+              "step.app_status",
+              "step.argo_delete",
+              "step.argo_list",
+              "step.argo_logs",
+              "step.argo_status",
+              "step.argo_submit",
+              "step.artifact_delete",
+              "step.artifact_download",
+              "step.artifact_list",
               "step.artifact_pull",
               "step.artifact_push",
+              "step.artifact_upload",
               "step.auth_required",
               "step.auth_validate",
               "step.authz_check",
               "step.base64_decode",
+              "step.build_binary",
+              "step.build_from_config",
               "step.build_ui",
               "step.cache_delete",
               "step.cache_get",
@@ -118,6 +172,13 @@
               "step.circuit_breaker",
               "step.cli_invoke",
               "step.cli_print",
+              "step.cloud_validate",
+              "step.codebuild_create_project",
+              "step.codebuild_delete_project",
+              "step.codebuild_list_builds",
+              "step.codebuild_logs",
+              "step.codebuild_start",
+              "step.codebuild_status",
               "step.conditional",
               "step.constraint_check",
               "step.db_create_partition",
@@ -129,10 +190,22 @@
               "step.deploy",
               "step.dlq_replay",
               "step.dlq_send",
+              "step.dns_apply",
+              "step.dns_plan",
+              "step.dns_status",
+              "step.do_deploy",
+              "step.do_destroy",
+              "step.do_logs",
+              "step.do_scale",
+              "step.do_status",
               "step.docker_build",
               "step.docker_push",
               "step.docker_run",
               "step.drift_check",
+              "step.ecs_apply",
+              "step.ecs_destroy",
+              "step.ecs_plan",
+              "step.ecs_status",
               "step.event_decrypt",
               "step.event_publish",
               "step.feature_flag",
@@ -140,15 +213,44 @@
               "step.field_reencrypt",
               "step.foreach",
               "step.gate",
+              "step.git_checkout",
+              "step.git_clone",
+              "step.git_commit",
+              "step.git_push",
+              "step.git_tag",
+              "step.gitlab_create_mr",
+              "step.gitlab_mr_comment",
+              "step.gitlab_parse_webhook",
+              "step.gitlab_pipeline_status",
+              "step.gitlab_trigger_pipeline",
               "step.graphql",
               "step.hash",
               "step.http_call",
               "step.http_proxy",
+              "step.iac_apply",
+              "step.iac_destroy",
+              "step.iac_drift_detect",
+              "step.iac_plan",
+              "step.iac_status",
               "step.jq",
               "step.json_parse",
               "step.json_response",
+              "step.k8s_apply",
+              "step.k8s_destroy",
+              "step.k8s_plan",
+              "step.k8s_status",
               "step.log",
               "step.m2m_token",
+              "step.marketplace_detail",
+              "step.marketplace_install",
+              "step.marketplace_installed",
+              "step.marketplace_search",
+              "step.marketplace_uninstall",
+              "step.marketplace_update",
+              "step.network_apply",
+              "step.network_plan",
+              "step.network_status",
+              "step.nosql_delete",
               "step.nosql_get",
               "step.nosql_put",
               "step.nosql_query",
@@ -159,19 +261,34 @@
               "step.platform_destroy",
               "step.platform_plan",
               "step.platform_template",
+              "step.policy_evaluate",
+              "step.policy_list",
+              "step.policy_load",
+              "step.policy_test",
               "step.publish",
               "step.rate_limit",
               "step.raw_response",
               "step.regex_match",
+              "step.region_deploy",
+              "step.region_failover",
+              "step.region_promote",
+              "step.region_status",
+              "step.region_sync",
+              "step.region_weight",
               "step.request_parse",
               "step.resilient_circuit_breaker",
               "step.retry_with_backoff",
               "step.s3_upload",
               "step.sandbox_exec",
+              "step.scaling_apply",
+              "step.scaling_destroy",
+              "step.scaling_plan",
+              "step.scaling_status",
               "step.scan_container",
               "step.scan_deps",
               "step.scan_sast",
               "step.secret_fetch",
+              "step.secret_rotate",
               "step.set",
               "step.shell_exec",
               "step.statemachine_get",
@@ -179,6 +296,11 @@
               "step.static_file",
               "step.sub_workflow",
               "step.token_revoke",
+              "step.trace_annotate",
+              "step.trace_extract",
+              "step.trace_inject",
+              "step.trace_link",
+              "step.trace_start",
               "step.transform",
               "step.ui_scaffold",
               "step.ui_scaffold_analyze",
@@ -188,11 +310,13 @@
               "step.validate_request_body",
               "step.webhook_verify",
               "step.workflow_call",
+              "storage.artifact",
               "storage.gcs",
               "storage.local",
               "storage.s3",
               "storage.sqlite",
               "timeline.service",
+              "tracing.propagation",
               "webhook.sender",
               "workflow.registry"
             ]
@@ -200,6 +324,108 @@
         },
         "additionalProperties": false,
         "allOf": [
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "actor.pool"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "system"
+                  ],
+                  "properties": {
+                    "idleTimeout": {
+                      "description": "How long an auto-managed actor stays idle before deactivating",
+                      "type": "string",
+                      "default": "10m"
+                    },
+                    "mode": {
+                      "description": "'auto-managed': actors activate on first message; 'permanent': fixed pool",
+                      "type": "string",
+                      "enum": [
+                        "auto-managed",
+                        "permanent"
+                      ],
+                      "default": "auto-managed"
+                    },
+                    "poolSize": {
+                      "description": "Number of actors in a permanent pool",
+                      "type": "number",
+                      "default": 10
+                    },
+                    "recovery": {
+                      "description": "What happens when an actor crashes",
+                      "type": "object"
+                    },
+                    "routing": {
+                      "description": "How messages are distributed among actors",
+                      "type": "string",
+                      "enum": [
+                        "round-robin",
+                        "random",
+                        "broadcast",
+                        "sticky"
+                      ],
+                      "default": "round-robin"
+                    },
+                    "routingKey": {
+                      "description": "Message field used for sticky routing",
+                      "type": "string"
+                    },
+                    "system": {
+                      "description": "Name of the actor.system module this pool belongs to",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "actor.system"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "defaultRecovery": {
+                      "description": "What happens when any actor in this system crashes",
+                      "type": "object"
+                    },
+                    "shutdownTimeout": {
+                      "description": "How long to wait for in-flight messages to drain before forcing shutdown",
+                      "type": "string",
+                      "default": "30s"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
           {
             "if": {
               "required": [
@@ -383,6 +609,109 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "app.container"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "environment",
+                    "image"
+                  ],
+                  "properties": {
+                    "cpu": {
+                      "description": "CPU request/limit (e.g. 500m)",
+                      "type": "string"
+                    },
+                    "env": {
+                      "description": "Environment variables injected into the container",
+                      "type": "object"
+                    },
+                    "environment": {
+                      "description": "Name of the platform.kubernetes or platform.ecs module to deploy to",
+                      "type": "string"
+                    },
+                    "health_path": {
+                      "description": "HTTP health check path",
+                      "type": "string"
+                    },
+                    "health_port": {
+                      "description": "HTTP health check port",
+                      "type": "number"
+                    },
+                    "image": {
+                      "description": "Container image reference (e.g. registry.example.com/my-api:v1.0.0)",
+                      "type": "string"
+                    },
+                    "memory": {
+                      "description": "Memory request/limit (e.g. 512Mi)",
+                      "type": "string"
+                    },
+                    "ports": {
+                      "description": "List of container port numbers",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "replicas": {
+                      "description": "Desired replica count",
+                      "type": "number"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "argo.workflows"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "namespace": {
+                      "description": "Kubernetes namespace for Argo Workflows",
+                      "type": "string"
+                    },
+                    "server": {
+                      "description": "Argo Workflows server URL",
+                      "type": "string"
+                    },
+                    "token": {
+                      "description": "Bearer token for Argo server authentication",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "auth.jwt"
                   ]
                 }
@@ -426,6 +755,261 @@
                       "description": "Token expiration duration (e.g. 1h, 24h, 7d)",
                       "type": "string",
                       "default": "24h"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "auth.m2m"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "algorithm": {
+                      "description": "JWT signing algorithm",
+                      "type": "string",
+                      "enum": [
+                        "HS256",
+                        "ES256"
+                      ],
+                      "default": "ES256"
+                    },
+                    "clients": {
+                      "description": "List of OAuth2 clients",
+                      "type": "object"
+                    },
+                    "issuer": {
+                      "description": "Token issuer claim",
+                      "type": "string",
+                      "default": "workflow"
+                    },
+                    "secret": {
+                      "description": "Secret for HS256 token signing",
+                      "type": "string"
+                    },
+                    "tokenExpiry": {
+                      "description": "Access token expiration duration",
+                      "type": "string",
+                      "default": "1h"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "auth.oauth2"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "providers"
+                  ],
+                  "properties": {
+                    "providers": {
+                      "description": "List of OAuth2 provider configurations",
+                      "type": "object"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "auth.token-blacklist"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "backend": {
+                      "description": "Storage backend for the blacklist",
+                      "type": "string",
+                      "enum": [
+                        "memory",
+                        "redis"
+                      ],
+                      "default": "memory"
+                    },
+                    "cleanup_interval": {
+                      "description": "How often to purge expired tokens",
+                      "type": "string",
+                      "default": "5m"
+                    },
+                    "redis_url": {
+                      "description": "Redis connection URL (redis backend only)",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "aws.codebuild"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "account": {
+                      "description": "Name of the cloud.account module",
+                      "type": "string"
+                    },
+                    "region": {
+                      "description": "AWS region (e.g. us-east-1)",
+                      "type": "string"
+                    },
+                    "role_arn": {
+                      "description": "IAM role ARN for CodeBuild service role",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "cache.redis"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "description": "Redis server address (host:port)",
+                      "type": "string",
+                      "default": "localhost:6379"
+                    },
+                    "db": {
+                      "description": "Redis database number",
+                      "type": "number",
+                      "default": 0
+                    },
+                    "defaultTTL": {
+                      "description": "Default time-to-live for cached values",
+                      "type": "string",
+                      "default": "1h"
+                    },
+                    "password": {
+                      "description": "Redis password (optional)",
+                      "type": "string"
+                    },
+                    "prefix": {
+                      "description": "Prefix applied to all cache keys",
+                      "type": "string",
+                      "default": "wf:"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "cloud.account"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "provider"
+                  ],
+                  "properties": {
+                    "credentials": {
+                      "description": "Credential configuration (type, keys, paths)",
+                      "type": "object"
+                    },
+                    "project_id": {
+                      "description": "GCP project ID",
+                      "type": "string"
+                    },
+                    "provider": {
+                      "description": "Cloud provider: aws, gcp, azure, digitalocean, kubernetes, mock",
+                      "type": "string"
+                    },
+                    "region": {
+                      "description": "Primary region (e.g. us-east-1, us-central1, eastus, nyc3)",
+                      "type": "string"
+                    },
+                    "subscription_id": {
+                      "description": "Azure subscription ID",
+                      "type": "string"
                     }
                   },
                   "additionalProperties": false
@@ -787,6 +1371,70 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "gitlab.client"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "token"
+                  ],
+                  "properties": {
+                    "token": {
+                      "description": "GitLab personal or project access token",
+                      "type": "string"
+                    },
+                    "url": {
+                      "description": "GitLab instance URL",
+                      "type": "string",
+                      "default": "https://gitlab.com"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "gitlab.webhook"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "secret": {
+                      "description": "GitLab webhook secret token for request validation",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "health.checker"
                   ]
                 }
@@ -982,6 +1630,35 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "http.middleware.otel"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "serverName": {
+                      "description": "Server name used as the span operation name",
+                      "type": "string",
+                      "default": "workflow-http"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "http.middleware.ratelimit"
                   ]
                 }
@@ -1128,6 +1805,38 @@
                     "targets": {
                       "description": "Map of URL prefix to backend URL (e.g. /api -\u003e http://localhost:3000)",
                       "type": "object"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "iac.state"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "backend": {
+                      "description": "memory or filesystem",
+                      "type": "string"
+                    },
+                    "directory": {
+                      "description": "State directory (filesystem backend only)",
+                      "type": "string"
                     }
                   },
                   "additionalProperties": false
@@ -1372,6 +2081,123 @@
                     },
                     "subsystem": {
                       "description": "Prometheus metric subsystem",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "nosql.dynamodb"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "table"
+                  ],
+                  "properties": {
+                    "endpoint": {
+                      "description": "Custom endpoint (for local DynamoDB)",
+                      "type": "string"
+                    },
+                    "region": {
+                      "description": "AWS region",
+                      "type": "string"
+                    },
+                    "table": {
+                      "description": "DynamoDB table name",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "nosql.mongodb"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "uri",
+                    "database"
+                  ],
+                  "properties": {
+                    "collection": {
+                      "description": "Default collection name",
+                      "type": "string"
+                    },
+                    "database": {
+                      "description": "MongoDB database name",
+                      "type": "string"
+                    },
+                    "uri": {
+                      "description": "MongoDB connection URI",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "nosql.redis"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "description": "Redis server address",
+                      "type": "string",
+                      "default": "localhost:6379"
+                    },
+                    "db": {
+                      "description": "Redis database number",
+                      "type": "number",
+                      "default": 0
+                    },
+                    "password": {
+                      "description": "Redis password",
                       "type": "string"
                     }
                   },
@@ -1636,6 +2462,96 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "platform.apigateway"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "name"
+                  ],
+                  "properties": {
+                    "account": {
+                      "description": "Name of the cloud.account module",
+                      "type": "string"
+                    },
+                    "cors": {
+                      "description": "CORS configuration",
+                      "type": "object"
+                    },
+                    "name": {
+                      "description": "API gateway name",
+                      "type": "string"
+                    },
+                    "provider": {
+                      "description": "mock | aws",
+                      "type": "string"
+                    },
+                    "routes": {
+                      "description": "Route definitions",
+                      "type": "object"
+                    },
+                    "stage": {
+                      "description": "Deployment stage (dev, staging, prod)",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "platform.autoscaling"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "policies"
+                  ],
+                  "properties": {
+                    "account": {
+                      "description": "Name of the cloud.account module",
+                      "type": "string"
+                    },
+                    "policies": {
+                      "description": "Scaling policy definitions",
+                      "type": "object"
+                    },
+                    "provider": {
+                      "description": "mock | aws",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "platform.context"
                   ]
                 }
@@ -1667,6 +2583,440 @@
                         "application"
                       ],
                       "default": "application"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "platform.dns"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "zone"
+                  ],
+                  "properties": {
+                    "account": {
+                      "description": "Name of the cloud.account module",
+                      "type": "string"
+                    },
+                    "provider": {
+                      "description": "mock | aws",
+                      "type": "string"
+                    },
+                    "records": {
+                      "description": "List of DNS record definitions",
+                      "type": "object"
+                    },
+                    "zone": {
+                      "description": "Zone configuration (name, comment, private, vpcId)",
+                      "type": "object"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "platform.do_app"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "account": {
+                      "description": "Name of the cloud.account module",
+                      "type": "string"
+                    },
+                    "envs": {
+                      "description": "Environment variables for the app",
+                      "type": "object"
+                    },
+                    "http_port": {
+                      "description": "Container HTTP port",
+                      "type": "number"
+                    },
+                    "image": {
+                      "description": "Container image reference",
+                      "type": "string"
+                    },
+                    "instances": {
+                      "description": "Number of instances",
+                      "type": "number"
+                    },
+                    "name": {
+                      "description": "App Platform application name",
+                      "type": "string"
+                    },
+                    "provider": {
+                      "description": "mock | digitalocean",
+                      "type": "string"
+                    },
+                    "region": {
+                      "description": "DO region slug (e.g. nyc)",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "platform.do_database"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "account": {
+                      "description": "Name of the cloud.account module",
+                      "type": "string"
+                    },
+                    "engine": {
+                      "description": "Database engine: pg | mysql | redis | mongodb | kafka",
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Database cluster name",
+                      "type": "string"
+                    },
+                    "num_nodes": {
+                      "description": "Number of nodes",
+                      "type": "number"
+                    },
+                    "provider": {
+                      "description": "mock | digitalocean",
+                      "type": "string"
+                    },
+                    "region": {
+                      "description": "DO region slug",
+                      "type": "string"
+                    },
+                    "size": {
+                      "description": "Droplet size slug",
+                      "type": "string"
+                    },
+                    "version": {
+                      "description": "Engine version",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "platform.do_dns"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "domain"
+                  ],
+                  "properties": {
+                    "account": {
+                      "description": "Name of the cloud.account module",
+                      "type": "string"
+                    },
+                    "domain": {
+                      "description": "Domain name (e.g. example.com)",
+                      "type": "string"
+                    },
+                    "provider": {
+                      "description": "mock | digitalocean",
+                      "type": "string"
+                    },
+                    "records": {
+                      "description": "List of DNS record definitions",
+                      "type": "object"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "platform.do_networking"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "vpc"
+                  ],
+                  "properties": {
+                    "account": {
+                      "description": "Name of the cloud.account module",
+                      "type": "string"
+                    },
+                    "firewalls": {
+                      "description": "List of firewall definitions",
+                      "type": "object"
+                    },
+                    "provider": {
+                      "description": "mock | digitalocean",
+                      "type": "string"
+                    },
+                    "vpc": {
+                      "description": "VPC configuration (name, region, ip_range)",
+                      "type": "object"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "platform.doks"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "account": {
+                      "description": "Name of the cloud.account module",
+                      "type": "string"
+                    },
+                    "cluster_name": {
+                      "description": "DOKS cluster name",
+                      "type": "string"
+                    },
+                    "node_pool": {
+                      "description": "Node pool config",
+                      "type": "object"
+                    },
+                    "region": {
+                      "description": "DO region slug (e.g. nyc3)",
+                      "type": "string"
+                    },
+                    "version": {
+                      "description": "Kubernetes version slug",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "platform.ecs"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "cluster"
+                  ],
+                  "properties": {
+                    "account": {
+                      "description": "Name of the cloud.account module",
+                      "type": "string"
+                    },
+                    "cluster": {
+                      "description": "ECS cluster name",
+                      "type": "string"
+                    },
+                    "desired_count": {
+                      "description": "Number of tasks to run",
+                      "type": "string"
+                    },
+                    "launch_type": {
+                      "description": "FARGATE or EC2",
+                      "type": "string"
+                    },
+                    "region": {
+                      "description": "AWS region (e.g. us-east-1)",
+                      "type": "string"
+                    },
+                    "security_groups": {
+                      "description": "List of security group IDs",
+                      "type": "object"
+                    },
+                    "vpc_subnets": {
+                      "description": "List of subnet IDs",
+                      "type": "object"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "platform.kubernetes"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "type"
+                  ],
+                  "properties": {
+                    "account": {
+                      "description": "Name of the cloud.account module",
+                      "type": "string"
+                    },
+                    "nodeGroups": {
+                      "description": "Node group definitions",
+                      "type": "object"
+                    },
+                    "type": {
+                      "description": "eks | gke | aks | kind | k3s",
+                      "type": "string"
+                    },
+                    "version": {
+                      "description": "e.g. 1.29",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "platform.networking"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "vpc"
+                  ],
+                  "properties": {
+                    "account": {
+                      "description": "Name of the cloud.account module",
+                      "type": "string"
+                    },
+                    "nat_gateway": {
+                      "description": "Provision a NAT gateway",
+                      "type": "boolean"
+                    },
+                    "provider": {
+                      "description": "mock | aws",
+                      "type": "string"
+                    },
+                    "security_groups": {
+                      "description": "List of security group definitions",
+                      "type": "object"
+                    },
+                    "subnets": {
+                      "description": "List of subnet definitions",
+                      "type": "object"
+                    },
+                    "vpc": {
+                      "description": "VPC configuration (cidr, name)",
+                      "type": "object"
                     }
                   },
                   "additionalProperties": false
@@ -1721,6 +3071,82 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "platform.region"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "regions"
+                  ],
+                  "properties": {
+                    "provider": {
+                      "description": "mock (default)",
+                      "type": "string"
+                    },
+                    "regions": {
+                      "description": "List of region definitions (name, provider, endpoint, priority, health_check)",
+                      "type": "object"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "platform.region_router"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "region"
+                  ],
+                  "properties": {
+                    "region": {
+                      "description": "Name of the platform.region module to route",
+                      "type": "string"
+                    },
+                    "strategy": {
+                      "description": "Traffic routing strategy",
+                      "type": "string",
+                      "enum": [
+                        "weighted",
+                        "failover",
+                        "active-active"
+                      ],
+                      "default": "weighted"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "platform.resource"
                   ]
                 }
@@ -1760,6 +3186,34 @@
                     "type": {
                       "description": "Abstract capability type (e.g., container_runtime, database, message_queue)",
                       "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "policy.mock"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "policies": {
+                      "description": "List of policies to load at startup",
+                      "type": "object"
                     }
                   },
                   "additionalProperties": false
@@ -1896,6 +3350,90 @@
                     "token": {
                       "description": "Authentication token for Vault access",
                       "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "security.field-protection"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "fields": {
+                      "description": "List of field protection rules (path, action: mask|encrypt|redact)",
+                      "type": "object"
+                    },
+                    "key": {
+                      "description": "Key used for field encryption",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "security.scanner"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "grypeBinary": {
+                      "description": "Path to grype binary",
+                      "type": "string",
+                      "default": "grype"
+                    },
+                    "mockFindings": {
+                      "description": "Mock findings to return (keyed by scan type: sast, container, deps)",
+                      "type": "object"
+                    },
+                    "mode": {
+                      "description": "Scanner mode: 'mock' for testing or 'cli' for real tools",
+                      "type": "string",
+                      "enum": [
+                        "mock",
+                        "cli"
+                      ],
+                      "default": "mock"
+                    },
+                    "semgrepBinary": {
+                      "description": "Path to semgrep binary",
+                      "type": "string",
+                      "default": "semgrep"
+                    },
+                    "trivyBinary": {
+                      "description": "Path to trivy binary",
+                      "type": "string",
+                      "default": "trivy"
                     }
                   },
                   "additionalProperties": false
@@ -5859,6 +7397,60 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "storage.artifact"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "backend": {
+                      "description": "Storage backend to use",
+                      "type": "string",
+                      "enum": [
+                        "filesystem",
+                        "s3"
+                      ],
+                      "default": "filesystem"
+                    },
+                    "basePath": {
+                      "description": "Root directory for filesystem backend",
+                      "type": "string",
+                      "default": "./data/artifacts"
+                    },
+                    "bucket": {
+                      "description": "S3 bucket name (s3 backend only)",
+                      "type": "string"
+                    },
+                    "endpoint": {
+                      "description": "Custom S3 endpoint",
+                      "type": "string"
+                    },
+                    "maxSize": {
+                      "description": "Maximum artifact size in bytes (0 = unlimited)",
+                      "type": "number"
+                    },
+                    "region": {
+                      "description": "AWS region (s3 backend only)",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "storage.gcs"
                   ]
                 }
@@ -6037,6 +7629,40 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "tracing.propagation"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "format": {
+                      "description": "Trace context propagation format",
+                      "type": "string",
+                      "enum": [
+                        "w3c",
+                        "b3",
+                        "composite"
+                      ],
+                      "default": "w3c"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "webhook.sender"
                   ]
                 }
@@ -6125,15 +7751,35 @@
                   "description": "Step type identifier",
                   "type": "string",
                   "enum": [
+                    "step.actor_ask",
+                    "step.actor_send",
                     "step.ai_classify",
                     "step.ai_complete",
                     "step.ai_extract",
+                    "step.apigw_apply",
+                    "step.apigw_destroy",
+                    "step.apigw_plan",
+                    "step.apigw_status",
+                    "step.app_deploy",
+                    "step.app_rollback",
+                    "step.app_status",
+                    "step.argo_delete",
+                    "step.argo_list",
+                    "step.argo_logs",
+                    "step.argo_status",
+                    "step.argo_submit",
+                    "step.artifact_delete",
+                    "step.artifact_download",
+                    "step.artifact_list",
                     "step.artifact_pull",
                     "step.artifact_push",
+                    "step.artifact_upload",
                     "step.auth_required",
                     "step.auth_validate",
                     "step.authz_check",
                     "step.base64_decode",
+                    "step.build_binary",
+                    "step.build_from_config",
                     "step.build_ui",
                     "step.cache_delete",
                     "step.cache_get",
@@ -6141,6 +7787,13 @@
                     "step.circuit_breaker",
                     "step.cli_invoke",
                     "step.cli_print",
+                    "step.cloud_validate",
+                    "step.codebuild_create_project",
+                    "step.codebuild_delete_project",
+                    "step.codebuild_list_builds",
+                    "step.codebuild_logs",
+                    "step.codebuild_start",
+                    "step.codebuild_status",
                     "step.conditional",
                     "step.constraint_check",
                     "step.db_create_partition",
@@ -6152,10 +7805,22 @@
                     "step.deploy",
                     "step.dlq_replay",
                     "step.dlq_send",
+                    "step.dns_apply",
+                    "step.dns_plan",
+                    "step.dns_status",
+                    "step.do_deploy",
+                    "step.do_destroy",
+                    "step.do_logs",
+                    "step.do_scale",
+                    "step.do_status",
                     "step.docker_build",
                     "step.docker_push",
                     "step.docker_run",
                     "step.drift_check",
+                    "step.ecs_apply",
+                    "step.ecs_destroy",
+                    "step.ecs_plan",
+                    "step.ecs_status",
                     "step.event_decrypt",
                     "step.event_publish",
                     "step.feature_flag",
@@ -6163,15 +7828,44 @@
                     "step.field_reencrypt",
                     "step.foreach",
                     "step.gate",
+                    "step.git_checkout",
+                    "step.git_clone",
+                    "step.git_commit",
+                    "step.git_push",
+                    "step.git_tag",
+                    "step.gitlab_create_mr",
+                    "step.gitlab_mr_comment",
+                    "step.gitlab_parse_webhook",
+                    "step.gitlab_pipeline_status",
+                    "step.gitlab_trigger_pipeline",
                     "step.graphql",
                     "step.hash",
                     "step.http_call",
                     "step.http_proxy",
+                    "step.iac_apply",
+                    "step.iac_destroy",
+                    "step.iac_drift_detect",
+                    "step.iac_plan",
+                    "step.iac_status",
                     "step.jq",
                     "step.json_parse",
                     "step.json_response",
+                    "step.k8s_apply",
+                    "step.k8s_destroy",
+                    "step.k8s_plan",
+                    "step.k8s_status",
                     "step.log",
                     "step.m2m_token",
+                    "step.marketplace_detail",
+                    "step.marketplace_install",
+                    "step.marketplace_installed",
+                    "step.marketplace_search",
+                    "step.marketplace_uninstall",
+                    "step.marketplace_update",
+                    "step.network_apply",
+                    "step.network_plan",
+                    "step.network_status",
+                    "step.nosql_delete",
                     "step.nosql_get",
                     "step.nosql_put",
                     "step.nosql_query",
@@ -6182,19 +7876,34 @@
                     "step.platform_destroy",
                     "step.platform_plan",
                     "step.platform_template",
+                    "step.policy_evaluate",
+                    "step.policy_list",
+                    "step.policy_load",
+                    "step.policy_test",
                     "step.publish",
                     "step.rate_limit",
                     "step.raw_response",
                     "step.regex_match",
+                    "step.region_deploy",
+                    "step.region_failover",
+                    "step.region_promote",
+                    "step.region_status",
+                    "step.region_sync",
+                    "step.region_weight",
                     "step.request_parse",
                     "step.resilient_circuit_breaker",
                     "step.retry_with_backoff",
                     "step.s3_upload",
                     "step.sandbox_exec",
+                    "step.scaling_apply",
+                    "step.scaling_destroy",
+                    "step.scaling_plan",
+                    "step.scaling_status",
                     "step.scan_container",
                     "step.scan_deps",
                     "step.scan_sast",
                     "step.secret_fetch",
+                    "step.secret_rotate",
                     "step.set",
                     "step.shell_exec",
                     "step.statemachine_get",
@@ -6202,6 +7911,11 @@
                     "step.static_file",
                     "step.sub_workflow",
                     "step.token_revoke",
+                    "step.trace_annotate",
+                    "step.trace_extract",
+                    "step.trace_inject",
+                    "step.trace_link",
+                    "step.trace_start",
                     "step.transform",
                     "step.ui_scaffold",
                     "step.ui_scaffold_analyze",
