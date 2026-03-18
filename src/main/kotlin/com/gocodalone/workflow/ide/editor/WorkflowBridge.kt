@@ -2,8 +2,11 @@ package com.gocodalone.workflow.ide.editor
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.editor.ScrollType
+import com.intellij.openapi.editor.event.CaretEvent
+import com.intellij.openapi.editor.event.CaretListener
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
@@ -29,6 +32,7 @@ class WorkflowBridge(
     private val readyQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
     private var updatingFromEditor = false
     private var updatingFromWebview = false
+    private var caretListener: CaretListener? = null
 
     fun initialize() {
         // Register JS→Kotlin message handlers
@@ -91,6 +95,24 @@ class WorkflowBridge(
                 // Don't send YAML/schemas here — wait for webview's ready signal
             }
         }, browser.cefBrowser)
+
+        // Track caret position in the YAML text editor and sync to webview
+        caretListener = object : CaretListener {
+            override fun caretPositionChanged(e: CaretEvent) {
+                val doc = e.editor.document
+                val docFile = FileDocumentManager.getInstance().getFile(doc)
+                if (docFile == file) {
+                    val pos = e.newPosition
+                    val line = pos.line + 1
+                    val col = pos.column + 1
+                    browser.cefBrowser.executeJavaScript(
+                        "window.onCursorMoved && window.onCursorMoved($line, $col);",
+                        "", 0
+                    )
+                }
+            }
+        }
+        EditorFactory.getInstance().eventMulticaster.addCaretListener(caretListener!!)
     }
 
     private fun injectBridge() {
@@ -419,5 +441,6 @@ class WorkflowBridge(
         saveFilesQuery.dispose()
         layoutQuery.dispose()
         readyQuery.dispose()
+        caretListener?.let { EditorFactory.getInstance().eventMulticaster.removeCaretListener(it) }
     }
 }
