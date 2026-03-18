@@ -26,6 +26,7 @@ class WorkflowBridge(
     private val resolveFileQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
     private val saveFilesQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
     private val layoutQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
+    private val readyQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
     private var updatingFromEditor = false
     private var updatingFromWebview = false
 
@@ -71,16 +72,23 @@ class WorkflowBridge(
             null
         }
 
+        // Webview signals ready — send initial YAML + schemas
+        this.readyQuery.addHandler {
+            sendYamlToEditor()
+            sendSchemas()
+            // Discover and send plugin schemas in background
+            ApplicationManager.getApplication().executeOnPooledThread {
+                val plugins = PluginDiscovery.discoverPluginSchemas(project)
+                if (plugins.isNotEmpty()) sendPluginSchemas(plugins)
+            }
+            JBCefJSQuery.Response("")
+        }
+
         // Inject bridge functions after page load
         browser.jbCefClient.addLoadHandler(object : CefLoadHandlerAdapter() {
             override fun onLoadEnd(b: CefBrowser?, frame: org.cef.browser.CefFrame?, httpStatusCode: Int) {
                 injectBridge()
-                sendYamlToEditor()
-                // Discover and send plugin schemas in background
-                com.intellij.openapi.application.ApplicationManager.getApplication().executeOnPooledThread {
-                    val plugins = PluginDiscovery.discoverPluginSchemas(project)
-                    if (plugins.isNotEmpty()) sendPluginSchemas(plugins)
-                }
+                // Don't send YAML/schemas here — wait for webview's ready signal
             }
         }, browser.cefBrowser)
     }
@@ -108,6 +116,9 @@ class WorkflowBridge(
                 },
                 saveLayout: function(json) {
                     ${layoutQuery.inject("json")}
+                },
+                sendReady: function() {
+                    ${readyQuery.inject("''")}
                 }
             };
             window.dispatchEvent(new Event('hostBridgeReady'));
@@ -407,5 +418,6 @@ class WorkflowBridge(
         resolveFileQuery.dispose()
         saveFilesQuery.dispose()
         layoutQuery.dispose()
+        readyQuery.dispose()
     }
 }
