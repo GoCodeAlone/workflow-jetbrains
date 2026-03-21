@@ -61,12 +61,26 @@ object PluginDiscovery {
 
     private fun fetchManifest(pluginName: String): String? {
         val url = "$REGISTRY_BASE/$pluginName/manifest.json"
-        return try {
-            HttpRequests.request(url).readString()
-        } catch (e: Exception) {
-            LOG.debug("Could not fetch manifest for $pluginName from $url: ${e.message}")
-            null
+        val maxAttempts = 3
+        val retryDelayMs = 1_000L
+
+        repeat(maxAttempts) { attempt ->
+            try {
+                return HttpRequests.request(url)
+                    .connectTimeout(10_000)
+                    .readTimeout(10_000)
+                    .readString()
+            } catch (e: Exception) {
+                val attemptsLeft = maxAttempts - attempt - 1
+                if (attemptsLeft > 0) {
+                    LOG.warn("Attempt ${attempt + 1}/$maxAttempts failed fetching manifest for $pluginName: ${e.message}. Retrying in ${retryDelayMs}ms.")
+                    Thread.sleep(retryDelayMs)
+                } else {
+                    LOG.warn("All $maxAttempts attempts failed fetching manifest for $pluginName from $url: ${e.message}")
+                }
+            }
         }
+        return null
     }
 
     @Suppress("UNCHECKED_CAST")
