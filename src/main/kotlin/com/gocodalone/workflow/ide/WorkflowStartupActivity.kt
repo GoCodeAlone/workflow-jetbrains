@@ -5,6 +5,7 @@ import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationListener
 import com.intellij.notification.NotificationType
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.ProjectActivity
@@ -13,6 +14,7 @@ class WorkflowStartupActivity : ProjectActivity {
     override suspend fun execute(project: Project) {
         McpRegistration.checkAndRegister(project)
         checkLspAvailability(project)
+        scheduleVersionChecks(project)
     }
 
     private fun checkLspAvailability(project: Project) {
@@ -33,6 +35,26 @@ class WorkflowStartupActivity : ProjectActivity {
                 NotificationType.INFORMATION
             ).setListener(NotificationListener.URL_OPENING_LISTENER)
                 .notify(project)
+        }
+    }
+
+    /**
+     * Schedules binary version checks on a pooled thread so they don't block startup.
+     * Checks wfctl and workflow-lsp-server using their resolved paths (settings → PATH → cache).
+     */
+    private fun scheduleVersionChecks(project: Project) {
+        ApplicationManager.getApplication().executeOnPooledThread {
+            val settings = WorkflowSettings.getInstance()
+
+            val wfctlPath = BinaryDownloader.resolveFromPathOrCache("wfctl", settings.wfctlPath)
+            if (wfctlPath != null) {
+                BinaryVersionCheck.check(project, "wfctl", wfctlPath)
+            }
+
+            val lspPath = BinaryDownloader.resolveFromPathOrCache("workflow-lsp-server", settings.lspServerPath)
+            if (lspPath != null) {
+                BinaryVersionCheck.check(project, "workflow-lsp-server", lspPath)
+            }
         }
     }
 }
