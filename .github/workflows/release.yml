@@ -63,7 +63,6 @@ jobs:
           tag_name: ${{ github.ref_name }}
 
       - name: Sign Plugin
-        continue-on-error: true
         run: ./gradlew signPlugin
         env:
           CERTIFICATE_CHAIN: ${{ secrets.CERTIFICATE_CHAIN }}
@@ -71,7 +70,6 @@ jobs:
           PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
 
       - name: Publish Plugin to JetBrains Marketplace
-        continue-on-error: true
         run: ./gradlew publishPlugin
         env:
           JETBRAINS_MARKETPLACE_TOKEN: ${{ secrets.JETBRAINS_MARKETPLACE_TOKEN }}
