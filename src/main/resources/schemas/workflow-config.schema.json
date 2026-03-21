@@ -163,6 +163,7 @@
               "step.auth_validate",
               "step.authz_check",
               "step.base64_decode",
+              "step.branch",
               "step.build_binary",
               "step.build_from_config",
               "step.build_ui",
@@ -257,6 +258,7 @@
               "step.oidc_auth_url",
               "step.oidc_callback",
               "step.parallel",
+              "step.pipeline_output",
               "step.platform_apply",
               "step.platform_destroy",
               "step.platform_plan",
@@ -3992,6 +3994,53 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "step.branch"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "field",
+                    "branches"
+                  ],
+                  "properties": {
+                    "branches": {
+                      "description": "Map of field values to lists of inline step configs",
+                      "type": "object"
+                    },
+                    "default": {
+                      "description": "Sub-steps to run when no branch matches",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "field": {
+                      "description": "Dot-path field to evaluate for branch selection",
+                      "type": "string"
+                    },
+                    "merge_step": {
+                      "description": "Step name to jump to after the branch completes (empty = continue sequentially)",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "step.build_ui"
                   ]
                 }
@@ -5942,6 +5991,38 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "step.pipeline_output"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "source": {
+                      "description": "Dot-path to step output (e.g. steps.fetch or steps.fetch.row)",
+                      "type": "string"
+                    },
+                    "values": {
+                      "description": "Template map of key-value pairs to include in output",
+                      "type": "object"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "step.platform_apply"
                   ]
                 }
@@ -7778,6 +7859,7 @@
                     "step.auth_validate",
                     "step.authz_check",
                     "step.base64_decode",
+                    "step.branch",
                     "step.build_binary",
                     "step.build_from_config",
                     "step.build_ui",
@@ -7872,6 +7954,7 @@
                     "step.oidc_auth_url",
                     "step.oidc_callback",
                     "step.parallel",
+                    "step.pipeline_output",
                     "step.platform_apply",
                     "step.platform_destroy",
                     "step.platform_plan",
@@ -8352,6 +8435,53 @@
                             "description": "When true, verifies the decoded content matches the MIME type claimed in the data-URI header",
                             "type": "boolean",
                             "default": "false"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.branch"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "field",
+                          "branches"
+                        ],
+                        "properties": {
+                          "branches": {
+                            "description": "Map of field values to lists of inline step configs",
+                            "type": "object"
+                          },
+                          "default": {
+                            "description": "Sub-steps to run when no branch matches",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "field": {
+                            "description": "Dot-path field to evaluate for branch selection",
+                            "type": "string"
+                          },
+                          "merge_step": {
+                            "description": "Step name to jump to after the branch completes (empty = continue sequentially)",
+                            "type": "string"
                           }
                         },
                         "additionalProperties": false
@@ -10301,6 +10431,38 @@
                           },
                           "steps": {
                             "description": "List of sub-steps to run concurrently. Each must have a unique 'name'.",
+                            "type": "object"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.pipeline_output"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "properties": {
+                          "source": {
+                            "description": "Dot-path to step output (e.g. steps.fetch or steps.fetch.row)",
+                            "type": "string"
+                          },
+                          "values": {
+                            "description": "Template map of key-value pairs to include in output",
                             "type": "object"
                           }
                         },

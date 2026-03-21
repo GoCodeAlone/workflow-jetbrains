@@ -74,9 +74,9 @@ class EditorSchemeHandlerFactory : CefSchemeHandlerFactory {
                 return false
             }
             return try {
-                val available = stream.available()
-                if (available > 0) {
-                    bytesRead.set(stream.read(dataOut, 0, bytesToRead.coerceAtMost(available)))
+                val read = stream.read(dataOut, 0, bytesToRead)
+                if (read > 0) {
+                    bytesRead.set(read)
                     true
                 } else {
                     bytesRead.set(0)

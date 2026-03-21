@@ -32,11 +32,14 @@ export function initBridge(cb: BridgeCallbacks) {
     }
   };
 
-  // Wait for hostBridge to be injected
+  // Wait for hostBridge to be injected, then signal ready
+  // sendReady triggers the Kotlin readyQuery handler which sends YAML + schemas
   if ((window as unknown as Record<string, unknown>)['hostBridge']) {
-    sendRequestSchemas();
+    getHostBridge()?.['sendReady']('');
   } else {
-    window.addEventListener('hostBridgeReady', () => sendRequestSchemas());
+    window.addEventListener('hostBridgeReady', () => {
+      getHostBridge()?.['sendReady']('');
+    });
   }
 }
 
