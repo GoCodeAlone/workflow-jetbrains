@@ -182,6 +182,7 @@
               "step.codebuild_status",
               "step.conditional",
               "step.constraint_check",
+              "step.container_build",
               "step.db_create_partition",
               "step.db_exec",
               "step.db_query",
@@ -189,6 +190,11 @@
               "step.db_sync_partitions",
               "step.delegate",
               "step.deploy",
+              "step.deploy_blue_green",
+              "step.deploy_canary",
+              "step.deploy_rollback",
+              "step.deploy_rolling",
+              "step.deploy_verify",
               "step.dlq_replay",
               "step.dlq_send",
               "step.dns_apply",
@@ -4415,6 +4421,69 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "step.container_build"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "context",
+                    "tag",
+                    "registry"
+                  ],
+                  "properties": {
+                    "build_args": {
+                      "description": "Build-time variables",
+                      "type": "object"
+                    },
+                    "builder": {
+                      "description": "Container builder binary",
+                      "type": "string",
+                      "enum": [
+                        "docker",
+                        "podman"
+                      ],
+                      "default": "docker"
+                    },
+                    "context": {
+                      "description": "Build context path",
+                      "type": "string"
+                    },
+                    "dockerfile": {
+                      "description": "Dockerfile path relative to context",
+                      "type": "string",
+                      "default": "Dockerfile"
+                    },
+                    "dry_run": {
+                      "description": "Print build command without executing",
+                      "type": "boolean"
+                    },
+                    "registry": {
+                      "description": "ContainerRegistry service name",
+                      "type": "string"
+                    },
+                    "tag": {
+                      "description": "Image tag (template expressions supported)",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "step.db_create_partition"
                   ]
                 }
@@ -4757,6 +4826,240 @@
                         "blue_green",
                         "canary"
                       ]
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.deploy_blue_green"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "service",
+                    "image"
+                  ],
+                  "properties": {
+                    "health_check": {
+                      "description": "Health check config: {path, timeout}",
+                      "type": "object"
+                    },
+                    "image": {
+                      "description": "Docker image to deploy",
+                      "type": "string"
+                    },
+                    "service": {
+                      "description": "BlueGreenDriver service name",
+                      "type": "string"
+                    },
+                    "traffic_switch": {
+                      "description": "Traffic switch mechanism",
+                      "type": "string",
+                      "enum": [
+                        "dns",
+                        "lb"
+                      ],
+                      "default": "lb"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.deploy_canary"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "service",
+                    "image"
+                  ],
+                  "properties": {
+                    "image": {
+                      "description": "Docker image to deploy",
+                      "type": "string"
+                    },
+                    "rollback_on_failure": {
+                      "description": "Automatically rollback if a stage fails",
+                      "type": "boolean"
+                    },
+                    "service": {
+                      "description": "CanaryDriver service name",
+                      "type": "string"
+                    },
+                    "stages": {
+                      "description": "Canary stages: [{percent, duration, metric_gate}]",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.deploy_rollback"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "service",
+                    "history_store"
+                  ],
+                  "properties": {
+                    "health_check": {
+                      "description": "Health check config: {path, timeout}",
+                      "type": "object"
+                    },
+                    "history_store": {
+                      "description": "DeployHistoryStore service name",
+                      "type": "string"
+                    },
+                    "service": {
+                      "description": "DeployDriver service name",
+                      "type": "string"
+                    },
+                    "target_version": {
+                      "description": "Version to roll back to",
+                      "type": "string",
+                      "default": "previous"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.deploy_rolling"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "service",
+                    "image"
+                  ],
+                  "properties": {
+                    "health_check": {
+                      "description": "Health check config: {path, interval, timeout}",
+                      "type": "object"
+                    },
+                    "image": {
+                      "description": "Docker image to deploy",
+                      "type": "string"
+                    },
+                    "max_surge": {
+                      "description": "Maximum instances above desired count",
+                      "type": "number",
+                      "default": 1
+                    },
+                    "max_unavailable": {
+                      "description": "Maximum unavailable instances during update",
+                      "type": "number",
+                      "default": 1
+                    },
+                    "rollback_on_failure": {
+                      "description": "Automatically rollback if health checks fail",
+                      "type": "boolean"
+                    },
+                    "service": {
+                      "description": "DeployDriver service name",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.deploy_verify"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "service",
+                    "checks"
+                  ],
+                  "properties": {
+                    "checks": {
+                      "description": "Verification checks: [{type, path, expected_status, threshold, window}]",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "service": {
+                      "description": "DeployDriver service name",
+                      "type": "string"
                     }
                   },
                   "additionalProperties": false
@@ -7878,6 +8181,7 @@
                     "step.codebuild_status",
                     "step.conditional",
                     "step.constraint_check",
+                    "step.container_build",
                     "step.db_create_partition",
                     "step.db_exec",
                     "step.db_query",
@@ -7885,6 +8189,11 @@
                     "step.db_sync_partitions",
                     "step.delegate",
                     "step.deploy",
+                    "step.deploy_blue_green",
+                    "step.deploy_canary",
+                    "step.deploy_rollback",
+                    "step.deploy_rolling",
+                    "step.deploy_verify",
                     "step.dlq_replay",
                     "step.dlq_send",
                     "step.dns_apply",
@@ -8871,6 +9180,69 @@
                     "properties": {
                       "type": {
                         "enum": [
+                          "step.container_build"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "context",
+                          "tag",
+                          "registry"
+                        ],
+                        "properties": {
+                          "build_args": {
+                            "description": "Build-time variables",
+                            "type": "object"
+                          },
+                          "builder": {
+                            "description": "Container builder binary",
+                            "type": "string",
+                            "enum": [
+                              "docker",
+                              "podman"
+                            ],
+                            "default": "docker"
+                          },
+                          "context": {
+                            "description": "Build context path",
+                            "type": "string"
+                          },
+                          "dockerfile": {
+                            "description": "Dockerfile path relative to context",
+                            "type": "string",
+                            "default": "Dockerfile"
+                          },
+                          "dry_run": {
+                            "description": "Print build command without executing",
+                            "type": "boolean"
+                          },
+                          "registry": {
+                            "description": "ContainerRegistry service name",
+                            "type": "string"
+                          },
+                          "tag": {
+                            "description": "Image tag (template expressions supported)",
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
                           "step.db_create_partition"
                         ]
                       }
@@ -9213,6 +9585,240 @@
                               "blue_green",
                               "canary"
                             ]
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.deploy_blue_green"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "service",
+                          "image"
+                        ],
+                        "properties": {
+                          "health_check": {
+                            "description": "Health check config: {path, timeout}",
+                            "type": "object"
+                          },
+                          "image": {
+                            "description": "Docker image to deploy",
+                            "type": "string"
+                          },
+                          "service": {
+                            "description": "BlueGreenDriver service name",
+                            "type": "string"
+                          },
+                          "traffic_switch": {
+                            "description": "Traffic switch mechanism",
+                            "type": "string",
+                            "enum": [
+                              "dns",
+                              "lb"
+                            ],
+                            "default": "lb"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.deploy_canary"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "service",
+                          "image"
+                        ],
+                        "properties": {
+                          "image": {
+                            "description": "Docker image to deploy",
+                            "type": "string"
+                          },
+                          "rollback_on_failure": {
+                            "description": "Automatically rollback if a stage fails",
+                            "type": "boolean"
+                          },
+                          "service": {
+                            "description": "CanaryDriver service name",
+                            "type": "string"
+                          },
+                          "stages": {
+                            "description": "Canary stages: [{percent, duration, metric_gate}]",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.deploy_rollback"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "service",
+                          "history_store"
+                        ],
+                        "properties": {
+                          "health_check": {
+                            "description": "Health check config: {path, timeout}",
+                            "type": "object"
+                          },
+                          "history_store": {
+                            "description": "DeployHistoryStore service name",
+                            "type": "string"
+                          },
+                          "service": {
+                            "description": "DeployDriver service name",
+                            "type": "string"
+                          },
+                          "target_version": {
+                            "description": "Version to roll back to",
+                            "type": "string",
+                            "default": "previous"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.deploy_rolling"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "service",
+                          "image"
+                        ],
+                        "properties": {
+                          "health_check": {
+                            "description": "Health check config: {path, interval, timeout}",
+                            "type": "object"
+                          },
+                          "image": {
+                            "description": "Docker image to deploy",
+                            "type": "string"
+                          },
+                          "max_surge": {
+                            "description": "Maximum instances above desired count",
+                            "type": "number",
+                            "default": 1
+                          },
+                          "max_unavailable": {
+                            "description": "Maximum unavailable instances during update",
+                            "type": "number",
+                            "default": 1
+                          },
+                          "rollback_on_failure": {
+                            "description": "Automatically rollback if health checks fail",
+                            "type": "boolean"
+                          },
+                          "service": {
+                            "description": "DeployDriver service name",
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.deploy_verify"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "service",
+                          "checks"
+                        ],
+                        "properties": {
+                          "checks": {
+                            "description": "Verification checks: [{type, path, expected_status, threshold, window}]",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "service": {
+                            "description": "DeployDriver service name",
+                            "type": "string"
                           }
                         },
                         "additionalProperties": false
