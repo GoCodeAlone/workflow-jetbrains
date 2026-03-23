@@ -49,6 +49,7 @@ abstract class WfctlAction(text: String, description: String) : AnAction(text, d
                 val result = runWfctl(project, args, file?.parent?.path ?: project.basePath)
                 ApplicationManager.getApplication().invokeLater {
                     showResult(project, args.firstOrNull() ?: "wfctl", result)
+                    onResult(project, file, result)
                 }
             }
         })
@@ -59,6 +60,11 @@ abstract class WfctlAction(text: String, description: String) : AnAction(text, d
      * [currentFile] may be null if no file is open.
      */
     abstract fun buildArgs(currentFile: VirtualFile?): List<String>
+
+    /**
+     * Called on the EDT after the action completes. Subclasses can override to post-process results.
+     */
+    protected open fun onResult(project: Project, file: VirtualFile?, result: WfctlResult) {}
 
     /**
      * Override to restrict the action to specific file types.

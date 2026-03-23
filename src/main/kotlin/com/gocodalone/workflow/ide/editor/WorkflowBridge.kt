@@ -76,6 +76,9 @@ class WorkflowBridge(
             null
         }
 
+        // Register this bridge so test results can be forwarded to the webview
+        TestResultService.getInstance(project).activeBridge = this
+
         // Webview signals ready — send initial YAML + schemas
         this.readyQuery.addHandler {
             sendYamlToEditor()
@@ -432,7 +435,25 @@ class WorkflowBridge(
         val userPrompt: String,
     )
 
+    fun sendTestResults(results: List<TestCaseResult>) {
+        val gson = com.google.gson.Gson()
+        val map = results.associate { r ->
+            r.name to mapOf("status" to r.status.name.lowercase(), "error" to r.error)
+        }
+        val escaped = gson.toJson(map)
+            .replace("\\", "\\\\")
+            .replace("`", "\\`")
+            .replace("\$", "\\\$")
+        browser.cefBrowser.executeJavaScript(
+            "window.onTestResults && window.onTestResults(JSON.parse(`$escaped`));",
+            "", 0
+        )
+    }
+
     fun dispose() {
+        TestResultService.getInstance(project).let { svc ->
+            if (svc.activeBridge === this) svc.activeBridge = null
+        }
         yamlUpdatedQuery.dispose()
         navigateQuery.dispose()
         schemaRequestQuery.dispose()

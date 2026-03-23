@@ -50,6 +50,10 @@
         <projectService
             serviceImplementation="com.gocodalone.workflow.ide.settings.WorkflowProjectSettings"/>
 
+        <!-- Project-level cache of wfctl test results for gutter icon display -->
+        <projectService
+            serviceImplementation="com.gocodalone.workflow.ide.editor.TestResultService"/>
+
         <!-- Startup activity for MCP registration prompt -->
         <postStartupActivity
             implementation="com.gocodalone.workflow.ide.WorkflowStartupActivity"/>
@@ -74,6 +78,11 @@
         <codeInsight.lineMarkerProvider
             language="Gherkin"
             implementationClass="com.gocodalone.workflow.ide.editor.PipelineLineMarkerProvider"/>
+
+        <!-- Pass/fail gutter icons on test case names in _test.yaml files -->
+        <codeInsight.lineMarkerProvider
+            language="yaml"
+            implementationClass="com.gocodalone.workflow.ide.editor.TestResultAnnotator"/>
 
         <!-- Notification group -->
         <notificationGroup id="Workflow Engine"
