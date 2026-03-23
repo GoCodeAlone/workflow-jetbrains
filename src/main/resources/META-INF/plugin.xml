@@ -24,6 +24,10 @@
         <json.schemaProviderFactory
             implementation="com.gocodalone.workflow.ide.schema.WorkflowSchemaProviderFactory"/>
 
+        <!-- JSON Schema provider for workflow _test.yaml files -->
+        <json.schemaProviderFactory
+            implementation="com.gocodalone.workflow.ide.schema.WorkflowTestSchemaProviderFactory"/>
+
         <!-- Settings configurable under Tools > Workflow Engine (application-level) -->
         <applicationConfigurable
             parentId="tools"

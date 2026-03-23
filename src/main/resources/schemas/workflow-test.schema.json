@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Workflow Test Config",
+  "description": "Schema for workflow engine _test.yaml test definition files",
+  "type": "object",
+  "properties": {
+    "config": {
+      "description": "Path to the workflow config file under test",
+      "type": "string"
+    },
+    "mocks": {
+      "description": "Global mock overrides applied to all tests",
+      "type": "object",
+      "properties": {
+        "steps": {
+          "description": "Step-level mocks keyed by step name",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "output": { "description": "Mocked output for this step" },
+              "error": { "description": "Mocked error to return", "type": "string" }
+            }
+          }
+        },
+        "modules": {
+          "description": "Module-level mocks keyed by module name",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "tests": {
+      "description": "List of test cases",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "description": "Test case name",
+            "type": "string"
+          },
+          "pipeline": {
+            "description": "Pipeline name to execute",
+            "type": "string"
+          },
+          "trigger": {
+            "description": "Trigger input for this test",
+            "type": "object",
+            "properties": {
+              "method": { "type": "string", "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+              "path": { "type": "string" },
+              "body": { "description": "Request body" },
+              "headers": { "type": "object", "additionalProperties": { "type": "string" } },
+              "query": { "type": "object", "additionalProperties": { "type": "string" } }
+            }
+          },
+          "mocks": {
+            "description": "Test-local mock overrides",
+            "type": "object",
+            "properties": {
+              "steps": { "type": "object", "additionalProperties": { "type": "object" } },
+              "modules": { "type": "object", "additionalProperties": { "type": "object" } }
+            }
+          },
+          "stop_after": {
+            "description": "Stop pipeline execution after this step name",
+            "type": "string"
+          },
+          "sequence": {
+            "description": "Expected step execution order",
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "state": {
+            "description": "Expected pipeline context state after execution",
+            "type": "object"
+          },
+          "assertions": {
+            "description": "Assertions to verify after pipeline execution",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": { "description": "Field path to assert on", "type": "string" },
+                "eq": { "description": "Expected value (equality check)" },
+                "contains": { "description": "Expected substring or element" },
+                "status": { "description": "Expected HTTP status code", "type": "integer" },
+                "not_empty": { "description": "Assert field is not empty", "type": "boolean" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
