@@ -252,4 +252,43 @@
       <option name="YAML" value="true"></option>
     </context>
   </template>
+  <template name="wftest" value="config: $CONFIG$&amp;#10;tests:&amp;#10;  - name: $TEST_NAME$&amp;#10;    pipeline: $PIPELINE$&amp;#10;    trigger:&amp;#10;      method: $METHOD$&amp;#10;      path: $PATH$&amp;#10;    assertions:&amp;#10;      - status: $STATUS$" description="Scaffold a _test.yaml test file" toReformat="true" toShortenFQNames="false">
+    <variable name="CONFIG" expression="" defaultValue="&#34;app.yaml&#34;" alwaysStopAt="true"></variable>
+    <variable name="TEST_NAME" expression="" defaultValue="&#34;my test&#34;" alwaysStopAt="true"></variable>
+    <variable name="PIPELINE" expression="" defaultValue="&#34;my-pipeline&#34;" alwaysStopAt="true"></variable>
+    <variable name="METHOD" expression="" defaultValue="&#34;POST&#34;" alwaysStopAt="true"></variable>
+    <variable name="PATH" expression="" defaultValue="&#34;/api/v1/resource&#34;" alwaysStopAt="true"></variable>
+    <variable name="STATUS" expression="" defaultValue="&#34;200&#34;" alwaysStopAt="true"></variable>
+    <context>
+      <option name="YAML" value="true"></option>
+    </context>
+  </template>
+  <template name="wfscenario" value="- name: $TEST_NAME$&amp;#10;  pipeline: $PIPELINE$&amp;#10;  trigger:&amp;#10;    method: $METHOD$&amp;#10;    path: $PATH$&amp;#10;    body:&amp;#10;      $FIELD$: $VALUE$&amp;#10;  assertions:&amp;#10;    - status: $STATUS$" description="Add a test scenario/case" toReformat="true" toShortenFQNames="false">
+    <variable name="TEST_NAME" expression="" defaultValue="&#34;scenario name&#34;" alwaysStopAt="true"></variable>
+    <variable name="PIPELINE" expression="" defaultValue="&#34;my-pipeline&#34;" alwaysStopAt="true"></variable>
+    <variable name="METHOD" expression="" defaultValue="&#34;POST&#34;" alwaysStopAt="true"></variable>
+    <variable name="PATH" expression="" defaultValue="&#34;/api/v1/resource&#34;" alwaysStopAt="true"></variable>
+    <variable name="FIELD" expression="" defaultValue="&#34;id&#34;" alwaysStopAt="true"></variable>
+    <variable name="VALUE" expression="" defaultValue="&#34;123&#34;" alwaysStopAt="true"></variable>
+    <variable name="STATUS" expression="" defaultValue="&#34;200&#34;" alwaysStopAt="true"></variable>
+    <context>
+      <option name="YAML" value="true"></option>
+    </context>
+  </template>
+  <template name="wfmock" value="mocks:&amp;#10;  steps:&amp;#10;    $STEP_NAME$:&amp;#10;      output:&amp;#10;        $FIELD$: $VALUE$" description="Mock a step's output for testing" toReformat="true" toShortenFQNames="false">
+    <variable name="STEP_NAME" expression="" defaultValue="&#34;step-name&#34;" alwaysStopAt="true"></variable>
+    <variable name="FIELD" expression="" defaultValue="&#34;result&#34;" alwaysStopAt="true"></variable>
+    <variable name="VALUE" expression="" defaultValue="&#34;mocked&#34;" alwaysStopAt="true"></variable>
+    <context>
+      <option name="YAML" value="true"></option>
+    </context>
+  </template>
+  <template name="wfassert" value="assertions:&amp;#10;  - status: $STATUS$&amp;#10;  - field: $FIELD$&amp;#10;    eq: $VALUE$" description="Assertion block for test case" toReformat="true" toShortenFQNames="false">
+    <variable name="STATUS" expression="" defaultValue="&#34;200&#34;" alwaysStopAt="true"></variable>
+    <variable name="FIELD" expression="" defaultValue="&#34;result.id&#34;" alwaysStopAt="true"></variable>
+    <variable name="VALUE" expression="" defaultValue="&#34;expected&#34;" alwaysStopAt="true"></variable>
+    <context>
+      <option name="YAML" value="true"></option>
+    </context>
+  </template>
 </templateSet>

@@ -70,6 +70,11 @@
         <editorNotificationProvider
             implementation="com.gocodalone.workflow.ide.editor.WorkflowDetectionNotificationProvider"/>
 
+        <!-- Gutter icon navigation for @pipeline: tags in .feature files -->
+        <codeInsight.lineMarkerProvider
+            language="Gherkin"
+            implementationClass="com.gocodalone.workflow.ide.editor.PipelineLineMarkerProvider"/>
+
         <!-- Notification group -->
         <notificationGroup id="Workflow Engine"
                            displayType="BALLOON"
