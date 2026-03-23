@@ -140,6 +140,20 @@
                     class="com.gocodalone.workflow.ide.actions.WorkflowTemplateValidateAction"
                     text="Template Validate"
                     description="Run wfctl template validate on the current file"/>
+
+            <separator/>
+
+            <action id="com.gocodalone.workflow.actions.RunTestsAction"
+                    class="com.gocodalone.workflow.ide.actions.RunTestsAction"
+                    text="Run Tests"
+                    description="Run wfctl test on the current test file or project">
+                <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift T"/>
+            </action>
+
+            <action id="com.gocodalone.workflow.actions.TestCoverageAction"
+                    class="com.gocodalone.workflow.ide.actions.TestCoverageAction"
+                    text="Test Coverage"
+                    description="Run wfctl test --coverage to show pipeline test coverage"/>
         </group>
     </actions>
 </idea-plugin>
