@@ -1,5 +1,7 @@
 package com.gocodalone.workflow.ide.editor
 
+import com.intellij.notification.NotificationGroupManager
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -48,10 +50,14 @@ class WorkflowVisualEditorToolWindowFactory : ToolWindowFactory {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         // Try to load the currently open file
         val selectedFile = FileEditorManager.getInstance(project).selectedFiles.firstOrNull()
-        if (selectedFile != null && WorkflowFileDetector.isWorkflowFile(project, selectedFile)) {
-            VisualEditorLoader.loadFile(project, selectedFile, toolWindow)
-        } else {
-            VisualEditorLoader.showPlaceholder(toolWindow)
+        val selectedFileType = selectedFile?.let { WorkflowFileDetector.detectFileType(project, it) }
+        when (selectedFileType) {
+            WorkflowFileType.CONFIG -> VisualEditorLoader.loadFile(project, selectedFile!!, toolWindow)
+            WorkflowFileType.PARTIAL -> {
+                VisualEditorLoader.showPlaceholder(toolWindow)
+                VisualEditorLoader.notifyPartialFile(project, selectedFile!!)
+            }
+            else -> VisualEditorLoader.showPlaceholder(toolWindow)
         }
 
         // Listen for file selection changes to auto-update the editor
@@ -61,8 +67,11 @@ class WorkflowVisualEditorToolWindowFactory : ToolWindowFactory {
                 override fun selectionChanged(event: FileEditorManagerEvent) {
                     val file = event.newFile ?: return
                     if (!toolWindow.isVisible) return
-                    if (WorkflowFileDetector.isWorkflowFile(project, file)) {
-                        VisualEditorLoader.loadFile(project, file, toolWindow)
+                    val fileType = WorkflowFileDetector.detectFileType(project, file)
+                    when (fileType) {
+                        WorkflowFileType.PARTIAL -> VisualEditorLoader.notifyPartialFile(project, file)
+                        WorkflowFileType.CONFIG -> VisualEditorLoader.loadFile(project, file, toolWindow)
+                        else -> Unit
                     }
                 }
             }
@@ -87,6 +96,17 @@ private object VisualEditorLoader {
         val content = ContentFactory.getInstance().createContent(panel, "Visual Editor", false)
         toolWindow.contentManager.removeAllContents(true)
         toolWindow.contentManager.addContent(content)
+    }
+
+    fun notifyPartialFile(project: Project, file: VirtualFile) {
+        NotificationGroupManager.getInstance()
+            .getNotificationGroup("Workflow Engine")
+            ?.createNotification(
+                "Partial Workflow Config",
+                "\"${file.name}\" is a partial workflow config. Open the root config file for the visual editor.",
+                NotificationType.INFORMATION
+            )
+            ?.notify(project)
     }
 
     fun loadFile(project: Project, file: VirtualFile, toolWindow: ToolWindow) {

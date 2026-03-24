@@ -34,6 +34,10 @@ class WorkflowBridge(
     private var updatingFromWebview = false
     private var caretListener: CaretListener? = null
 
+    // Top-level fields the visual editor does not handle — preserved across round-trips
+    private var preservedName: String? = null
+    private var preservedVersion: String? = null
+
     fun initialize() {
         // Register JS→Kotlin message handlers
         yamlUpdatedQuery.addHandler { content ->
@@ -154,7 +158,13 @@ class WorkflowBridge(
     fun sendYamlToEditor() {
         if (updatingFromWebview) return
         updatingFromEditor = true
-        val content = String(file.contentsToByteArray(), Charsets.UTF_8)
+        val rawContent = String(file.contentsToByteArray(), Charsets.UTF_8)
+
+        // Preserve top-level fields the visual editor strips on round-trip
+        preservedName = extractTopLevelScalar(rawContent, "name")
+        preservedVersion = extractTopLevelScalar(rawContent, "version")
+
+        val content = rawContent
             .replace("\\", "\\\\")
             .replace("`", "\\`")
             .replace("\$", "\\\$")
@@ -178,13 +188,47 @@ class WorkflowBridge(
     private fun handleYamlFromWebview(content: String) {
         if (updatingFromEditor) return
         updatingFromWebview = true
+        val restored = injectPreservedFields(content)
         ApplicationManager.getApplication().invokeLater {
             ApplicationManager.getApplication().runWriteAction {
                 val document = FileDocumentManager.getInstance().getDocument(file) ?: return@runWriteAction
-                document.setText(content)
+                document.setText(restored)
             }
             updatingFromWebview = false
         }
+    }
+
+    /**
+     * Extracts the value of a top-level scalar YAML key (e.g. `name: my-app`).
+     * Returns null if the key is absent or has a non-scalar value.
+     */
+    internal fun extractTopLevelScalar(yaml: String, key: String): String? {
+        val pattern = Regex("""^$key:\s*(.+)$""", RegexOption.MULTILINE)
+        val match = pattern.find(yaml) ?: return null
+        val value = match.groupValues[1].trim()
+        // Exclude block/flow collection indicators
+        return if (value.startsWith("{") || value.startsWith("[") || value.isEmpty()) null else value
+    }
+
+    /**
+     * Injects preserved `name` and `version` fields into YAML returned from the webview.
+     * If the webview already emitted the field, the existing value is replaced to avoid duplicates.
+     * Fields are inserted at the top of the document.
+     */
+    internal fun injectPreservedFields(yaml: String): String {
+        var result = yaml
+        for ((key, value) in listOf("name" to preservedName, "version" to preservedVersion)) {
+            if (value == null) continue
+            val linePattern = Regex("""^$key:\s*.*$""", RegexOption.MULTILINE)
+            result = if (linePattern.containsMatchIn(result)) {
+                // Replace existing (possibly empty/wrong) value
+                linePattern.replace(result, "$key: $value")
+            } else {
+                // Prepend missing field
+                "$key: $value\n$result"
+            }
+        }
+        return result
     }
 
     private fun navigateToLine(line: Int, col: Int) {
@@ -276,10 +320,10 @@ class WorkflowBridge(
             ApplicationManager.getApplication().runWriteAction {
                 for (entry in entries) {
                     if (entry.path == null) {
-                        // Main file — update the open document
+                        // Main file — update the open document, preserving name/version
                         updatingFromWebview = true
                         val document = FileDocumentManager.getInstance().getDocument(file) ?: continue
-                        document.setText(entry.content)
+                        document.setText(injectPreservedFields(entry.content))
                         updatingFromWebview = false
                     } else {
                         // Imported file — write relative to document directory

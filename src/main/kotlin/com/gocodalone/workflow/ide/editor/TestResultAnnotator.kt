@@ -11,7 +11,7 @@ import javax.swing.Icon
  * Displays pass/fail gutter icons on test case name lines in *_test.yaml files.
  * Results are provided by [TestResultService] after a wfctl test run.
  */
-class TestResultAnnotator : LineMarkerProvider() {
+class TestResultAnnotator : LineMarkerProvider {
 
     // Match "name: <value>" lines (with optional leading dash for list items)
     private val NAME_RE = Regex("""^\s*-?\s*name:\s*["']?(.+?)["']?\s*$""")

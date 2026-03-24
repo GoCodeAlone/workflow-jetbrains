@@ -64,4 +64,40 @@ class WorkflowFileDetectorTest : BasePlatformTestCase() {
             WorkflowFileDetector.isWorkflowFile(project, file.virtualFile)
         )
     }
+
+    fun testDetectsPartialFileWithPipelinesOnly() {
+        val file = myFixture.configureByText(
+            "pipelines.yaml",
+            """
+            pipelines:
+              - name: process
+                steps:
+                  - type: log
+                    message: hello
+            """.trimIndent()
+        )
+        val fileType = WorkflowFileDetector.detectFileType(project, file.virtualFile)
+        assertEquals(
+            "Expected PARTIAL for pipelines-only YAML",
+            WorkflowFileType.PARTIAL,
+            fileType
+        )
+    }
+
+    fun testDetectsPartialFileWithModulesOnly() {
+        val file = myFixture.configureByText(
+            "modules.yaml",
+            """
+            modules:
+              - name: cache
+                type: memory.cache
+            """.trimIndent()
+        )
+        val fileType = WorkflowFileDetector.detectFileType(project, file.virtualFile)
+        assertEquals(
+            "Expected PARTIAL for modules-only YAML",
+            WorkflowFileType.PARTIAL,
+            fileType
+        )
+    }
 }
