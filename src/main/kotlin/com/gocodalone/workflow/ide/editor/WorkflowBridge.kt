@@ -22,6 +22,9 @@ class WorkflowBridge(
     private val file: VirtualFile,
     private val browser: JBCefBrowser,
 ) {
+    /** When set, the visual editor loads merged YAML instead of the raw file content. */
+    var resolvedWorkspace: WorkspaceResolver.ResolvedWorkspace? = null
+
     private val yamlUpdatedQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
     private val navigateQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
     private val schemaRequestQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
@@ -158,6 +161,14 @@ class WorkflowBridge(
     fun sendYamlToEditor() {
         if (updatingFromWebview) return
         updatingFromEditor = true
+
+        // Use merged workspace config when resolving a partial file
+        val resolved = resolvedWorkspace
+        if (resolved != null) {
+            sendMergedConfig(resolved.mergedYaml, resolved.sourceMap, file.path)
+            return
+        }
+
         val rawContent = String(file.contentsToByteArray(), Charsets.UTF_8)
 
         // Preserve top-level fields the visual editor strips on round-trip
@@ -478,6 +489,48 @@ class WorkflowBridge(
         val moduleTypes: List<String>,
         val userPrompt: String,
     )
+
+    /**
+     * Sends a merged workspace config to the webview, including the sourceMap so the editor
+     * knows which file each node belongs to, and the activeFile currently being edited.
+     */
+    fun sendMergedConfig(yaml: String, sourceMap: Map<String, String>, activeFile: String) {
+        val escapedYaml = yaml
+            .replace("\\", "\\\\")
+            .replace("`", "\\`")
+            .replace("\$", "\\\$")
+        val gson = com.google.gson.Gson()
+        val escapedSourceMap = gson.toJson(sourceMap)
+            .replace("\\", "\\\\")
+            .replace("`", "\\`")
+            .replace("\$", "\\\$")
+        val escapedActiveFile = activeFile
+            .replace("\\", "\\\\")
+            .replace("`", "\\`")
+            .replace("\$", "\\\$")
+        browser.cefBrowser.executeJavaScript(
+            "window.onMergedConfigLoaded && window.onMergedConfigLoaded(`$escapedYaml`, JSON.parse(`$escapedSourceMap`), `$escapedActiveFile`);",
+            "", 0
+        )
+        updatingFromEditor = false
+    }
+
+    /**
+     * Writes [content] to [filePath] on disk and refreshes the VirtualFile in the IDE.
+     * Used when saving changes that belong to a partial file in a merged workspace.
+     */
+    fun handleSaveToFile(filePath: String, content: String) {
+        ApplicationManager.getApplication().invokeLater {
+            ApplicationManager.getApplication().runWriteAction {
+                try {
+                    val ioFile = java.io.File(filePath)
+                    ioFile.writeText(content, Charsets.UTF_8)
+                    com.intellij.openapi.vfs.LocalFileSystem.getInstance()
+                        .refreshAndFindFileByPath(filePath)
+                } catch (_: Exception) {}
+            }
+        }
+    }
 
     fun sendTestResults(results: List<TestCaseResult>) {
         val gson = com.google.gson.Gson()

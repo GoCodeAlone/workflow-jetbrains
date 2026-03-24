@@ -10,6 +10,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
@@ -53,10 +54,7 @@ class WorkflowVisualEditorToolWindowFactory : ToolWindowFactory {
         val selectedFileType = selectedFile?.let { WorkflowFileDetector.detectFileType(project, it) }
         when (selectedFileType) {
             WorkflowFileType.CONFIG -> VisualEditorLoader.loadFile(project, selectedFile!!, toolWindow)
-            WorkflowFileType.PARTIAL -> {
-                VisualEditorLoader.showPlaceholder(toolWindow)
-                VisualEditorLoader.notifyPartialFile(project, selectedFile!!)
-            }
+            WorkflowFileType.PARTIAL -> VisualEditorLoader.loadPartialFile(project, selectedFile!!, toolWindow)
             else -> VisualEditorLoader.showPlaceholder(toolWindow)
         }
 
@@ -69,7 +67,7 @@ class WorkflowVisualEditorToolWindowFactory : ToolWindowFactory {
                     if (!toolWindow.isVisible) return
                     val fileType = WorkflowFileDetector.detectFileType(project, file)
                     when (fileType) {
-                        WorkflowFileType.PARTIAL -> VisualEditorLoader.notifyPartialFile(project, file)
+                        WorkflowFileType.PARTIAL -> VisualEditorLoader.loadPartialFile(project, file, toolWindow)
                         WorkflowFileType.CONFIG -> VisualEditorLoader.loadFile(project, file, toolWindow)
                         else -> Unit
                     }
@@ -98,7 +96,26 @@ private object VisualEditorLoader {
         toolWindow.contentManager.addContent(content)
     }
 
-    fun notifyPartialFile(project: Project, file: VirtualFile) {
+    /**
+     * Attempts to resolve the workspace for a partial file and load the merged config.
+     * Falls back to an info notification if resolution fails.
+     */
+    fun loadPartialFile(project: Project, file: VirtualFile, toolWindow: ToolWindow) {
+        val resolved = WorkspaceResolver().resolveFromFile(file.path)
+        if (resolved != null) {
+            val rootVirtualFile = LocalFileSystem.getInstance()
+                .refreshAndFindFileByPath(resolved.rootConfig)
+            if (rootVirtualFile != null) {
+                loadFile(project, rootVirtualFile, toolWindow, resolved)
+                return
+            }
+        }
+        // Resolution failed — show placeholder + info notification
+        showPlaceholder(toolWindow)
+        notifyPartialFile(project, file)
+    }
+
+    private fun notifyPartialFile(project: Project, file: VirtualFile) {
         NotificationGroupManager.getInstance()
             .getNotificationGroup("Workflow Engine")
             ?.createNotification(
@@ -109,13 +126,19 @@ private object VisualEditorLoader {
             ?.notify(project)
     }
 
-    fun loadFile(project: Project, file: VirtualFile, toolWindow: ToolWindow) {
+    fun loadFile(
+        project: Project,
+        file: VirtualFile,
+        toolWindow: ToolWindow,
+        resolved: WorkspaceResolver.ResolvedWorkspace? = null,
+    ) {
         val browser = JBCefBrowser()
 
         // Register scheme handler AFTER browser creation ensures CEF is initialized
         ensureSchemeHandler()
 
         val bridge = WorkflowBridge(project, file, browser)
+        if (resolved != null) bridge.resolvedWorkspace = resolved
         browser.loadURL(EditorSchemeHandlerFactory.BASE_URL)
         bridge.initialize()
 
