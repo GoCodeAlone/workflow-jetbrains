@@ -1,7 +1,7 @@
 package com.gocodalone.workflow.ide.editor
 
 import com.intellij.codeInsight.daemon.LineMarkerInfo
-import com.intellij.codeInsight.daemon.LineMarkerProvider
+import com.intellij.codeInsight.daemon.LineMarkerProviderDescriptor
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.psi.PsiElement
@@ -11,7 +11,10 @@ import javax.swing.Icon
  * Displays pass/fail gutter icons on test case name lines in *_test.yaml files.
  * Results are provided by [TestResultService] after a wfctl test run.
  */
-class TestResultAnnotator : LineMarkerProvider {
+class TestResultAnnotator : LineMarkerProviderDescriptor() {
+
+    override fun getName(): String = "Workflow Test Result"
+    override fun getIcon(): Icon = AllIcons.General.InspectionsOK
 
     // Match "name: <value>" lines (with optional leading dash for list items)
     private val NAME_RE = Regex("""^\s*-?\s*name:\s*["']?(.+?)["']?\s*$""")

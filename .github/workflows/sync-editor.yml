@@ -105,8 +105,8 @@ jobs:
           git commit -m "chore: sync schema, editor, and version to workflow ${WORKFLOW_VERSION} (plugin ${PLUGIN_VERSION})"
           git pull --rebase
           git push
-          if git rev-parse "${PLUGIN_VERSION}" >/dev/null 2>&1; then
-            echo "Tag ${PLUGIN_VERSION} already exists, skipping"
+          if git ls-remote --tags origin "refs/tags/${PLUGIN_VERSION}" | grep -q .; then
+            echo "Tag ${PLUGIN_VERSION} already exists on remote, skipping"
           else
             git tag "${PLUGIN_VERSION}"
             git push origin "${PLUGIN_VERSION}"

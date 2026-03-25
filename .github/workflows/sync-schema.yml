@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  packages: read
 
 jobs:
   sync:
@@ -18,6 +19,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@gocodealone'
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -70,6 +77,8 @@ jobs:
 
       - name: Build plugin
         run: ./gradlew buildPlugin
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run tests
         run: ./gradlew test
@@ -85,8 +94,8 @@ jobs:
           git commit -m "chore: sync schema and version to workflow ${WORKFLOW_VERSION} (plugin ${PLUGIN_VERSION})"
           git pull --rebase
           git push
-          if git rev-parse "${PLUGIN_VERSION}" >/dev/null 2>&1; then
-            echo "Tag ${PLUGIN_VERSION} already exists, skipping"
+          if git ls-remote --tags origin "refs/tags/${PLUGIN_VERSION}" | grep -q .; then
+            echo "Tag ${PLUGIN_VERSION} already exists on remote, skipping"
           else
             git tag "${PLUGIN_VERSION}"
             git push origin "${PLUGIN_VERSION}"
