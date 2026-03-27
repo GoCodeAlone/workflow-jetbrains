@@ -36,6 +36,7 @@ class WorkflowBridge(
     private var updatingFromEditor = false
     private var updatingFromWebview = false
     private var caretListener: CaretListener? = null
+    private var documentListener: com.intellij.openapi.editor.event.DocumentListener? = null
 
     // Top-level fields the visual editor does not handle — preserved across round-trips
     private var preservedName: String? = null
@@ -49,9 +50,17 @@ class WorkflowBridge(
         }
 
         navigateQuery.addHandler { data ->
+            // Format: "filePath,line,col" (3+ parts) or legacy "line,col" (2 parts)
             val parts = data.split(",")
-            if (parts.size == 2) {
-                navigateToLine(parts[0].toInt(), parts[1].toInt())
+            when {
+                parts.size >= 3 -> {
+                    // Reconstruct filePath (may contain commas), line and col are last two parts
+                    val col = parts.last().toIntOrNull() ?: 0
+                    val line = parts[parts.size - 2].toIntOrNull() ?: 0
+                    val filePath = parts.dropLast(2).joinToString(",").ifBlank { null }
+                    navigateToFileAndLine(filePath, line, col)
+                }
+                parts.size == 2 -> navigateToLine(parts[0].toIntOrNull() ?: 0, parts[1].toIntOrNull() ?: 0)
             }
             JBCefJSQuery.Response("")
         }
@@ -110,19 +119,44 @@ class WorkflowBridge(
         caretListener = object : CaretListener {
             override fun caretPositionChanged(e: CaretEvent) {
                 val doc = e.editor.document
-                val docFile = FileDocumentManager.getInstance().getFile(doc)
+                val docFile = FileDocumentManager.getInstance().getFile(doc) ?: return
+                val pos = e.newPosition
+                val line = pos.line + 1
+                val col = pos.column + 1
                 if (docFile == file) {
-                    val pos = e.newPosition
-                    val line = pos.line + 1
-                    val col = pos.column + 1
                     browser.cefBrowser.executeJavaScript(
                         "window.onCursorMoved && window.onCursorMoved($line, $col);",
                         "", 0
                     )
                 }
+                // For any tracked YAML file (main or imported), notify the webview which node is at this line
+                val filePath = docFile.path.replace("\\", "\\\\").replace("`", "\\`")
+                browser.cefBrowser.executeJavaScript(
+                    "window.onNavigateToNode && window.onNavigateToNode(`$filePath`, $line);",
+                    "", 0
+                )
             }
         }
         EditorFactory.getInstance().eventMulticaster.addCaretListener(caretListener!!)
+
+        // Notify webview when an imported file's document content changes
+        documentListener = object : com.intellij.openapi.editor.event.DocumentListener {
+            override fun documentChanged(event: com.intellij.openapi.editor.event.DocumentEvent) {
+                val changedFile = FileDocumentManager.getInstance().getFile(event.document) ?: return
+                if (changedFile == file) return // Main file is handled by yamlUpdatedQuery round-trip
+                val resolved = resolvedWorkspace ?: return
+                if (!resolved.sourceMap.values.contains(changedFile.path)) return
+                val content = event.document.text
+                    .replace("\\", "\\\\").replace("`", "\\`").replace("\$", "\\\$")
+                val escapedPath = changedFile.path
+                    .replace("\\", "\\\\").replace("`", "\\`").replace("\$", "\\\$")
+                browser.cefBrowser.executeJavaScript(
+                    "window.onFileChanged && window.onFileChanged(`$escapedPath`, `$content`);",
+                    "", 0
+                )
+            }
+        }
+        EditorFactory.getInstance().eventMulticaster.addDocumentListener(documentListener!!)
     }
 
     private fun injectBridge() {
@@ -131,8 +165,8 @@ class WorkflowBridge(
                 sendYamlUpdated: function(content) {
                     ${yamlUpdatedQuery.inject("content")}
                 },
-                sendNavigateToLine: function(line, col) {
-                    ${navigateQuery.inject("line + ',' + col")}
+                sendNavigateToLine: function(data) {
+                    ${navigateQuery.inject("data")}
                 },
                 sendRequestSchemas: function() {
                     ${schemaRequestQuery.inject("''")}
@@ -242,13 +276,25 @@ class WorkflowBridge(
         return result
     }
 
+    /** Navigate to a line in the current file. */
     private fun navigateToLine(line: Int, col: Int) {
+        navigateToFileAndLine(null, line, col)
+    }
+
+    /** Navigate to a line in the specified file (or current file when filePath is null). */
+    private fun navigateToFileAndLine(filePath: String?, line: Int, col: Int) {
         ApplicationManager.getApplication().invokeLater {
-            val editors = FileEditorManager.getInstance(project).openFile(file, true)
+            val targetFile = if (filePath != null && filePath != file.path) {
+                com.intellij.openapi.vfs.LocalFileSystem.getInstance()
+                    .findFileByPath(filePath) ?: return@invokeLater
+            } else {
+                file
+            }
+            val editors = FileEditorManager.getInstance(project).openFile(targetFile, true)
             val textEditor = editors.firstOrNull() ?: return@invokeLater
             val editor: Editor = (textEditor as? com.intellij.openapi.fileEditor.TextEditor)?.editor
                 ?: return@invokeLater
-            val pos = LogicalPosition(line - 1, col - 1)
+            val pos = LogicalPosition(maxOf(0, line - 1), maxOf(0, col - 1))
             editor.caretModel.moveToLogicalPosition(pos)
             editor.scrollingModel.scrollToCaret(ScrollType.CENTER)
         }
@@ -560,5 +606,6 @@ class WorkflowBridge(
         layoutQuery.dispose()
         readyQuery.dispose()
         caretListener?.let { EditorFactory.getInstance().eventMulticaster.removeCaretListener(it) }
+        documentListener?.let { EditorFactory.getInstance().eventMulticaster.removeDocumentListener(it) }
     }
 }

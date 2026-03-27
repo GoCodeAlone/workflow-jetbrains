@@ -15,6 +15,7 @@ function App() {
   const loadSchemas = useModuleSchemaStore((s) => s.loadSchemas);
   const loadPluginSchemas = useModuleSchemaStore((s) => s.loadPluginSchemas);
   const setHighlightedNode = useWorkflowStore((s) => s.setHighlightedNode);
+  const setSelectedNode = useWorkflowStore((s) => s.setSelectedNode);
   const importFromConfig = useWorkflowStore((s) => s.importFromConfig);
   const addToast = useWorkflowStore((s) => s.addToast);
 
@@ -70,8 +71,24 @@ function App() {
           addToast('AI design applied', 'success');
         }
       },
+      onNavigateToNode: (_filePath, line) => {
+        // Use the current merged YAML line map to find and select the node at this line
+        const lineMap = buildYamlLineMap(yamlRef.current);
+        for (const [nodeName, range] of Object.entries(lineMap)) {
+          if (line >= range.startLine && line <= range.endLine) {
+            const nodes = useWorkflowStore.getState().nodes;
+            const node = nodes.find((n) => (n.data?.label as string) === nodeName);
+            if (node) setSelectedNode(node.id);
+            break;
+          }
+        }
+      },
+      onFileChanged: (_filePath, _content) => {
+        // Host has re-sent the merged YAML via yamlChanged when it detected this file change.
+        // No additional action needed in the webview.
+      },
     });
-  }, [loadSchemas, loadPluginSchemas, setHighlightedNode, importFromConfig, addToast]);
+  }, [loadSchemas, loadPluginSchemas, setHighlightedNode, setSelectedNode, importFromConfig, addToast]);
 
   return (
     <WorkflowEditor
@@ -89,7 +106,13 @@ function App() {
           sendYamlUpdated(newYaml);
         }
       }}
-      onNavigateToSource={(line, col) => sendNavigateToLine(line, col)}
+      onNavigateToSource={(...args: [number, number] | [string | null, number, number]) => {
+        if (typeof args[0] === 'string' || args[0] === null) {
+          sendNavigateToLine(args[1], args[2], args[0]);
+        } else {
+          sendNavigateToLine(args[0], args[1]);
+        }
+      }}
       onResolveFile={(relativePath) => sendResolveFile(relativePath)}
       onAIRequest={(context) => sendAIRequest(context)}
     />

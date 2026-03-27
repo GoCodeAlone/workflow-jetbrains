@@ -7,6 +7,10 @@ export interface BridgeCallbacks {
   onSchemasLoaded: (schemas: unknown) => void;
   onPluginSchemasLoaded?: (plugins: unknown[]) => void;
   onAIResponse?: (yaml: string) => void;
+  /** Host → webview: navigate to node at (filePath, line). Uses line map to select node. */
+  onNavigateToNode?: (filePath: string | null, line: number) => void;
+  /** Host → webview: an imported file's content changed. */
+  onFileChanged?: (filePath: string, content: string) => void;
 }
 
 let callbacks: BridgeCallbacks | null = null;
@@ -31,6 +35,10 @@ export function initBridge(cb: BridgeCallbacks) {
       pending.resolve(content);
     }
   };
+  (window as unknown as Record<string, unknown>)['onNavigateToNode'] = (filePath: string | null, line: number) =>
+    callbacks?.onNavigateToNode?.(filePath, line);
+  (window as unknown as Record<string, unknown>)['onFileChanged'] = (filePath: string, content: string) =>
+    callbacks?.onFileChanged?.(filePath, content);
 
   // Wait for hostBridge to be injected, then signal ready
   // sendReady triggers the Kotlin readyQuery handler which sends YAML + schemas
@@ -51,8 +59,14 @@ export function sendYamlUpdated(content: string) {
   getHostBridge()?.['sendYamlUpdated'](content);
 }
 
-export function sendNavigateToLine(line: number, col: number) {
-  getHostBridge()?.['sendNavigateToLine'](line, col);
+/** Navigate to a specific line in the host editor.
+ *  When filePath is provided, the host will open that file before navigating.
+ *  Data format: "filePath,line,col" (3 parts) or "line,col" (2 parts, backward compat). */
+export function sendNavigateToLine(line: number, col: number, filePath?: string | null) {
+  const data = (filePath !== undefined && filePath !== null)
+    ? `${filePath},${line},${col}`
+    : `${line},${col}`;
+  getHostBridge()?.['sendNavigateToLine'](data);
 }
 
 export function sendRequestSchemas() {
