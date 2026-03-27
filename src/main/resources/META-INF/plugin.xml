@@ -62,6 +62,12 @@
                     icon="AllIcons.FileTypes.Diagram"
                     factoryClass="com.gocodalone.workflow.ide.editor.WorkflowVisualEditorToolWindowFactory"/>
 
+        <!-- DSL Reference tool window -->
+        <toolWindow id="Workflow DSL Reference"
+                    anchor="bottom"
+                    icon="AllIcons.General.ReaderMode"
+                    factoryClass="com.gocodalone.workflow.ide.editor.DslReferenceToolWindowFactory"/>
+
         <!-- Editor notification banner for detected workflow files -->
         <editorNotificationProvider
             implementation="com.gocodalone.workflow.ide.editor.WorkflowDetectionNotificationProvider"/>
@@ -136,6 +142,14 @@
                     class="com.gocodalone.workflow.ide.actions.WorkflowTemplateValidateAction"
                     text="Template Validate"
                     description="Run wfctl template validate on the current file"/>
+
+            <separator/>
+
+            <action id="com.gocodalone.workflow.actions.ShowDslReferenceAction"
+                    class="com.gocodalone.workflow.ide.actions.ShowDslReferenceAction"
+                    text="Show DSL Reference"
+                    description="Open the Workflow DSL Reference panel"
+                    icon="AllIcons.General.ReaderMode"/>
         </group>
     </actions>
 </idea-plugin>

@@ -1,0 +1,77 @@
+{
+  "sections": [
+    {
+      "id": "application",
+      "title": "Application",
+      "description": "Top-level application metadata. Sets the application name, version, and required engine version.",
+      "requiredFields": [
+        { "name": "name", "type": "string", "description": "Unique application identifier" }
+      ],
+      "optionalFields": [
+        { "name": "version", "type": "string", "description": "Application version" },
+        { "name": "requires", "type": "string", "description": "Minimum workflow engine version required" }
+      ],
+      "example": "name: my-app\nversion: \"1.0.0\"\nrequires: \">=0.3.0\"",
+      "relationships": []
+    },
+    {
+      "id": "modules",
+      "title": "Modules",
+      "description": "Modules are the building blocks of a workflow application. Each module represents a runtime service component.",
+      "requiredFields": [
+        { "name": "name", "type": "string", "description": "Unique identifier for this module instance" },
+        { "name": "type", "type": "string", "description": "Module type from the registry (e.g., http.server, database.workflow)" }
+      ],
+      "optionalFields": [
+        { "name": "config", "type": "map", "description": "Type-specific configuration" },
+        { "name": "dependsOn", "type": "string[]", "description": "Module names this module depends on" },
+        { "name": "branches", "type": "map", "description": "Conditional routing to other modules" }
+      ],
+      "example": "modules:\n  - name: api-server\n    type: http.server\n    config:\n      address: \":8080\"",
+      "relationships": [
+        "Modules are referenced by workflows.http.routes[].handler",
+        "Module names must be unique across all imported files"
+      ]
+    },
+    {
+      "id": "pipelines",
+      "title": "Pipelines",
+      "description": "Pipelines define ordered sequences of steps to execute.",
+      "requiredFields": [],
+      "optionalFields": [
+        { "name": "steps", "type": "array", "description": "Ordered list of step definitions" }
+      ],
+      "example": "pipelines:\n  process-order:\n    steps:\n      - type: step.transform\n        config:\n          template: '{{ .input }}'",
+      "relationships": [
+        "Pipelines are referenced by module config and workflow handlers"
+      ]
+    },
+    {
+      "id": "workflows",
+      "title": "Workflows",
+      "description": "Workflows define how external events trigger pipeline execution.",
+      "requiredFields": [],
+      "optionalFields": [
+        { "name": "http", "type": "object", "description": "HTTP server routing configuration" },
+        { "name": "messaging", "type": "object", "description": "Message broker subscription configuration" }
+      ],
+      "example": "workflows:\n  http:\n    server: api-server\n    routes:\n      - path: /orders\n        method: POST\n        pipeline: process-order",
+      "relationships": [
+        "HTTP workflows require a module of type http.server"
+      ]
+    },
+    {
+      "id": "imports",
+      "title": "Imports",
+      "description": "Imports allow splitting large workflow configs across multiple files.",
+      "requiredFields": [],
+      "optionalFields": [
+        { "name": "imports", "type": "string[]", "description": "Relative paths to partial config files to merge" }
+      ],
+      "example": "imports:\n  - modules/database.yaml\n  - pipelines/orders.yaml",
+      "relationships": [
+        "Imported files are merged before validation"
+      ]
+    }
+  ]
+}
