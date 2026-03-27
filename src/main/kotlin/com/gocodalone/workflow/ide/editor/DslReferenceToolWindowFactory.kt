@@ -1,5 +1,6 @@
 package com.gocodalone.workflow.ide.editor
 
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
@@ -15,6 +16,7 @@ class DslReferenceToolWindowFactory : ToolWindowFactory {
 
         val component = try {
             val browser = JBCefBrowser()
+            Disposer.register(toolWindow.disposable, browser)
             browser.loadHTML(html)
             browser.component
         } catch (e: Exception) {
