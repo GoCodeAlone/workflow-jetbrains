@@ -458,7 +458,10 @@
                     },
                     "routes": {
                       "description": "Per-route processing pipelines with composable steps (validate, transform, http_call, etc.)",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "additionalProperties": false
@@ -501,7 +504,10 @@
                     },
                     "routes": {
                       "description": "Array of route definitions with pathPrefix, backend, methods, rateLimit, auth, timeout",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "additionalProperties": false
@@ -601,7 +607,10 @@
                     },
                     "routes": {
                       "description": "Per-route processing pipelines with composable steps (validate, transform, http_call, etc.)",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "additionalProperties": false
@@ -799,7 +808,10 @@
                     },
                     "clients": {
                       "description": "List of OAuth2 clients",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "issuer": {
                       "description": "Token issuer claim",
@@ -844,7 +856,10 @@
                   "properties": {
                     "providers": {
                       "description": "List of OAuth2 provider configurations",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "additionalProperties": false
@@ -2331,20 +2346,12 @@
                       "type": "string"
                     },
                     "swagger_ui": {
-                      "description": "Swagger UI settings, e.g. {\"enabled\": false, \"path\": \"/docs\"}",
-                      "type": "object",
-                      "default": {
-                        "enabled": false,
-                        "path": "/docs"
-                      }
+                      "description": "Swagger UI settings (enabled bool, path string)",
+                      "type": "object"
                     },
                     "validation": {
-                      "description": "Request/response validation settings, e.g. {\"request\": true, \"response\": false}",
-                      "type": "object",
-                      "default": {
-                        "request": true,
-                        "response": false
-                      }
+                      "description": "Request/response validation settings (request, response booleans)",
+                      "type": "object"
                     }
                   },
                   "additionalProperties": false
@@ -2488,7 +2495,7 @@
                       "type": "string"
                     },
                     "cors": {
-                      "description": "CORS configuration",
+                      "description": "CORS configuration (allowedOrigins, allowedMethods, allowedHeaders)",
                       "type": "object"
                     },
                     "name": {
@@ -2501,7 +2508,10 @@
                     },
                     "routes": {
                       "description": "Route definitions",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "stage": {
                       "description": "Deployment stage (dev, staging, prod)",
@@ -2540,7 +2550,10 @@
                     },
                     "policies": {
                       "description": "Scaling policy definitions",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "provider": {
                       "description": "mock | aws",
@@ -2629,7 +2642,10 @@
                     },
                     "records": {
                       "description": "List of DNS record definitions",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "zone": {
                       "description": "Zone configuration (name, comment, private, vpcId)",
@@ -2788,7 +2804,10 @@
                     },
                     "records": {
                       "description": "List of DNS record definitions",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "additionalProperties": false
@@ -2823,7 +2842,10 @@
                     },
                     "firewalls": {
                       "description": "List of firewall definitions",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "provider": {
                       "description": "mock | digitalocean",
@@ -2926,11 +2948,17 @@
                     },
                     "security_groups": {
                       "description": "List of security group IDs",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "vpc_subnets": {
                       "description": "List of subnet IDs",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "additionalProperties": false
@@ -2965,7 +2993,10 @@
                     },
                     "nodeGroups": {
                       "description": "Node group definitions",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "type": {
                       "description": "eks | gke | aks | kind | k3s",
@@ -3016,11 +3047,17 @@
                     },
                     "security_groups": {
                       "description": "List of security group definitions",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "subnets": {
                       "description": "List of subnet definitions",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "vpc": {
                       "description": "VPC configuration (cidr, name)",
@@ -3098,7 +3135,10 @@
                     },
                     "regions": {
                       "description": "List of region definitions (name, provider, endpoint, priority, health_check)",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "additionalProperties": false
@@ -3221,7 +3261,10 @@
                   "properties": {
                     "policies": {
                       "description": "List of policies to load at startup",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "additionalProperties": false
@@ -3385,7 +3428,10 @@
                   "properties": {
                     "fields": {
                       "description": "List of field protection rules (path, action: mask|encrypt|redact)",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "key": {
                       "description": "Key used for field encryption",
@@ -4400,7 +4446,10 @@
                   "properties": {
                     "constraints": {
                       "description": "List of constraint definitions (field, operator, value)",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "resources_from": {
                       "description": "Key in pipeline context containing resources to validate",
@@ -5395,11 +5444,11 @@
                       "type": "string"
                     },
                     "headers": {
-                      "description": "Additional headers/metadata to include with the event as a JSON object",
+                      "description": "Additional headers/metadata to include with the event",
                       "type": "object"
                     },
                     "payload": {
-                      "description": "Event payload as a JSON object (supports template expressions); defaults to current pipeline context",
+                      "description": "Event payload (supports template expressions); defaults to current pipeline context",
                       "type": "object"
                     },
                     "provider": {
@@ -5595,7 +5644,10 @@
                     },
                     "steps": {
                       "description": "Array of step maps to execute for each item (mutually exclusive with step)",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "additionalProperties": false
@@ -5795,7 +5847,7 @@
                       "default": "GET"
                     },
                     "oauth2": {
-                      "description": "OAuth2 client_credentials configuration. Tokens are cached and refreshed automatically. Fields: grant_type (default: client_credentials), token_url, client_id, client_secret, scopes. When the token endpoint returns instance_url (Salesforce pattern), it is injected as {{ .instance_url }} for URL templates and included in the step output. If both the legacy auth block and oauth2 are configured, auth takes precedence and oauth2 is ignored.",
+                      "description": "OAuth2 client_credentials configuration (grant_type, token_url, client_id, client_secret, scopes). Tokens are cached and refreshed automatically.",
                       "type": "object"
                     },
                     "timeout": {
@@ -6282,7 +6334,10 @@
                     },
                     "steps": {
                       "description": "List of sub-steps to run concurrently. Each must have a unique 'name'.",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "additionalProperties": false
@@ -7173,7 +7228,10 @@
                   "properties": {
                     "artifacts_out": {
                       "description": "Artifacts to collect after execution (array of {key, path})",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "commands": {
                       "description": "Shell commands to execute sequentially",
@@ -7421,7 +7479,10 @@
                   "properties": {
                     "operations": {
                       "description": "Inline transformation operations (alternative to transformer+pipeline)",
-                      "type": "object"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "pipeline": {
                       "description": "Named pipeline within the transformer",
@@ -7746,7 +7807,7 @@
                   ],
                   "properties": {
                     "input": {
-                      "description": "Map of target pipeline input keys to template expressions from the current context (e.g. {\"conversation_id\": \"{{ .conversation_id }}\"}). If omitted, all current context data is passed through.",
+                      "description": "Map of target pipeline input keys to template expressions from the current context. If omitted, all current context data is passed through.",
                       "type": "object"
                     },
                     "mode": {
@@ -7759,7 +7820,7 @@
                       "default": "sync"
                     },
                     "output_mapping": {
-                      "description": "Map of parent context keys to target pipeline output paths (e.g. {\"assigned_responder\": \"responder_id\"}). If omitted, all outputs are returned under 'result'.",
+                      "description": "Map of parent context keys to target pipeline output paths. If omitted, all outputs are returned under 'result'.",
                       "type": "object"
                     },
                     "timeout": {
@@ -9163,7 +9224,10 @@
                         "properties": {
                           "constraints": {
                             "description": "List of constraint definitions (field, operator, value)",
-                            "type": "object"
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           },
                           "resources_from": {
                             "description": "Key in pipeline context containing resources to validate",
@@ -10158,11 +10222,11 @@
                             "type": "string"
                           },
                           "headers": {
-                            "description": "Additional headers/metadata to include with the event as a JSON object",
+                            "description": "Additional headers/metadata to include with the event",
                             "type": "object"
                           },
                           "payload": {
-                            "description": "Event payload as a JSON object (supports template expressions); defaults to current pipeline context",
+                            "description": "Event payload (supports template expressions); defaults to current pipeline context",
                             "type": "object"
                           },
                           "provider": {
@@ -10358,7 +10422,10 @@
                           },
                           "steps": {
                             "description": "Array of step maps to execute for each item (mutually exclusive with step)",
-                            "type": "object"
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           }
                         },
                         "additionalProperties": false
@@ -10558,7 +10625,7 @@
                             "default": "GET"
                           },
                           "oauth2": {
-                            "description": "OAuth2 client_credentials configuration. Tokens are cached and refreshed automatically. Fields: grant_type (default: client_credentials), token_url, client_id, client_secret, scopes. When the token endpoint returns instance_url (Salesforce pattern), it is injected as {{ .instance_url }} for URL templates and included in the step output. If both the legacy auth block and oauth2 are configured, auth takes precedence and oauth2 is ignored.",
+                            "description": "OAuth2 client_credentials configuration (grant_type, token_url, client_id, client_secret, scopes). Tokens are cached and refreshed automatically.",
                             "type": "object"
                           },
                           "timeout": {
@@ -11045,7 +11112,10 @@
                           },
                           "steps": {
                             "description": "List of sub-steps to run concurrently. Each must have a unique 'name'.",
-                            "type": "object"
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           }
                         },
                         "additionalProperties": false
@@ -11936,7 +12006,10 @@
                         "properties": {
                           "artifacts_out": {
                             "description": "Artifacts to collect after execution (array of {key, path})",
-                            "type": "object"
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           },
                           "commands": {
                             "description": "Shell commands to execute sequentially",
@@ -12184,7 +12257,10 @@
                         "properties": {
                           "operations": {
                             "description": "Inline transformation operations (alternative to transformer+pipeline)",
-                            "type": "object"
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           },
                           "pipeline": {
                             "description": "Named pipeline within the transformer",
@@ -12509,7 +12585,7 @@
                         ],
                         "properties": {
                           "input": {
-                            "description": "Map of target pipeline input keys to template expressions from the current context (e.g. {\"conversation_id\": \"{{ .conversation_id }}\"}). If omitted, all current context data is passed through.",
+                            "description": "Map of target pipeline input keys to template expressions from the current context. If omitted, all current context data is passed through.",
                             "type": "object"
                           },
                           "mode": {
@@ -12522,7 +12598,7 @@
                             "default": "sync"
                           },
                           "output_mapping": {
-                            "description": "Map of parent context keys to target pipeline output paths (e.g. {\"assigned_responder\": \"responder_id\"}). If omitted, all outputs are returned under 'result'.",
+                            "description": "Map of parent context keys to target pipeline output paths. If omitted, all outputs are returned under 'result'.",
                             "type": "object"
                           },
                           "timeout": {
