@@ -76,6 +76,7 @@
               "gitlab.client",
               "gitlab.webhook",
               "health.checker",
+              "http.client",
               "http.handler",
               "http.middleware.auth",
               "http.middleware.cors",
@@ -297,6 +298,7 @@
               "step.scan_sast",
               "step.secret_fetch",
               "step.secret_rotate",
+              "step.secret_set",
               "step.set",
               "step.shell_exec",
               "step.statemachine_get",
@@ -317,6 +319,7 @@
               "step.validate_path_param",
               "step.validate_request_body",
               "step.webhook_verify",
+              "step.while",
               "step.workflow_call",
               "storage.artifact",
               "storage.gcs",
@@ -1492,6 +1495,46 @@
                       "description": "Readiness probe endpoint path",
                       "type": "string",
                       "default": "/readyz"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "http.client"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "auth": {
+                      "description": "Auth block. Supported values: {type: none}; {type: static_bearer, bearer_token: \u003ctoken\u003e} or {type: static_bearer, bearer_token_ref: \u003cref\u003e}; {type: oauth2_client_credentials, token_url: \u003curl\u003e, client_id: \u003cid\u003e, client_secret: \u003csecret\u003e, scopes: [\u003cscope\u003e]}; {type: oauth2_refresh_token, token_secrets: \u003cmodule-name\u003e, token_secrets_key: \u003ckey\u003e, scopes: [\u003cscope\u003e]}.",
+                      "type": "object",
+                      "default": {
+                        "type": "none"
+                      }
+                    },
+                    "base_url": {
+                      "description": "Optional base URL prepended to relative request paths",
+                      "type": "string"
+                    },
+                    "timeout": {
+                      "description": "Request timeout for outgoing calls",
+                      "type": "string",
+                      "default": "30s"
                     }
                   },
                   "additionalProperties": false
@@ -7181,6 +7224,42 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "step.secret_set"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "module",
+                    "secrets"
+                  ],
+                  "properties": {
+                    "module": {
+                      "description": "Secrets module name",
+                      "type": "string"
+                    },
+                    "secrets": {
+                      "description": "Map of secret key to value (supports template expressions)",
+                      "type": "object"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "step.set"
                   ]
                 }
@@ -7793,6 +7872,61 @@
               "properties": {
                 "type": {
                   "enum": [
+                    "step.while"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "required": [
+                    "condition"
+                  ],
+                  "properties": {
+                    "accumulate": {
+                      "description": "Optional {key, from} block that flattens per-iteration values into an output slice",
+                      "type": "object"
+                    },
+                    "condition": {
+                      "description": "Template expression evaluated each iteration; loop runs while truthy",
+                      "type": "string"
+                    },
+                    "iteration_var": {
+                      "description": "Optional context variable exposing {index, first} for the current iteration",
+                      "type": "string"
+                    },
+                    "max_iterations": {
+                      "description": "Hard cap on iterations to prevent runaway loops",
+                      "type": "number",
+                      "default": 1000
+                    },
+                    "step": {
+                      "description": "Single step map to execute per iteration (mutually exclusive with steps); must include 'type' key",
+                      "type": "object"
+                    },
+                    "steps": {
+                      "description": "Array of step maps to execute per iteration (mutually exclusive with step)",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
                     "step.workflow_call"
                   ]
                 }
@@ -8361,6 +8495,7 @@
                     "step.scan_sast",
                     "step.secret_fetch",
                     "step.secret_rotate",
+                    "step.secret_set",
                     "step.set",
                     "step.shell_exec",
                     "step.statemachine_get",
@@ -8381,6 +8516,7 @@
                     "step.validate_path_param",
                     "step.validate_request_body",
                     "step.webhook_verify",
+                    "step.while",
                     "step.workflow_call"
                   ]
                 }
@@ -11959,6 +12095,42 @@
                     "properties": {
                       "type": {
                         "enum": [
+                          "step.secret_set"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "module",
+                          "secrets"
+                        ],
+                        "properties": {
+                          "module": {
+                            "description": "Secrets module name",
+                            "type": "string"
+                          },
+                          "secrets": {
+                            "description": "Map of secret key to value (supports template expressions)",
+                            "type": "object"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
                           "step.set"
                         ]
                       }
@@ -12556,6 +12728,61 @@
                           "signature_header": {
                             "description": "HTTP header containing the signature (scheme mode only)",
                             "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.while"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "required": [
+                          "condition"
+                        ],
+                        "properties": {
+                          "accumulate": {
+                            "description": "Optional {key, from} block that flattens per-iteration values into an output slice",
+                            "type": "object"
+                          },
+                          "condition": {
+                            "description": "Template expression evaluated each iteration; loop runs while truthy",
+                            "type": "string"
+                          },
+                          "iteration_var": {
+                            "description": "Optional context variable exposing {index, first} for the current iteration",
+                            "type": "string"
+                          },
+                          "max_iterations": {
+                            "description": "Hard cap on iterations to prevent runaway loops",
+                            "type": "number",
+                            "default": 1000
+                          },
+                          "step": {
+                            "description": "Single step map to execute per iteration (mutually exclusive with steps); must include 'type' key",
+                            "type": "object"
+                          },
+                          "steps": {
+                            "description": "Array of step maps to execute per iteration (mutually exclusive with step)",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           }
                         },
                         "additionalProperties": false
