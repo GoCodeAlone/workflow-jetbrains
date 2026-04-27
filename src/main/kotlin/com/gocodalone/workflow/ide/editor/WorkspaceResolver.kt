@@ -1,6 +1,7 @@
 package com.gocodalone.workflow.ide.editor
 
 import com.google.gson.Gson
+import com.gocodalone.workflow.ide.WorkflowBundle
 
 /**
  * Resolves a workspace context from any workflow YAML file (including partials).
@@ -88,14 +89,16 @@ class WorkspaceResolver {
                 } catch (_: Exception) {}
             }
 
-            // Prefer well-known names, then fall back to any YAML with both sections
+            // Prefer well-known root names, then fall back to any YAML with both sections
             val yamlFiles = dir.listFiles()
                 ?.filter { it.isFile && (it.name.endsWith(".yaml") || it.name.endsWith(".yml")) }
                 ?.sortedWith(compareBy {
                     when (it.name) {
                         "app.yaml", "app.yml" -> 0
                         "workflow.yaml", "workflow.yml" -> 1
-                        else -> 2
+                        "infra.yaml", "infra.yml" -> 2
+                        in WorkflowBundle.WORKFLOW_ROOT_FILE_NAMES -> 3
+                        else -> 5
                     }
                 }) ?: emptyList()
 

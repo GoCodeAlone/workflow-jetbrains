@@ -21,6 +21,7 @@ class WorkflowSchemaProvider(private val project: Project) : JsonSchemaFileProvi
 
     override fun isAvailable(file: VirtualFile): Boolean {
         if (!file.name.endsWith(".yaml") && !file.name.endsWith(".yml")) return false
+        if (file.name in WorkflowBundle.WFCTL_MANIFEST_FILE_NAMES) return false
 
         // Check explicit configPaths from project settings
         val projectSettings = WorkflowProjectSettings.getInstance(project)
@@ -40,11 +41,8 @@ class WorkflowSchemaProvider(private val project: Project) : JsonSchemaFileProvi
             }
         }
 
-        // Match by common workflow config file names
-        val name = file.name
-        if (name == "workflow.yaml" || name == "workflow.yml" ||
-            name == "app.yaml" || name == "app.yml"
-        ) {
+        // Match by documented workflow config file names and patterns
+        if (WorkflowBundle.isWorkflowConfigFileName(file.name)) {
             return true
         }
 

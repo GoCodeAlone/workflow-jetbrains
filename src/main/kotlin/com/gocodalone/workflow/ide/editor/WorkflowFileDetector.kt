@@ -1,11 +1,12 @@
 package com.gocodalone.workflow.ide.editor
 
+import com.gocodalone.workflow.ide.WorkflowBundle
 import com.gocodalone.workflow.ide.settings.WorkflowProjectSettings
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import java.nio.file.FileSystems
 
-enum class WorkflowFileType { CONFIG, PARTIAL, TEST, FEATURE }
+enum class WorkflowFileType { CONFIG, PARTIAL, TEST, FEATURE, WFCTL_MANIFEST }
 
 class WorkflowFileDetector {
     companion object {
@@ -15,6 +16,7 @@ class WorkflowFileDetector {
             if (file.name.endsWith(".feature")) return WorkflowFileType.FEATURE
 
             if (!file.name.endsWith(".yaml") && !file.name.endsWith(".yml")) return null
+            if (file.name in WorkflowBundle.WFCTL_MANIFEST_FILE_NAMES) return WorkflowFileType.WFCTL_MANIFEST
 
             // Layer 1: explicit configPaths always treated as CONFIG
             val projectSettings = WorkflowProjectSettings.getInstance(project)
@@ -32,7 +34,10 @@ class WorkflowFileDetector {
                 }
             }
 
-            // Layer 2: content-based tiered detection
+            // Layer 2: documented workflow config names and patterns
+            if (WorkflowBundle.isWorkflowConfigFileName(file.name)) return WorkflowFileType.CONFIG
+
+            // Layer 3: content-based tiered detection
             val content = try {
                 String(file.contentsToByteArray(), Charsets.UTF_8)
             } catch (_: Exception) {

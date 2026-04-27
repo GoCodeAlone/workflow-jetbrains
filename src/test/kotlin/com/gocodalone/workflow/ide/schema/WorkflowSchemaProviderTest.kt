@@ -36,6 +36,49 @@ class WorkflowSchemaProviderTest : BasePlatformTestCase() {
         )
     }
 
+    fun testSchemaAppliesToInfraRoots() {
+        val provider = WorkflowSchemaProvider(project)
+        listOf("infra.yaml", "infra.yml").forEach { fileName ->
+            val file = myFixture.configureByText(fileName, "name: sample")
+            assertTrue(
+                "Schema should apply to $fileName",
+                provider.isAvailable(file.virtualFile)
+            )
+        }
+    }
+
+    fun testSchemaAppliesToWorkflowSuffixPatterns() {
+        val provider = WorkflowSchemaProvider(project)
+        listOf("orders-workflow.yaml", "billing-workflow.yml").forEach { fileName ->
+            val file = myFixture.configureByText(fileName, "name: sample")
+            assertTrue(
+                "Schema should apply to $fileName",
+                provider.isAvailable(file.virtualFile)
+            )
+        }
+    }
+
+    fun testSchemaDoesNotApplyToWfctlManifests() {
+        val provider = WorkflowSchemaProvider(project)
+        listOf("wfctl.yaml", "wfctl.yml").forEach { fileName ->
+            val file = myFixture.configureByText(
+                fileName,
+                """
+                plugins:
+                  - name: auth
+                    source: registry.example.com/workflow-plugin-auth
+                registries:
+                  - name: default
+                    url: https://registry.example.com
+                """.trimIndent()
+            )
+            assertFalse(
+                "Workflow app schema should not apply to wfctl manifest $fileName",
+                provider.isAvailable(file.virtualFile)
+            )
+        }
+    }
+
     fun testSchemaDoesNotApplyToGenericYaml() {
         val file = myFixture.configureByText("database.yaml", "host: localhost")
         val provider = WorkflowSchemaProvider(project)

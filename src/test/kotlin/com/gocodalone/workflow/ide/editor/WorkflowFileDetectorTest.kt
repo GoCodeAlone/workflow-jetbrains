@@ -32,6 +32,54 @@ class WorkflowFileDetectorTest : BasePlatformTestCase() {
         )
     }
 
+    fun testDetectsInfraRootNamesAsConfigs() {
+        listOf("infra.yaml", "infra.yml").forEach { fileName ->
+            val file = myFixture.configureByText(fileName, "name: sample")
+            assertEquals(
+                "Expected $fileName to be detected as a workflow config root",
+                WorkflowFileType.CONFIG,
+                WorkflowFileDetector.detectFileType(project, file.virtualFile)
+            )
+        }
+    }
+
+    fun testDetectsWorkflowSuffixPatternsAsConfigs() {
+        listOf("orders-workflow.yaml", "billing-workflow.yml").forEach { fileName ->
+            val file = myFixture.configureByText(fileName, "name: sample")
+            assertEquals(
+                "Expected $fileName to be detected as a workflow config pattern",
+                WorkflowFileType.CONFIG,
+                WorkflowFileDetector.detectFileType(project, file.virtualFile)
+            )
+            assertTrue(
+                "Expected $fileName to be treated as a workflow app file",
+                WorkflowFileDetector.isWorkflowFile(project, file.virtualFile)
+            )
+        }
+    }
+
+    fun testDetectsWfctlManifestNamesSeparately() {
+        listOf("wfctl.yaml", "wfctl.yml").forEach { fileName ->
+            val file = myFixture.configureByText(
+                fileName,
+                """
+                plugins:
+                  - name: auth
+                    source: registry.example.com/workflow-plugin-auth
+                """.trimIndent()
+            )
+            assertEquals(
+                "Expected $fileName to be detected as a wfctl manifest, not a workflow app config",
+                WorkflowFileType.WFCTL_MANIFEST,
+                WorkflowFileDetector.detectFileType(project, file.virtualFile)
+            )
+            assertFalse(
+                "Expected $fileName not to be treated as a workflow app file",
+                WorkflowFileDetector.isWorkflowFile(project, file.virtualFile)
+            )
+        }
+    }
+
     fun testRejectsGenericYaml() {
         val file = myFixture.configureByText(
             "config.yaml",

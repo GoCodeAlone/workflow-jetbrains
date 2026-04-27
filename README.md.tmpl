@@ -10,7 +10,7 @@ IDE support for [Workflow Engine](https://github.com/GoCodeAlone/workflow) confi
 
 ## Compatibility
 
-Works with all JetBrains IDEs: IntelliJ IDEA, GoLand, WebStorm, PyCharm, PhpStorm, Rider, CLion, RubyMine, and all other IntelliJ Platform-based products. Requires IDE version **2024.2 or later**.
+Works with all JetBrains IDEs: IntelliJ IDEA, GoLand, WebStorm, PyCharm, PhpStorm, Rider, CLion, RubyMine, and all other IntelliJ Platform-based products. Requires IDE version **2025.2 or later**.
 
 This plugin targets **workflow engine ${WORKFLOW_VERSION}+**. The bundled JSON schema and live templates are generated from the ${WORKFLOW_VERSION} registry.
 
@@ -43,7 +43,7 @@ Hovering over module names, step types, or config keys shows inline documentatio
 
 ### Live Templates
 
-Type an abbreviation and press Tab to expand a template. Templates are available in all workflow YAML files (`workflow.yaml`, `app.yaml`, `*-workflow.yaml`, etc.).
+Type an abbreviation and press Tab to expand a template. Templates are available in all workflow YAML files (`workflow.yaml`, `app.yaml`, `infra.yaml`, `*-workflow.yaml`, etc.).
 
 See [Live Templates Reference](#live-templates-reference) for the full list.
 
@@ -57,7 +57,8 @@ The plugin bundles a JSON Schema for workflow config files and automatically reg
 
 - `workflow.yaml` / `workflow.yml`
 - `app.yaml` / `app.yml`
-- Any `.yaml`/`.yml` file whose name contains `workflow` or `app` and whose content includes a `modules:` key
+- `infra.yaml` / `infra.yml`
+- Any `.yaml`/`.yml` file whose content includes a `modules:` key
 
 This provides structural validation (required fields, allowed values, type checks) without requiring the LSP server to be running.
 
