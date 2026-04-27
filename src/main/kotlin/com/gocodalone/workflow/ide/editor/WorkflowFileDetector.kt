@@ -34,8 +34,8 @@ class WorkflowFileDetector {
                 }
             }
 
-            // Layer 2: well-known root config names
-            if (file.name in WorkflowBundle.WORKFLOW_ROOT_FILE_NAMES) return WorkflowFileType.CONFIG
+            // Layer 2: documented workflow config names and patterns
+            if (WorkflowBundle.isWorkflowConfigFileName(file.name)) return WorkflowFileType.CONFIG
 
             // Layer 3: content-based tiered detection
             val content = try {

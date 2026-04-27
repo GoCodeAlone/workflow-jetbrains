@@ -43,6 +43,21 @@ class WorkflowFileDetectorTest : BasePlatformTestCase() {
         }
     }
 
+    fun testDetectsWorkflowSuffixPatternsAsConfigs() {
+        listOf("orders-workflow.yaml", "billing-workflow.yml").forEach { fileName ->
+            val file = myFixture.configureByText(fileName, "name: sample")
+            assertEquals(
+                "Expected $fileName to be detected as a workflow config pattern",
+                WorkflowFileType.CONFIG,
+                WorkflowFileDetector.detectFileType(project, file.virtualFile)
+            )
+            assertTrue(
+                "Expected $fileName to be treated as a workflow app file",
+                WorkflowFileDetector.isWorkflowFile(project, file.virtualFile)
+            )
+        }
+    }
+
     fun testDetectsWfctlManifestNamesSeparately() {
         listOf("wfctl.yaml", "wfctl.yml").forEach { fileName ->
             val file = myFixture.configureByText(

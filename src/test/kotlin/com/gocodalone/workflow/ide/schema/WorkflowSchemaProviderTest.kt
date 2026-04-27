@@ -47,6 +47,17 @@ class WorkflowSchemaProviderTest : BasePlatformTestCase() {
         }
     }
 
+    fun testSchemaAppliesToWorkflowSuffixPatterns() {
+        val provider = WorkflowSchemaProvider(project)
+        listOf("orders-workflow.yaml", "billing-workflow.yml").forEach { fileName ->
+            val file = myFixture.configureByText(fileName, "name: sample")
+            assertTrue(
+                "Schema should apply to $fileName",
+                provider.isAvailable(file.virtualFile)
+            )
+        }
+    }
+
     fun testSchemaDoesNotApplyToWfctlManifests() {
         val provider = WorkflowSchemaProvider(project)
         listOf("wfctl.yaml", "wfctl.yml").forEach { fileName ->

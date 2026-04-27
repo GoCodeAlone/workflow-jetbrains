@@ -50,12 +50,11 @@ class LspSupportProviderTest : BasePlatformTestCase() {
         )
     }
 
-    fun testLsp4ijFileNamePatternMappingIncludesKnownRoots() {
+    fun testLsp4ijFileNamePatternMappingIncludesDocumentedWorkflowPatterns() {
         val mapping = lsp4ijConfig()
 
-        listOf("workflow.yaml", "workflow.yml", "app.yaml", "app.yml", "infra.yaml", "infra.yml")
-            .forEach { fileName ->
-                assertTrue("LSP4IJ mapping should include $fileName", mapping.contains(fileName))
+        WorkflowBundle.WORKFLOW_FILE_PATTERNS.forEach { pattern ->
+            assertTrue("LSP4IJ mapping should include $pattern", mapping.contains(pattern))
             }
 
         listOf("wfctl.yaml", "wfctl.yml")
@@ -68,8 +67,8 @@ class LspSupportProviderTest : BasePlatformTestCase() {
         val patterns = fileNamePatternMappingPatterns()
 
         assertEquals(
-            "LSP4IJ runtime mapping should exactly match workflow root file names",
-            WorkflowBundle.WORKFLOW_ROOT_FILE_NAMES,
+            "LSP4IJ runtime mapping should exactly match documented workflow file patterns",
+            WorkflowBundle.WORKFLOW_FILE_PATTERNS.toSet(),
             patterns
         )
     }

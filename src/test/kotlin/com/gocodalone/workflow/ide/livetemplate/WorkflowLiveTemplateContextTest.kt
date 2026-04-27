@@ -25,6 +25,16 @@ class WorkflowLiveTemplateContextTest : BasePlatformTestCase() {
         )
     }
 
+    fun testContextAppliesToWorkflowSuffixPattern() {
+        val context = WorkflowLiveTemplateContext()
+        val file = myFixture.configureByText("orders-workflow.yaml", "name: sample")
+
+        assertTrue(
+            "Workflow live templates should apply to documented workflow suffix files",
+            context.isInContext(TemplateActionContext.expanding(file, 0))
+        )
+    }
+
     fun testContextRejectsWfctlManifest() {
         val context = WorkflowLiveTemplateContext()
         val file = myFixture.configureByText(

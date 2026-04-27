@@ -1,5 +1,8 @@
 package com.gocodalone.workflow.ide
 
+import java.nio.file.FileSystems
+import java.nio.file.Path
+
 object WorkflowBundle {
     const val PLUGIN_ID = "com.gocodalone.workflow"
     const val DISPLAY_NAME = "Workflow Engine"
@@ -32,6 +35,15 @@ object WorkflowBundle {
         "*-workflow.yaml",
         "*-workflow.yml"
     )
+
+    fun isWorkflowConfigFileName(fileName: String): Boolean =
+        WORKFLOW_FILE_PATTERNS.any { pattern ->
+            try {
+                FileSystems.getDefault().getPathMatcher("glob:$pattern").matches(Path.of(fileName))
+            } catch (_: Exception) {
+                fileName == pattern
+            }
+        }
 
     // Key that identifies a workflow config file by content
     const val WORKFLOW_CONTENT_KEY = "modules:"
