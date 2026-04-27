@@ -1,11 +1,12 @@
 package com.gocodalone.workflow.ide.livetemplate
 
+import com.gocodalone.workflow.ide.editor.WorkflowFileDetector
+import com.gocodalone.workflow.ide.editor.WorkflowFileType
 import com.intellij.codeInsight.template.TemplateActionContext
 import com.intellij.codeInsight.template.TemplateContextType
-import org.jetbrains.yaml.YAMLLanguage
 
 /**
- * Live template context that restricts workflow templates to YAML files.
+ * Live template context that restricts workflow templates to Workflow config files.
  */
 class WorkflowLiveTemplateContext : TemplateContextType("WORKFLOW_YAML") {
 
@@ -13,6 +14,11 @@ class WorkflowLiveTemplateContext : TemplateContextType("WORKFLOW_YAML") {
 
     override fun isInContext(templateActionContext: TemplateActionContext): Boolean {
         val file = templateActionContext.file
-        return file.language.isKindOf(YAMLLanguage.INSTANCE)
+        val virtualFile = file.virtualFile ?: return false
+        return WorkflowFileDetector.detectFileType(file.project, virtualFile) in setOf(
+            WorkflowFileType.CONFIG,
+            WorkflowFileType.PARTIAL,
+            WorkflowFileType.TEST
+        )
     }
 }

@@ -4,14 +4,14 @@
     <variable name="SNIPPET_1" expression="" defaultValue="&#34;server&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_2" expression="" defaultValue="&#34;:8080&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="mod-http-router" value="- name: $SNIPPET_1$&amp;#10;  type: http.router&amp;#10;  dependsOn:&amp;#10;    - $SNIPPET_2$" description="HTTP router module that dispatches requests to handlers" toReformat="true" toShortenFQNames="false">
     <variable name="SNIPPET_1" expression="" defaultValue="&#34;router&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_2" expression="" defaultValue="&#34;server&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="mod-sqlite" value="- name: $SNIPPET_1$&amp;#10;  type: storage.sqlite&amp;#10;  config:&amp;#10;    dbPath: $SNIPPET_2$&amp;#10;    walMode: $SNIPPET_3$" description="SQLite database storage module" toReformat="true" toShortenFQNames="false">
@@ -19,14 +19,14 @@
     <variable name="SNIPPET_2" expression="" defaultValue="&#34;data/app.db&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_3" expression="" defaultValue="&#34;true&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="mod-nosql" value="- name: $SNIPPET_1$&amp;#10;  type: nosql.memory&amp;#10;  config:&amp;#10;    collection: $SNIPPET_2$" description="In-memory NoSQL document store" toReformat="true" toShortenFQNames="false">
     <variable name="SNIPPET_1" expression="" defaultValue="&#34;store&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_2" expression="" defaultValue="&#34;documents&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="mod-jwt" value="- name: $SNIPPET_1$&amp;#10;  type: auth.jwt&amp;#10;  config:&amp;#10;    secret: $SNIPPET_2$&amp;#10;    tokenExpiry: $SNIPPET_3$&amp;#10;    issuer: $SNIPPET_4$" description="JWT authentication module" toReformat="true" toShortenFQNames="false">
@@ -35,14 +35,14 @@
     <variable name="SNIPPET_3" expression="" defaultValue="&#34;24h&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_4" expression="" defaultValue="&#34;my-app&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="mod-broker" value="- name: $SNIPPET_1$&amp;#10;  type: messaging.broker&amp;#10;  config:&amp;#10;    maxQueueSize: $SNIPPET_2$" description="In-process messaging broker for pub/sub" toReformat="true" toShortenFQNames="false">
     <variable name="SNIPPET_1" expression="" defaultValue="&#34;broker&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_2" expression="" defaultValue="&#34;1000&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="mod-statemachine" value="- name: $SNIPPET_1$&amp;#10;  type: statemachine.engine&amp;#10;  config:&amp;#10;    maxInstances: $SNIPPET_2$&amp;#10;    instanceTTL: $SNIPPET_3$" description="State machine engine for workflow orchestration" toReformat="true" toShortenFQNames="false">
@@ -50,7 +50,7 @@
     <variable name="SNIPPET_2" expression="" defaultValue="&#34;100&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_3" expression="" defaultValue="&#34;24h&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="mod-otel" value="- name: $SNIPPET_1$&amp;#10;  type: observability.otel&amp;#10;  config:&amp;#10;    endpoint: $SNIPPET_2$&amp;#10;    serviceName: $SNIPPET_3$" description="OpenTelemetry observability module" toReformat="true" toShortenFQNames="false">
@@ -58,13 +58,13 @@
     <variable name="SNIPPET_2" expression="" defaultValue="&#34;localhost:4317&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_3" expression="" defaultValue="&#34;my-service&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="mod-cache" value="- name: $SNIPPET_1$&amp;#10;  type: cache.modular" description="Modular cache adapter" toReformat="true" toShortenFQNames="false">
     <variable name="SNIPPET_1" expression="" defaultValue="&#34;cache&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="mod-secrets" value="- name: $SNIPPET_1$&amp;#10;  type: secrets.vault&amp;#10;  config:&amp;#10;    mode: $SNIPPET_2$&amp;#10;    address: $SNIPPET_3$&amp;#10;    token: $SNIPPET_4$&amp;#10;    mountPath: $SNIPPET_5$" description="HashiCorp Vault secrets module" toReformat="true" toShortenFQNames="false">
@@ -74,7 +74,7 @@
     <variable name="SNIPPET_4" expression="" defaultValue="&#34;root&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_5" expression="" defaultValue="&#34;secret&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="pipeline" value="$SNIPPET_1$:&amp;#10;  trigger:&amp;#10;    type: $SNIPPET_2$&amp;#10;    config:&amp;#10;      path: $SNIPPET_3$&amp;#10;      method: $SNIPPET_4$&amp;#10;  steps:&amp;#10;    - type: step.validate&amp;#10;      config:&amp;#10;        required:&amp;#10;          - $SNIPPET_5$&amp;#10;    - type: step.json_response&amp;#10;      config:&amp;#10;        status: $SNIPPET_6$&amp;#10;        body: $SNIPPET_7$}" description="Full pipeline definition with trigger and steps" toReformat="true" toShortenFQNames="false">
@@ -86,14 +86,14 @@
     <variable name="SNIPPET_6" expression="" defaultValue="&#34;200&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_7" expression="" defaultValue="&#34;{ &#34;ok&#34;: true &#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="step-set" value="- type: step.set&amp;#10;  config:&amp;#10;    values:&amp;#10;      $SNIPPET_1$: $SNIPPET_2$" description="Set a named variable in the pipeline context" toReformat="true" toShortenFQNames="false">
     <variable name="SNIPPET_1" expression="" defaultValue="&#34;key&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_2" expression="" defaultValue="&#34;value&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="step-http-call" value="- type: step.http_call&amp;#10;  config:&amp;#10;    url: $SNIPPET_1$&amp;#10;    method: $SNIPPET_2$&amp;#10;    headers:&amp;#10;      Content-Type: application/json&amp;#10;    body: $SNIPPET_3$}}&amp;#10;    timeout: $SNIPPET_4$" description="Make an outbound HTTP request" toReformat="true" toShortenFQNames="false">
@@ -102,7 +102,7 @@
     <variable name="SNIPPET_3" expression="" defaultValue="&#34;{{ json . &#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_4" expression="" defaultValue="&#34;30s&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="step-json-response" value="- type: step.json_response&amp;#10;  config:&amp;#10;    status: $SNIPPET_1$&amp;#10;    body:&amp;#10;      $SNIPPET_2$: $SNIPPET_3$" description="Return a JSON HTTP response" toReformat="true" toShortenFQNames="false">
@@ -110,7 +110,7 @@
     <variable name="SNIPPET_2" expression="" defaultValue="&#34;message&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_3" expression="" defaultValue="&#34;ok&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="step-validate" value="- type: step.validate&amp;#10;  config:&amp;#10;    required:&amp;#10;      - $SNIPPET_1$&amp;#10;    rules:&amp;#10;      $SNIPPET_2$: $SNIPPET_3$" description="Validate request data against rules" toReformat="true" toShortenFQNames="false">
@@ -118,14 +118,14 @@
     <variable name="SNIPPET_2" expression="" defaultValue="&#34;field1&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_3" expression="" defaultValue="&#34;string&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="step-transform" value="- type: step.transform&amp;#10;  config:&amp;#10;    mapping:&amp;#10;      $SNIPPET_1$: $SNIPPET_2$}}" description="Transform data using a mapping template" toReformat="true" toShortenFQNames="false">
     <variable name="SNIPPET_1" expression="" defaultValue="&#34;output_field&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_2" expression="" defaultValue="&#34;{{ .input_field &#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="step-db-query" value="- type: step.db_query&amp;#10;  config:&amp;#10;    database: $SNIPPET_1$&amp;#10;    query: $SNIPPET_2$ WHERE id = ?}&amp;#10;    params:&amp;#10;      - $SNIPPET_4$}}" description="Execute a read-only SQL query" toReformat="true" toShortenFQNames="false">
@@ -133,7 +133,7 @@
     <variable name="SNIPPET_2" expression="" defaultValue="&#34;SELECT * FROM ${3:table&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_4" expression="" defaultValue="&#34;{{ .id &#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="step-db-exec" value="- type: step.db_exec&amp;#10;  config:&amp;#10;    database: $SNIPPET_1$&amp;#10;    query: $SNIPPET_2$ (col) VALUES (?)}&amp;#10;    params:&amp;#10;      - $SNIPPET_4$}}" description="Execute a SQL write statement" toReformat="true" toShortenFQNames="false">
@@ -141,13 +141,13 @@
     <variable name="SNIPPET_2" expression="" defaultValue="&#34;INSERT INTO ${3:table&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_4" expression="" defaultValue="&#34;{{ .value &#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="step-auth" value="- type: step.auth_required&amp;#10;  config:&amp;#10;    roles:&amp;#10;      - $SNIPPET_1$" description="Require authentication and optional role/scope" toReformat="true" toShortenFQNames="false">
     <variable name="SNIPPET_1" expression="" defaultValue="&#34;admin&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="step-cache-get" value="- type: step.cache_get&amp;#10;  config:&amp;#10;    cache: $SNIPPET_1$&amp;#10;    key: $SNIPPET_2$}}&amp;#10;    output: $SNIPPET_3$" description="Get a value from the cache" toReformat="true" toShortenFQNames="false">
@@ -155,7 +155,7 @@
     <variable name="SNIPPET_2" expression="" defaultValue="&#34;{{ .id &#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_3" expression="" defaultValue="&#34;cached_result&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="step-cache-set" value="- type: step.cache_set&amp;#10;  config:&amp;#10;    cache: $SNIPPET_1$&amp;#10;    key: $SNIPPET_2$}}&amp;#10;    value: $SNIPPET_3$}}&amp;#10;    ttl: $SNIPPET_4$" description="Store a value in the cache with optional TTL" toReformat="true" toShortenFQNames="false">
@@ -164,7 +164,7 @@
     <variable name="SNIPPET_3" expression="" defaultValue="&#34;{{ .result &#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_4" expression="" defaultValue="&#34;5m&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="step-event-publish" value="- type: step.event_publish&amp;#10;  config:&amp;#10;    broker: $SNIPPET_1$&amp;#10;    topic: $SNIPPET_2$&amp;#10;    event_type: $SNIPPET_3$&amp;#10;    payload: $SNIPPET_4$}}" description="Publish an event to the message broker" toReformat="true" toShortenFQNames="false">
@@ -173,35 +173,35 @@
     <variable name="SNIPPET_3" expression="" defaultValue="&#34;resource.created&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_4" expression="" defaultValue="&#34;{{ json . &#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="step-log" value="- type: step.log&amp;#10;  config:&amp;#10;    level: $SNIPPET_1$&amp;#10;    message: $SNIPPET_2$}}" description="Log a message at the specified level" toReformat="true" toShortenFQNames="false">
     <variable name="SNIPPET_1" expression="" defaultValue="&#34;info&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_2" expression="" defaultValue="&#34;Processing request: {{ .id &#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="trigger-http" value="trigger:&amp;#10;  type: http&amp;#10;  config:&amp;#10;    path: $SNIPPET_1$}&amp;#10;    method: $SNIPPET_3$" description="HTTP trigger for a specific path and method" toReformat="true" toShortenFQNames="false">
     <variable name="SNIPPET_1" expression="" defaultValue="&#34;/api/v1/${2:resource&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_3" expression="" defaultValue="&#34;GET&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="trigger-schedule" value="trigger:&amp;#10;  type: schedule&amp;#10;  config:&amp;#10;    cron: $SNIPPET_1$&amp;#10;    timezone: $SNIPPET_2$" description="Cron-based schedule trigger" toReformat="true" toShortenFQNames="false">
     <variable name="SNIPPET_1" expression="" defaultValue="&#34;0 * * * *&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_2" expression="" defaultValue="&#34;UTC&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="trigger-event" value="trigger:&amp;#10;  type: event&amp;#10;  config:&amp;#10;    topic: $SNIPPET_1$&amp;#10;    broker: $SNIPPET_2$" description="Event-driven trigger subscribing to a topic" toReformat="true" toShortenFQNames="false">
     <variable name="SNIPPET_1" expression="" defaultValue="&#34;events.created&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_2" expression="" defaultValue="&#34;broker&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="workflow-http" value="workflows:&amp;#10;  http:&amp;#10;    routes:&amp;#10;      - path: $SNIPPET_1$}&amp;#10;        method: $SNIPPET_3$&amp;#10;        pipeline: $SNIPPET_4$" description="HTTP workflow handler with route definitions" toReformat="true" toShortenFQNames="false">
@@ -209,14 +209,14 @@
     <variable name="SNIPPET_3" expression="" defaultValue="&#34;GET&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_4" expression="" defaultValue="&#34;get-resources&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="workflow-messaging" value="workflows:&amp;#10;  messaging:&amp;#10;    subscriptions:&amp;#10;      - topic: $SNIPPET_1$&amp;#10;        pipeline: $SNIPPET_2$" description="Messaging workflow handler with topic subscriptions" toReformat="true" toShortenFQNames="false">
     <variable name="SNIPPET_1" expression="" defaultValue="&#34;events.created&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_2" expression="" defaultValue="&#34;handle-created&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="workflow-statemachine" value="workflows:&amp;#10;  statemachine:&amp;#10;    engine: $SNIPPET_1$&amp;#10;    states:&amp;#10;      - name: $SNIPPET_2$&amp;#10;        transitions:&amp;#10;          - name: $SNIPPET_3$&amp;#10;            to: $SNIPPET_4$" description="State machine workflow handler" toReformat="true" toShortenFQNames="false">
@@ -225,7 +225,7 @@
     <variable name="SNIPPET_3" expression="" defaultValue="&#34;submit&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_4" expression="" defaultValue="&#34;active&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="app" value="modules:&amp;#10;  - name: $SNIPPET_1$&amp;#10;    type: http.server&amp;#10;    config:&amp;#10;      address: $SNIPPET_2$&amp;#10;  - name: $SNIPPET_3$&amp;#10;    type: http.router&amp;#10;    dependsOn:&amp;#10;      - $SNIPPET_1$&amp;#10;&amp;#10;workflows:&amp;#10;  http:&amp;#10;    routes: []&amp;#10;&amp;#10;triggers:&amp;#10;  http:&amp;#10;    port: $SNIPPET_4$" description="Full application config skeleton" toReformat="true" toShortenFQNames="false">
@@ -234,7 +234,7 @@
     <variable name="SNIPPET_3" expression="" defaultValue="&#34;router&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_4" expression="" defaultValue="&#34;8080&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="requires" value="requires:&amp;#10;  version: $SNIPPET_1$&amp;#10;  plugins:&amp;#10;    - $SNIPPET_2$&amp;#10;    - $SNIPPET_3$" description="Plugin and version dependency declarations" toReformat="true" toShortenFQNames="false">
@@ -242,14 +242,14 @@
     <variable name="SNIPPET_2" expression="" defaultValue="&#34;storage&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_3" expression="" defaultValue="&#34;auth&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="imports" value="imports:&amp;#10;  - $SNIPPET_1$&amp;#10;  - $SNIPPET_2$" description="Import external configuration files" toReformat="true" toShortenFQNames="false">
     <variable name="SNIPPET_1" expression="" defaultValue="&#34;config/modules.yaml&#34;" alwaysStopAt="true"></variable>
     <variable name="SNIPPET_2" expression="" defaultValue="&#34;config/workflows.yaml&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="wftest" value="config: $CONFIG$&amp;#10;tests:&amp;#10;  - name: $TEST_NAME$&amp;#10;    pipeline: $PIPELINE$&amp;#10;    trigger:&amp;#10;      method: $METHOD$&amp;#10;      path: $PATH$&amp;#10;    assertions:&amp;#10;      - status: $STATUS$" description="Scaffold a _test.yaml test file" toReformat="true" toShortenFQNames="false">
@@ -260,7 +260,7 @@
     <variable name="PATH" expression="" defaultValue="&#34;/api/v1/resource&#34;" alwaysStopAt="true"></variable>
     <variable name="STATUS" expression="" defaultValue="&#34;200&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="wfscenario" value="- name: $TEST_NAME$&amp;#10;  pipeline: $PIPELINE$&amp;#10;  trigger:&amp;#10;    method: $METHOD$&amp;#10;    path: $PATH$&amp;#10;    body:&amp;#10;      $FIELD$: $VALUE$&amp;#10;  assertions:&amp;#10;    - status: $STATUS$" description="Add a test scenario/case" toReformat="true" toShortenFQNames="false">
@@ -272,7 +272,7 @@
     <variable name="VALUE" expression="" defaultValue="&#34;123&#34;" alwaysStopAt="true"></variable>
     <variable name="STATUS" expression="" defaultValue="&#34;200&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="wfmock" value="mocks:&amp;#10;  steps:&amp;#10;    $STEP_NAME$:&amp;#10;      output:&amp;#10;        $FIELD$: $VALUE$" description="Mock a step's output for testing" toReformat="true" toShortenFQNames="false">
@@ -280,7 +280,7 @@
     <variable name="FIELD" expression="" defaultValue="&#34;result&#34;" alwaysStopAt="true"></variable>
     <variable name="VALUE" expression="" defaultValue="&#34;mocked&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
   <template name="wfassert" value="assertions:&amp;#10;  - status: $STATUS$&amp;#10;  - field: $FIELD$&amp;#10;    eq: $VALUE$" description="Assertion block for test case" toReformat="true" toShortenFQNames="false">
@@ -288,7 +288,7 @@
     <variable name="FIELD" expression="" defaultValue="&#34;result.id&#34;" alwaysStopAt="true"></variable>
     <variable name="VALUE" expression="" defaultValue="&#34;expected&#34;" alwaysStopAt="true"></variable>
     <context>
-      <option name="YAML" value="true"></option>
+      <option name="WORKFLOW_YAML" value="true"></option>
     </context>
   </template>
 </templateSet>
