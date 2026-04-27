@@ -32,6 +32,17 @@ class WorkflowFileDetectorTest : BasePlatformTestCase() {
         )
     }
 
+    fun testDetectsWfctlAndInfraRootNamesAsConfigs() {
+        listOf("wfctl.yaml", "wfctl.yml", "infra.yaml", "infra.yml").forEach { fileName ->
+            val file = myFixture.configureByText(fileName, "name: sample")
+            assertEquals(
+                "Expected $fileName to be detected as a workflow config root",
+                WorkflowFileType.CONFIG,
+                WorkflowFileDetector.detectFileType(project, file.virtualFile)
+            )
+        }
+    }
+
     fun testRejectsGenericYaml() {
         val file = myFixture.configureByText(
             "config.yaml",

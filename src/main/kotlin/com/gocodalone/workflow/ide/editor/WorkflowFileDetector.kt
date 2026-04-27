@@ -1,5 +1,6 @@
 package com.gocodalone.workflow.ide.editor
 
+import com.gocodalone.workflow.ide.WorkflowBundle
 import com.gocodalone.workflow.ide.settings.WorkflowProjectSettings
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
@@ -32,7 +33,10 @@ class WorkflowFileDetector {
                 }
             }
 
-            // Layer 2: content-based tiered detection
+            // Layer 2: well-known root config names
+            if (file.name in WorkflowBundle.WORKFLOW_ROOT_FILE_NAMES) return WorkflowFileType.CONFIG
+
+            // Layer 3: content-based tiered detection
             val content = try {
                 String(file.contentsToByteArray(), Charsets.UTF_8)
             } catch (_: Exception) {

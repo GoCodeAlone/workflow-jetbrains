@@ -61,6 +61,22 @@ class WorkflowSettingsTest : BasePlatformTestCase() {
             "File patterns should include app.yml",
             WorkflowBundle.WORKFLOW_FILE_PATTERNS.contains("app.yml")
         )
+        assertTrue(
+            "File patterns should include wfctl.yaml",
+            WorkflowBundle.WORKFLOW_FILE_PATTERNS.contains("wfctl.yaml")
+        )
+        assertTrue(
+            "File patterns should include wfctl.yml",
+            WorkflowBundle.WORKFLOW_FILE_PATTERNS.contains("wfctl.yml")
+        )
+        assertTrue(
+            "File patterns should include infra.yaml",
+            WorkflowBundle.WORKFLOW_FILE_PATTERNS.contains("infra.yaml")
+        )
+        assertTrue(
+            "File patterns should include infra.yml",
+            WorkflowBundle.WORKFLOW_FILE_PATTERNS.contains("infra.yml")
+        )
     }
 
     fun testWorkflowBundleGitHubReleasesUrl() {

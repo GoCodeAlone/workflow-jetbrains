@@ -36,6 +36,17 @@ class WorkflowSchemaProviderTest : BasePlatformTestCase() {
         )
     }
 
+    fun testSchemaAppliesToWfctlAndInfraRoots() {
+        val provider = WorkflowSchemaProvider(project)
+        listOf("wfctl.yaml", "wfctl.yml", "infra.yaml", "infra.yml").forEach { fileName ->
+            val file = myFixture.configureByText(fileName, "name: sample")
+            assertTrue(
+                "Schema should apply to $fileName",
+                provider.isAvailable(file.virtualFile)
+            )
+        }
+    }
+
     fun testSchemaDoesNotApplyToGenericYaml() {
         val file = myFixture.configureByText("database.yaml", "host: localhost")
         val provider = WorkflowSchemaProvider(project)

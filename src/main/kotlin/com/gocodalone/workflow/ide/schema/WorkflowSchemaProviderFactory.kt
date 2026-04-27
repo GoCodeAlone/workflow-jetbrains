@@ -42,9 +42,7 @@ class WorkflowSchemaProvider(private val project: Project) : JsonSchemaFileProvi
 
         // Match by common workflow config file names
         val name = file.name
-        if (name == "workflow.yaml" || name == "workflow.yml" ||
-            name == "app.yaml" || name == "app.yml"
-        ) {
+        if (name in WorkflowBundle.WORKFLOW_ROOT_FILE_NAMES) {
             return true
         }
 

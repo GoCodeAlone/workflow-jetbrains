@@ -18,7 +18,7 @@ import java.nio.file.FileSystems
  *
  * Note: LSP4IJ also uses the static file-name patterns declared in
  * META-INF/workflow-lsp4ij.xml (`fileNamePatternMapping`) to activate the server.
- * Those patterns are hardcoded to the common workflow config names and cannot
+ * Those patterns are hardcoded to the common workflow root config names and cannot
  * dynamically reflect per-project `configPaths` glob settings. `isSupportedFile`
  * is the authoritative runtime check and covers both configPaths globs and
  * content-based detection as a fallback.
@@ -32,7 +32,7 @@ class WorkflowLspServerDescriptor(project: Project) {
      *
      * Matching priority:
      * 1. Project-level `configPaths` glob patterns (from WorkflowProjectSettings)
-     * 2. Common workflow config file names (workflow.yaml, app.yaml, etc.)
+     * 2. Common workflow config file names (workflow.yaml, app.yaml, wfctl.yaml, infra.yaml, etc.)
      * 3. Content-based detection (modules: + workflows:/pipelines: in first 50 lines)
      */
     fun isSupportedFile(file: VirtualFile): Boolean {
@@ -56,9 +56,7 @@ class WorkflowLspServerDescriptor(project: Project) {
         }
 
         // Layer 2: common workflow config names
-        if (name == "workflow.yaml" || name == "workflow.yml" ||
-            name == "app.yaml" || name == "app.yml"
-        ) {
+        if (name in WorkflowBundle.WORKFLOW_ROOT_FILE_NAMES) {
             return true
         }
 

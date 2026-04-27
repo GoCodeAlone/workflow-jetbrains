@@ -11,12 +11,20 @@ object WorkflowBundle {
     const val WFCTL_BINARY = "wfctl"
     const val LSP_SERVER_BINARY = "workflow-lsp-server"
 
-    // Workflow config file patterns
-    val WORKFLOW_FILE_PATTERNS = listOf(
+    // Workflow root config file names
+    val WORKFLOW_ROOT_FILE_NAMES = setOf(
         "workflow.yaml",
         "workflow.yml",
         "app.yaml",
         "app.yml",
+        "wfctl.yaml",
+        "wfctl.yml",
+        "infra.yaml",
+        "infra.yml"
+    )
+
+    // Workflow config file patterns
+    val WORKFLOW_FILE_PATTERNS = WORKFLOW_ROOT_FILE_NAMES + listOf(
         "*-workflow.yaml",
         "*-workflow.yml"
     )

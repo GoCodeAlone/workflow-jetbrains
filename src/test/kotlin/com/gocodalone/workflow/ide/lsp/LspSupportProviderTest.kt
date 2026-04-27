@@ -47,4 +47,15 @@ class LspSupportProviderTest : TestCase() {
             WorkflowLspServerSupportProvider.SERVER_NAME.isNotEmpty()
         )
     }
+
+    fun testLsp4ijFileNamePatternMappingIncludesKnownRoots() {
+        val mapping = javaClass.getResourceAsStream("/META-INF/workflow-lsp4ij.xml")!!
+            .bufferedReader()
+            .readText()
+
+        listOf("workflow.yaml", "workflow.yml", "app.yaml", "app.yml", "wfctl.yaml", "wfctl.yml", "infra.yaml", "infra.yml")
+            .forEach { fileName ->
+                assertTrue("LSP4IJ mapping should include $fileName", mapping.contains(fileName))
+            }
+    }
 }

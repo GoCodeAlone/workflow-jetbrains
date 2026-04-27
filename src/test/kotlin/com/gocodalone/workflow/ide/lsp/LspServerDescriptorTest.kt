@@ -43,6 +43,17 @@ class LspServerDescriptorTest : BasePlatformTestCase() {
         )
     }
 
+    fun testIsSupportedFileForWfctlAndInfraRoots() {
+        val descriptor = WorkflowLspServerDescriptor(project)
+        listOf("wfctl.yaml", "wfctl.yml", "infra.yaml", "infra.yml").forEach { fileName ->
+            val file = myFixture.configureByText(fileName, "name: sample")
+            assertTrue(
+                "$fileName should be supported",
+                descriptor.isSupportedFile(file.virtualFile)
+            )
+        }
+    }
+
     // ── Content-based detection ────────────────────────────────────────
 
     fun testIsSupportedFileForArbitraryYamlWithModulesAndWorkflows() {
@@ -216,6 +227,10 @@ class LspServerDescriptorTest : BasePlatformTestCase() {
         assertTrue("Must include workflow.yml", patterns.contains("workflow.yml"))
         assertTrue("Must include app.yaml", patterns.contains("app.yaml"))
         assertTrue("Must include app.yml", patterns.contains("app.yml"))
+        assertTrue("Must include wfctl.yaml", patterns.contains("wfctl.yaml"))
+        assertTrue("Must include wfctl.yml", patterns.contains("wfctl.yml"))
+        assertTrue("Must include infra.yaml", patterns.contains("infra.yaml"))
+        assertTrue("Must include infra.yml", patterns.contains("infra.yml"))
     }
 
     fun testWorkflowContentKeyIsModules() {
