@@ -96,9 +96,8 @@ class WorkspaceResolver {
                     when (it.name) {
                         "app.yaml", "app.yml" -> 0
                         "workflow.yaml", "workflow.yml" -> 1
-                        "wfctl.yaml", "wfctl.yml" -> 2
-                        "infra.yaml", "infra.yml" -> 3
-                        in WorkflowBundle.WORKFLOW_ROOT_FILE_NAMES -> 4
+                        "infra.yaml", "infra.yml" -> 2
+                        in WorkflowBundle.WORKFLOW_ROOT_FILE_NAMES -> 3
                         else -> 5
                     }
                 }) ?: emptyList()

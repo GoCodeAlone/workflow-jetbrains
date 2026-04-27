@@ -12,7 +12,7 @@
              These cannot reflect per-project configPaths settings — runtime file
              matching is handled by WorkflowLspServerDescriptor.isSupportedFile,
              which also checks project-level glob patterns and content detection. -->
-        <fileNamePatternMapping patterns="workflow.yaml;workflow.yml;app.yaml;app.yml;wfctl.yaml;wfctl.yml;infra.yaml;infra.yml"
+        <fileNamePatternMapping patterns="workflow.yaml;workflow.yml;app.yaml;app.yml;infra.yaml;infra.yml"
                                 serverId="workflow-lsp-server"
                                 languageId="yaml"/>
     </extensions>

@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import java.nio.file.FileSystems
 
-enum class WorkflowFileType { CONFIG, PARTIAL, TEST, FEATURE }
+enum class WorkflowFileType { CONFIG, PARTIAL, TEST, FEATURE, WFCTL_MANIFEST }
 
 class WorkflowFileDetector {
     companion object {
@@ -16,6 +16,7 @@ class WorkflowFileDetector {
             if (file.name.endsWith(".feature")) return WorkflowFileType.FEATURE
 
             if (!file.name.endsWith(".yaml") && !file.name.endsWith(".yml")) return null
+            if (file.name in WorkflowBundle.WFCTL_MANIFEST_FILE_NAMES) return WorkflowFileType.WFCTL_MANIFEST
 
             // Layer 1: explicit configPaths always treated as CONFIG
             val projectSettings = WorkflowProjectSettings.getInstance(project)

@@ -32,12 +32,15 @@ class WorkflowLspServerDescriptor(project: Project) {
      *
      * Matching priority:
      * 1. Project-level `configPaths` glob patterns (from WorkflowProjectSettings)
-     * 2. Common workflow config file names (workflow.yaml, app.yaml, wfctl.yaml, infra.yaml, etc.)
+     * 2. Common workflow app/infra config file names (workflow.yaml, app.yaml, infra.yaml, etc.)
      * 3. Content-based detection (modules: + workflows:/pipelines: in first 50 lines)
      */
     fun isSupportedFile(file: VirtualFile): Boolean {
         val name = file.name
         if (!name.endsWith(".yaml") && !name.endsWith(".yml")) {
+            return false
+        }
+        if (name in WorkflowBundle.WFCTL_MANIFEST_FILE_NAMES) {
             return false
         }
 

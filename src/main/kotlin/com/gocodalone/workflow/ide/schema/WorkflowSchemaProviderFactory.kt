@@ -21,6 +21,7 @@ class WorkflowSchemaProvider(private val project: Project) : JsonSchemaFileProvi
 
     override fun isAvailable(file: VirtualFile): Boolean {
         if (!file.name.endsWith(".yaml") && !file.name.endsWith(".yml")) return false
+        if (file.name in WorkflowBundle.WFCTL_MANIFEST_FILE_NAMES) return false
 
         // Check explicit configPaths from project settings
         val projectSettings = WorkflowProjectSettings.getInstance(project)

@@ -43,7 +43,7 @@ Hovering over module names, step types, or config keys shows inline documentatio
 
 ### Live Templates
 
-Type an abbreviation and press Tab to expand a template. Templates are available in all workflow YAML files (`workflow.yaml`, `app.yaml`, `wfctl.yaml`, `infra.yaml`, `*-workflow.yaml`, etc.).
+Type an abbreviation and press Tab to expand a template. Templates are available in all workflow YAML files (`workflow.yaml`, `app.yaml`, `infra.yaml`, `*-workflow.yaml`, etc.).
 
 See [Live Templates Reference](#live-templates-reference) for the full list.
 
@@ -57,7 +57,6 @@ The plugin bundles a JSON Schema for workflow config files and automatically reg
 
 - `workflow.yaml` / `workflow.yml`
 - `app.yaml` / `app.yml`
-- `wfctl.yaml` / `wfctl.yml`
 - `infra.yaml` / `infra.yml`
 - Any `.yaml`/`.yml` file whose content includes a `modules:` key
 

@@ -53,9 +53,14 @@ class LspSupportProviderTest : TestCase() {
             .bufferedReader()
             .readText()
 
-        listOf("workflow.yaml", "workflow.yml", "app.yaml", "app.yml", "wfctl.yaml", "wfctl.yml", "infra.yaml", "infra.yml")
+        listOf("workflow.yaml", "workflow.yml", "app.yaml", "app.yml", "infra.yaml", "infra.yml")
             .forEach { fileName ->
                 assertTrue("LSP4IJ mapping should include $fileName", mapping.contains(fileName))
+            }
+
+        listOf("wfctl.yaml", "wfctl.yml")
+            .forEach { fileName ->
+                assertFalse("LSP4IJ mapping should not include $fileName", mapping.contains(fileName))
             }
     }
 }

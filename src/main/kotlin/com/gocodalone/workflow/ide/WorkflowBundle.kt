@@ -11,16 +11,20 @@ object WorkflowBundle {
     const val WFCTL_BINARY = "wfctl"
     const val LSP_SERVER_BINARY = "workflow-lsp-server"
 
-    // Workflow root config file names
+    // Workflow app/infra root config file names handled by the app config schema and LSP.
     val WORKFLOW_ROOT_FILE_NAMES = setOf(
         "workflow.yaml",
         "workflow.yml",
         "app.yaml",
         "app.yml",
-        "wfctl.yaml",
-        "wfctl.yml",
         "infra.yaml",
         "infra.yml"
+    )
+
+    // wfctl manifests use a plugin/registry manifest shape, not the app config shape.
+    val WFCTL_MANIFEST_FILE_NAMES = setOf(
+        "wfctl.yaml",
+        "wfctl.yml"
     )
 
     // Workflow config file patterns

@@ -43,12 +43,33 @@ class LspServerDescriptorTest : BasePlatformTestCase() {
         )
     }
 
-    fun testIsSupportedFileForWfctlAndInfraRoots() {
+    fun testIsSupportedFileForInfraRoots() {
         val descriptor = WorkflowLspServerDescriptor(project)
-        listOf("wfctl.yaml", "wfctl.yml", "infra.yaml", "infra.yml").forEach { fileName ->
+        listOf("infra.yaml", "infra.yml").forEach { fileName ->
             val file = myFixture.configureByText(fileName, "name: sample")
             assertTrue(
                 "$fileName should be supported",
+                descriptor.isSupportedFile(file.virtualFile)
+            )
+        }
+    }
+
+    fun testIsSupportedFileRejectsWfctlManifests() {
+        val descriptor = WorkflowLspServerDescriptor(project)
+        listOf("wfctl.yaml", "wfctl.yml").forEach { fileName ->
+            val file = myFixture.configureByText(
+                fileName,
+                """
+                plugins:
+                  - name: auth
+                    source: registry.example.com/workflow-plugin-auth
+                registries:
+                  - name: default
+                    url: https://registry.example.com
+                """.trimIndent()
+            )
+            assertFalse(
+                "$fileName should not be routed to the app-config Workflow LSP",
                 descriptor.isSupportedFile(file.virtualFile)
             )
         }
@@ -227,10 +248,10 @@ class LspServerDescriptorTest : BasePlatformTestCase() {
         assertTrue("Must include workflow.yml", patterns.contains("workflow.yml"))
         assertTrue("Must include app.yaml", patterns.contains("app.yaml"))
         assertTrue("Must include app.yml", patterns.contains("app.yml"))
-        assertTrue("Must include wfctl.yaml", patterns.contains("wfctl.yaml"))
-        assertTrue("Must include wfctl.yml", patterns.contains("wfctl.yml"))
         assertTrue("Must include infra.yaml", patterns.contains("infra.yaml"))
         assertTrue("Must include infra.yml", patterns.contains("infra.yml"))
+        assertFalse("Must not include wfctl.yaml in app/LSP patterns", patterns.contains("wfctl.yaml"))
+        assertFalse("Must not include wfctl.yml in app/LSP patterns", patterns.contains("wfctl.yml"))
     }
 
     fun testWorkflowContentKeyIsModules() {
