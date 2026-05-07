@@ -12,6 +12,8 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      HAS_JETBRAINS_MARKETPLACE_TOKEN: ${{ secrets.JETBRAINS_MARKETPLACE_TOKEN != '' }}
 
     steps:
       - name: Checkout
@@ -35,7 +37,7 @@ jobs:
 
       - name: Extract version from tag
         id: version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
 
       - name: Build Plugin
         run: ./gradlew buildPlugin
@@ -70,6 +72,11 @@ jobs:
           PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
 
       - name: Publish Plugin to JetBrains Marketplace
+        if: env.HAS_JETBRAINS_MARKETPLACE_TOKEN == 'true'
         run: ./gradlew publishPlugin
         env:
           JETBRAINS_MARKETPLACE_TOKEN: ${{ secrets.JETBRAINS_MARKETPLACE_TOKEN }}
+
+      - name: Skip JetBrains Marketplace publish
+        if: env.HAS_JETBRAINS_MARKETPLACE_TOKEN != 'true'
+        run: echo "::notice::JETBRAINS_MARKETPLACE_TOKEN is not configured; GitHub release artifact was created, but Marketplace publish was skipped."
