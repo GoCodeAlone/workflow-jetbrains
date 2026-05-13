@@ -109,13 +109,9 @@
               "openapi.consumer",
               "openapi.generator",
               "persistence.store",
-              "platform.apigateway",
-              "platform.autoscaling",
               "platform.context",
               "platform.dns",
-              "platform.ecs",
               "platform.kubernetes",
-              "platform.networking",
               "platform.provider",
               "platform.region",
               "platform.region_router",
@@ -137,10 +133,6 @@
               "step.ai_classify",
               "step.ai_complete",
               "step.ai_extract",
-              "step.apigw_apply",
-              "step.apigw_destroy",
-              "step.apigw_plan",
-              "step.apigw_status",
               "step.app_deploy",
               "step.app_rollback",
               "step.app_status",
@@ -200,10 +192,6 @@
               "step.docker_push",
               "step.docker_run",
               "step.drift_check",
-              "step.ecs_apply",
-              "step.ecs_destroy",
-              "step.ecs_plan",
-              "step.ecs_status",
               "step.event_decrypt",
               "step.event_publish",
               "step.feature_flag",
@@ -245,9 +233,6 @@
               "step.marketplace_search",
               "step.marketplace_uninstall",
               "step.marketplace_update",
-              "step.network_apply",
-              "step.network_plan",
-              "step.network_status",
               "step.nosql_delete",
               "step.nosql_get",
               "step.nosql_put",
@@ -279,10 +264,6 @@
               "step.retry_with_backoff",
               "step.s3_upload",
               "step.sandbox_exec",
-              "step.scaling_apply",
-              "step.scaling_destroy",
-              "step.scaling_plan",
-              "step.scaling_status",
               "step.scan_container",
               "step.scan_deps",
               "step.scan_sast",
@@ -642,7 +623,7 @@
                       "type": "object"
                     },
                     "environment": {
-                      "description": "Name of the platform.kubernetes or platform.ecs module to deploy to",
+                      "description": "Name of the platform.kubernetes module to deploy to",
                       "type": "string"
                     },
                     "health_path": {
@@ -2510,102 +2491,6 @@
               "properties": {
                 "type": {
                   "enum": [
-                    "platform.apigateway"
-                  ]
-                }
-              }
-            },
-            "then": {
-              "properties": {
-                "config": {
-                  "type": "object",
-                  "required": [
-                    "name"
-                  ],
-                  "properties": {
-                    "account": {
-                      "description": "Name of the cloud.account module",
-                      "type": "string"
-                    },
-                    "cors": {
-                      "description": "CORS configuration (allowedOrigins, allowedMethods, allowedHeaders)",
-                      "type": "object"
-                    },
-                    "name": {
-                      "description": "API gateway name",
-                      "type": "string"
-                    },
-                    "provider": {
-                      "description": "mock | aws",
-                      "type": "string"
-                    },
-                    "routes": {
-                      "description": "Route definitions",
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    "stage": {
-                      "description": "Deployment stage (dev, staging, prod)",
-                      "type": "string"
-                    }
-                  },
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          {
-            "if": {
-              "required": [
-                "type"
-              ],
-              "properties": {
-                "type": {
-                  "enum": [
-                    "platform.autoscaling"
-                  ]
-                }
-              }
-            },
-            "then": {
-              "properties": {
-                "config": {
-                  "type": "object",
-                  "required": [
-                    "policies"
-                  ],
-                  "properties": {
-                    "account": {
-                      "description": "Name of the cloud.account module",
-                      "type": "string"
-                    },
-                    "policies": {
-                      "description": "Scaling policy definitions",
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    "provider": {
-                      "description": "mock | aws",
-                      "type": "string"
-                    }
-                  },
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          {
-            "if": {
-              "required": [
-                "type"
-              ],
-              "properties": {
-                "type": {
-                  "enum": [
                     "platform.context"
                   ]
                 }
@@ -2670,7 +2555,7 @@
                       "type": "string"
                     },
                     "provider": {
-                      "description": "mock | aws",
+                      "description": "mock | aws (aws Route53 backend removed in v0.53.0; use infra.dns + workflow-plugin-aws)",
                       "type": "string"
                     },
                     "records": {
@@ -2683,67 +2568,6 @@
                     "zone": {
                       "description": "Zone configuration (name, comment, private, vpcId)",
                       "type": "object"
-                    }
-                  },
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          {
-            "if": {
-              "required": [
-                "type"
-              ],
-              "properties": {
-                "type": {
-                  "enum": [
-                    "platform.ecs"
-                  ]
-                }
-              }
-            },
-            "then": {
-              "properties": {
-                "config": {
-                  "type": "object",
-                  "required": [
-                    "cluster"
-                  ],
-                  "properties": {
-                    "account": {
-                      "description": "Name of the cloud.account module",
-                      "type": "string"
-                    },
-                    "cluster": {
-                      "description": "ECS cluster name",
-                      "type": "string"
-                    },
-                    "desired_count": {
-                      "description": "Number of tasks to run",
-                      "type": "string"
-                    },
-                    "launch_type": {
-                      "description": "FARGATE or EC2",
-                      "type": "string"
-                    },
-                    "region": {
-                      "description": "AWS region (e.g. us-east-1)",
-                      "type": "string"
-                    },
-                    "security_groups": {
-                      "description": "List of security group IDs",
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    "vpc_subnets": {
-                      "description": "List of subnet IDs",
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
                     }
                   },
                   "additionalProperties": false
@@ -2790,63 +2614,6 @@
                     "version": {
                       "description": "e.g. 1.29",
                       "type": "string"
-                    }
-                  },
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          {
-            "if": {
-              "required": [
-                "type"
-              ],
-              "properties": {
-                "type": {
-                  "enum": [
-                    "platform.networking"
-                  ]
-                }
-              }
-            },
-            "then": {
-              "properties": {
-                "config": {
-                  "type": "object",
-                  "required": [
-                    "vpc"
-                  ],
-                  "properties": {
-                    "account": {
-                      "description": "Name of the cloud.account module",
-                      "type": "string"
-                    },
-                    "nat_gateway": {
-                      "description": "Provision a NAT gateway",
-                      "type": "boolean"
-                    },
-                    "provider": {
-                      "description": "mock | aws",
-                      "type": "string"
-                    },
-                    "security_groups": {
-                      "description": "List of security group definitions",
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    "subnets": {
-                      "description": "List of subnet definitions",
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    "vpc": {
-                      "description": "VPC configuration (cidr, name)",
-                      "type": "object"
                     }
                   },
                   "additionalProperties": false
@@ -8081,10 +7848,6 @@
                     "step.ai_classify",
                     "step.ai_complete",
                     "step.ai_extract",
-                    "step.apigw_apply",
-                    "step.apigw_destroy",
-                    "step.apigw_plan",
-                    "step.apigw_status",
                     "step.app_deploy",
                     "step.app_rollback",
                     "step.app_status",
@@ -8144,10 +7907,6 @@
                     "step.docker_push",
                     "step.docker_run",
                     "step.drift_check",
-                    "step.ecs_apply",
-                    "step.ecs_destroy",
-                    "step.ecs_plan",
-                    "step.ecs_status",
                     "step.event_decrypt",
                     "step.event_publish",
                     "step.feature_flag",
@@ -8189,9 +7948,6 @@
                     "step.marketplace_search",
                     "step.marketplace_uninstall",
                     "step.marketplace_update",
-                    "step.network_apply",
-                    "step.network_plan",
-                    "step.network_status",
                     "step.nosql_delete",
                     "step.nosql_get",
                     "step.nosql_put",
@@ -8223,10 +7979,6 @@
                     "step.retry_with_backoff",
                     "step.s3_upload",
                     "step.sandbox_exec",
-                    "step.scaling_apply",
-                    "step.scaling_destroy",
-                    "step.scaling_plan",
-                    "step.scaling_status",
                     "step.scan_container",
                     "step.scan_deps",
                     "step.scan_sast",
