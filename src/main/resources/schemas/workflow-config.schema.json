@@ -2106,11 +2106,6 @@
                         "active_workflows"
                       ]
                     },
-                    "metricsPath": {
-                      "description": "Endpoint path for Prometheus scraping",
-                      "type": "string",
-                      "default": "/metrics"
-                    },
                     "namespace": {
                       "description": "Prometheus metric namespace prefix",
                       "type": "string",
