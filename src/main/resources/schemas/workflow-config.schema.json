@@ -119,6 +119,7 @@
               "policy.mock",
               "processing.step",
               "reverseproxy",
+              "sandbox.remote_runners",
               "scheduler.modular",
               "secrets.aws",
               "secrets.vault",
@@ -214,6 +215,7 @@
               "step.http_call",
               "step.http_proxy",
               "step.iac_apply",
+              "step.iac_commit_back",
               "step.iac_destroy",
               "step.iac_drift_detect",
               "step.iac_plan",
@@ -223,6 +225,8 @@
               "step.iac_provider_drift",
               "step.iac_provider_list",
               "step.iac_provider_plan",
+              "step.iac_provider_reconcile",
+              "step.iac_secret_reachability",
               "step.iac_status",
               "step.jq",
               "step.json_parse",
@@ -2872,6 +2876,41 @@
                       "description": "Maximum execution time per attempt in seconds",
                       "type": "number",
                       "default": 30
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "sandbox.remote_runners"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "remote_runners": {
+                      "description": "List of remote runner specs: name, address, token, tls.{cert,key,ca}, allow_insecure",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "secrets_provider": {
+                      "description": "Name of a secrets module used to resolve secret:// token references",
+                      "type": "string"
                     }
                   },
                   "additionalProperties": false
@@ -6458,6 +6497,10 @@
                 "config": {
                   "type": "object",
                   "properties": {
+                    "argo_module": {
+                      "description": "Name of the argo.workflows service to use when exec_env is ephemeral. If unset, the sole registered argo.workflows module is used (error if 0 or \u003e1 exist).",
+                      "type": "string"
+                    },
                     "command": {
                       "description": "Command to execute",
                       "type": "array",
@@ -6468,6 +6511,15 @@
                     "env": {
                       "description": "Environment variables",
                       "type": "object"
+                    },
+                    "exec_env": {
+                      "description": "Execution backend: local-docker (default) or ephemeral (Argo Workflow on k8s). Named remote runners (sandbox.remote_runners) are not listed here because they are registered dynamically.",
+                      "type": "string",
+                      "enum": [
+                        "local-docker",
+                        "ephemeral"
+                      ],
+                      "default": "local-docker"
                     },
                     "image": {
                       "description": "Container image URI",
@@ -7930,6 +7982,7 @@
                     "step.http_call",
                     "step.http_proxy",
                     "step.iac_apply",
+                    "step.iac_commit_back",
                     "step.iac_destroy",
                     "step.iac_drift_detect",
                     "step.iac_plan",
@@ -7939,6 +7992,8 @@
                     "step.iac_provider_drift",
                     "step.iac_provider_list",
                     "step.iac_provider_plan",
+                    "step.iac_provider_reconcile",
+                    "step.iac_secret_reachability",
                     "step.iac_status",
                     "step.jq",
                     "step.json_parse",
@@ -11315,6 +11370,10 @@
                       "config": {
                         "type": "object",
                         "properties": {
+                          "argo_module": {
+                            "description": "Name of the argo.workflows service to use when exec_env is ephemeral. If unset, the sole registered argo.workflows module is used (error if 0 or \u003e1 exist).",
+                            "type": "string"
+                          },
                           "command": {
                             "description": "Command to execute",
                             "type": "array",
@@ -11325,6 +11384,15 @@
                           "env": {
                             "description": "Environment variables",
                             "type": "object"
+                          },
+                          "exec_env": {
+                            "description": "Execution backend: local-docker (default) or ephemeral (Argo Workflow on k8s). Named remote runners (sandbox.remote_runners) are not listed here because they are registered dynamically.",
+                            "type": "string",
+                            "enum": [
+                              "local-docker",
+                              "ephemeral"
+                            ],
+                            "default": "local-docker"
                           },
                           "image": {
                             "description": "Container image URI",
