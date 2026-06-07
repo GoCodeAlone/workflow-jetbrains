@@ -271,6 +271,7 @@
               "step.region_weight",
               "step.request_parse",
               "step.resilient_circuit_breaker",
+              "step.response",
               "step.retry_with_backoff",
               "step.s3_upload",
               "step.sandbox_exec",
@@ -1816,14 +1817,15 @@
               "properties": {
                 "config": {
                   "type": "object",
-                  "required": [
-                    "address"
-                  ],
                   "properties": {
                     "address": {
-                      "description": "Host:port to listen on (e.g. :8080, 0.0.0.0:80)",
+                      "description": "Canonical host:port to listen on (e.g. :8080, 0.0.0.0:80)",
                       "type": "string",
                       "default": ":8080"
+                    },
+                    "port": {
+                      "description": "Alias for address; normalized to :\u003cport\u003e when address is omitted",
+                      "type": "number"
                     }
                   },
                   "additionalProperties": false
@@ -3995,22 +3997,30 @@
               "properties": {
                 "config": {
                   "type": "object",
-                  "required": [
-                    "field",
-                    "routes"
-                  ],
                   "properties": {
                     "default": {
                       "description": "Step name to route to when no match is found",
                       "type": "string"
                     },
+                    "else": {
+                      "description": "Step name to route to when if evaluates false",
+                      "type": "string"
+                    },
                     "field": {
-                      "description": "Field path to evaluate for routing",
+                      "description": "Field path to evaluate for switch-style routing",
+                      "type": "string"
+                    },
+                    "if": {
+                      "description": "Boolean condition for if/then/else routing; supports ${ } expressions and Go template truthy output",
                       "type": "string"
                     },
                     "routes": {
                       "description": "Map of field values to target step names",
                       "type": "object"
+                    },
+                    "then": {
+                      "description": "Step name to route to when if evaluates truthy",
+                      "type": "string"
                     }
                   },
                   "additionalProperties": false
@@ -4175,7 +4185,6 @@
                 "config": {
                   "type": "object",
                   "required": [
-                    "database",
                     "query"
                   ],
                   "properties": {
@@ -4184,8 +4193,29 @@
                       "type": "boolean",
                       "default": "false"
                     },
+                    "args": {
+                      "description": "Alias for params; wfctl modernize rewrites this to params",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
                     "database": {
-                      "description": "Name of the database service (must implement DBProvider)",
+                      "description": "Canonical name of the database service (must implement DBProvider)",
+                      "type": "string"
+                    },
+                    "mode": {
+                      "description": "Result mode for returning statements: list/many returns rows/count, single/one returns row/found",
+                      "type": "string",
+                      "enum": [
+                        "list",
+                        "single",
+                        "many",
+                        "one"
+                      ]
+                    },
+                    "module": {
+                      "description": "Alias for database; wfctl modernize rewrites this to database",
                       "type": "string"
                     },
                     "params": {
@@ -4227,7 +4257,6 @@
                 "config": {
                   "type": "object",
                   "required": [
-                    "database",
                     "query"
                   ],
                   "properties": {
@@ -4236,18 +4265,31 @@
                       "type": "boolean",
                       "default": "false"
                     },
+                    "args": {
+                      "description": "Alias for params; wfctl modernize rewrites this to params",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
                     "database": {
-                      "description": "Name of the database service (must implement DBProvider)",
+                      "description": "Canonical name of the database service (must implement DBProvider)",
                       "type": "string"
                     },
                     "mode": {
-                      "description": "Result mode: 'list' returns rows/count, 'single' returns row/found",
+                      "description": "Result mode: list/many returns rows/count, single/one returns row/found",
                       "type": "string",
                       "enum": [
                         "list",
-                        "single"
+                        "single",
+                        "many",
+                        "one"
                       ],
                       "default": "list"
+                    },
+                    "module": {
+                      "description": "Alias for database; wfctl modernize rewrites this to database",
+                      "type": "string"
                     },
                     "params": {
                       "description": "Template-resolved parameter values for ? placeholders in query",
@@ -4288,7 +4330,6 @@
                 "config": {
                   "type": "object",
                   "required": [
-                    "database",
                     "query",
                     "cache_key"
                   ],
@@ -4297,6 +4338,13 @@
                       "description": "When true, template expressions in 'query' are resolved at runtime. Each resolved value must contain only letters, digits, and underscores to prevent SQL injection.",
                       "type": "boolean",
                       "default": "false"
+                    },
+                    "args": {
+                      "description": "Alias for params; wfctl modernize rewrites this to params",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "cache_key": {
                       "description": "Template-resolved key used to store/retrieve the cached result",
@@ -4308,17 +4356,23 @@
                       "default": "5m"
                     },
                     "database": {
-                      "description": "Name of the database service (must implement DBProvider)",
+                      "description": "Canonical name of the database service (must implement DBProvider)",
                       "type": "string"
                     },
                     "mode": {
-                      "description": "Result mode: 'single' returns row/found, 'list' returns rows/count",
+                      "description": "Result mode: single/one returns row/found, list/many returns rows/count",
                       "type": "string",
                       "enum": [
                         "single",
-                        "list"
+                        "list",
+                        "one",
+                        "many"
                       ],
                       "default": "single"
+                    },
+                    "module": {
+                      "description": "Alias for database; wfctl modernize rewrites this to database",
+                      "type": "string"
                     },
                     "params": {
                       "description": "Template-resolved parameter values for query placeholders",
@@ -6301,9 +6355,24 @@
                 "config": {
                   "type": "object",
                   "properties": {
+                    "format": {
+                      "description": "Alias that enables body parsing for JSON or form request bodies",
+                      "type": "string",
+                      "enum": [
+                        "json",
+                        "form"
+                      ]
+                    },
                     "parse_body": {
-                      "description": "Whether to parse the JSON request body",
+                      "description": "Whether to parse the request body",
                       "type": "boolean"
+                    },
+                    "parse_headers": {
+                      "description": "Header names to extract",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "path_params": {
                       "description": "Parameter names to extract from URL path (e.g., id, companyId)",
@@ -6363,6 +6432,51 @@
                     "step": {
                       "description": "Sub-step map to protect; must include 'type' key with inline step configuration",
                       "type": "object"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "step.response"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "body": {
+                      "description": "Response body as JSON (supports template expressions)",
+                      "type": "object"
+                    },
+                    "body_from": {
+                      "description": "Dotted path to resolve body from step outputs (e.g., steps.get-company.row)",
+                      "type": "string"
+                    },
+                    "headers": {
+                      "description": "Additional response headers",
+                      "type": "object"
+                    },
+                    "status": {
+                      "description": "HTTP status code for the response",
+                      "type": "number",
+                      "default": "200"
+                    },
+                    "status_from": {
+                      "description": "Dotted path to resolve HTTP status code dynamically (e.g., steps.call_upstream.status_code). Takes precedence over 'status' when resolved to a valid HTTP status code (100-599).",
+                      "type": "string"
                     }
                   },
                   "additionalProperties": false
@@ -8038,6 +8152,7 @@
                     "step.region_weight",
                     "step.request_parse",
                     "step.resilient_circuit_breaker",
+                    "step.response",
                     "step.retry_with_backoff",
                     "step.s3_upload",
                     "step.sandbox_exec",
@@ -8868,22 +8983,30 @@
                     "properties": {
                       "config": {
                         "type": "object",
-                        "required": [
-                          "field",
-                          "routes"
-                        ],
                         "properties": {
                           "default": {
                             "description": "Step name to route to when no match is found",
                             "type": "string"
                           },
+                          "else": {
+                            "description": "Step name to route to when if evaluates false",
+                            "type": "string"
+                          },
                           "field": {
-                            "description": "Field path to evaluate for routing",
+                            "description": "Field path to evaluate for switch-style routing",
+                            "type": "string"
+                          },
+                          "if": {
+                            "description": "Boolean condition for if/then/else routing; supports ${ } expressions and Go template truthy output",
                             "type": "string"
                           },
                           "routes": {
                             "description": "Map of field values to target step names",
                             "type": "object"
+                          },
+                          "then": {
+                            "description": "Step name to route to when if evaluates truthy",
+                            "type": "string"
                           }
                         },
                         "additionalProperties": false
@@ -9048,7 +9171,6 @@
                       "config": {
                         "type": "object",
                         "required": [
-                          "database",
                           "query"
                         ],
                         "properties": {
@@ -9057,8 +9179,29 @@
                             "type": "boolean",
                             "default": "false"
                           },
+                          "args": {
+                            "description": "Alias for params; wfctl modernize rewrites this to params",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
                           "database": {
-                            "description": "Name of the database service (must implement DBProvider)",
+                            "description": "Canonical name of the database service (must implement DBProvider)",
+                            "type": "string"
+                          },
+                          "mode": {
+                            "description": "Result mode for returning statements: list/many returns rows/count, single/one returns row/found",
+                            "type": "string",
+                            "enum": [
+                              "list",
+                              "single",
+                              "many",
+                              "one"
+                            ]
+                          },
+                          "module": {
+                            "description": "Alias for database; wfctl modernize rewrites this to database",
                             "type": "string"
                           },
                           "params": {
@@ -9100,7 +9243,6 @@
                       "config": {
                         "type": "object",
                         "required": [
-                          "database",
                           "query"
                         ],
                         "properties": {
@@ -9109,18 +9251,31 @@
                             "type": "boolean",
                             "default": "false"
                           },
+                          "args": {
+                            "description": "Alias for params; wfctl modernize rewrites this to params",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
                           "database": {
-                            "description": "Name of the database service (must implement DBProvider)",
+                            "description": "Canonical name of the database service (must implement DBProvider)",
                             "type": "string"
                           },
                           "mode": {
-                            "description": "Result mode: 'list' returns rows/count, 'single' returns row/found",
+                            "description": "Result mode: list/many returns rows/count, single/one returns row/found",
                             "type": "string",
                             "enum": [
                               "list",
-                              "single"
+                              "single",
+                              "many",
+                              "one"
                             ],
                             "default": "list"
+                          },
+                          "module": {
+                            "description": "Alias for database; wfctl modernize rewrites this to database",
+                            "type": "string"
                           },
                           "params": {
                             "description": "Template-resolved parameter values for ? placeholders in query",
@@ -9161,7 +9316,6 @@
                       "config": {
                         "type": "object",
                         "required": [
-                          "database",
                           "query",
                           "cache_key"
                         ],
@@ -9170,6 +9324,13 @@
                             "description": "When true, template expressions in 'query' are resolved at runtime. Each resolved value must contain only letters, digits, and underscores to prevent SQL injection.",
                             "type": "boolean",
                             "default": "false"
+                          },
+                          "args": {
+                            "description": "Alias for params; wfctl modernize rewrites this to params",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           },
                           "cache_key": {
                             "description": "Template-resolved key used to store/retrieve the cached result",
@@ -9181,17 +9342,23 @@
                             "default": "5m"
                           },
                           "database": {
-                            "description": "Name of the database service (must implement DBProvider)",
+                            "description": "Canonical name of the database service (must implement DBProvider)",
                             "type": "string"
                           },
                           "mode": {
-                            "description": "Result mode: 'single' returns row/found, 'list' returns rows/count",
+                            "description": "Result mode: single/one returns row/found, list/many returns rows/count",
                             "type": "string",
                             "enum": [
                               "single",
-                              "list"
+                              "list",
+                              "one",
+                              "many"
                             ],
                             "default": "single"
+                          },
+                          "module": {
+                            "description": "Alias for database; wfctl modernize rewrites this to database",
+                            "type": "string"
                           },
                           "params": {
                             "description": "Template-resolved parameter values for query placeholders",
@@ -11174,9 +11341,24 @@
                       "config": {
                         "type": "object",
                         "properties": {
+                          "format": {
+                            "description": "Alias that enables body parsing for JSON or form request bodies",
+                            "type": "string",
+                            "enum": [
+                              "json",
+                              "form"
+                            ]
+                          },
                           "parse_body": {
-                            "description": "Whether to parse the JSON request body",
+                            "description": "Whether to parse the request body",
                             "type": "boolean"
+                          },
+                          "parse_headers": {
+                            "description": "Header names to extract",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           },
                           "path_params": {
                             "description": "Parameter names to extract from URL path (e.g., id, companyId)",
@@ -11236,6 +11418,51 @@
                           "step": {
                             "description": "Sub-step map to protect; must include 'type' key with inline step configuration",
                             "type": "object"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "step.response"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "config": {
+                        "type": "object",
+                        "properties": {
+                          "body": {
+                            "description": "Response body as JSON (supports template expressions)",
+                            "type": "object"
+                          },
+                          "body_from": {
+                            "description": "Dotted path to resolve body from step outputs (e.g., steps.get-company.row)",
+                            "type": "string"
+                          },
+                          "headers": {
+                            "description": "Additional response headers",
+                            "type": "object"
+                          },
+                          "status": {
+                            "description": "HTTP status code for the response",
+                            "type": "number",
+                            "default": "200"
+                          },
+                          "status_from": {
+                            "description": "Dotted path to resolve HTTP status code dynamically (e.g., steps.call_upstream.status_code). Takes precedence over 'status' when resolved to a valid HTTP status code (100-599).",
+                            "type": "string"
                           }
                         },
                         "additionalProperties": false
