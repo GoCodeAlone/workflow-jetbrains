@@ -73,8 +73,6 @@
               "dynamic.component",
               "eventstore.service",
               "featureflag.service",
-              "gitlab.client",
-              "gitlab.webhook",
               "health.checker",
               "http.client",
               "http.handler",
@@ -124,7 +122,6 @@
               "secrets.aws",
               "secrets.vault",
               "security.field-protection",
-              "security.scanner",
               "state.connector",
               "state.tracker",
               "statemachine.engine",
@@ -205,11 +202,6 @@
               "step.git_commit",
               "step.git_push",
               "step.git_tag",
-              "step.gitlab_create_mr",
-              "step.gitlab_mr_comment",
-              "step.gitlab_parse_webhook",
-              "step.gitlab_pipeline_status",
-              "step.gitlab_trigger_pipeline",
               "step.graphql",
               "step.hash",
               "step.http_call",
@@ -1363,70 +1355,6 @@
                     },
                     "store_path": {
                       "description": "Path for the flag definition store (file-based provider)",
-                      "type": "string"
-                    }
-                  },
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          {
-            "if": {
-              "required": [
-                "type"
-              ],
-              "properties": {
-                "type": {
-                  "enum": [
-                    "gitlab.client"
-                  ]
-                }
-              }
-            },
-            "then": {
-              "properties": {
-                "config": {
-                  "type": "object",
-                  "required": [
-                    "token"
-                  ],
-                  "properties": {
-                    "token": {
-                      "description": "GitLab personal or project access token",
-                      "type": "string"
-                    },
-                    "url": {
-                      "description": "GitLab instance URL",
-                      "type": "string",
-                      "default": "https://gitlab.com"
-                    }
-                  },
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          {
-            "if": {
-              "required": [
-                "type"
-              ],
-              "properties": {
-                "type": {
-                  "enum": [
-                    "gitlab.webhook"
-                  ]
-                }
-              }
-            },
-            "then": {
-              "properties": {
-                "config": {
-                  "type": "object",
-                  "properties": {
-                    "secret": {
-                      "description": "GitLab webhook secret token for request validation",
                       "type": "string"
                     }
                   },
@@ -3030,58 +2958,6 @@
                     "key": {
                       "description": "Key used for field encryption",
                       "type": "string"
-                    }
-                  },
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          {
-            "if": {
-              "required": [
-                "type"
-              ],
-              "properties": {
-                "type": {
-                  "enum": [
-                    "security.scanner"
-                  ]
-                }
-              }
-            },
-            "then": {
-              "properties": {
-                "config": {
-                  "type": "object",
-                  "properties": {
-                    "grypeBinary": {
-                      "description": "Path to grype binary",
-                      "type": "string",
-                      "default": "grype"
-                    },
-                    "mockFindings": {
-                      "description": "Mock findings to return (keyed by scan type: sast, container, deps)",
-                      "type": "object"
-                    },
-                    "mode": {
-                      "description": "Scanner mode: 'mock' for testing or 'cli' for real tools",
-                      "type": "string",
-                      "enum": [
-                        "mock",
-                        "cli"
-                      ],
-                      "default": "mock"
-                    },
-                    "semgrepBinary": {
-                      "description": "Path to semgrep binary",
-                      "type": "string",
-                      "default": "semgrep"
-                    },
-                    "trivyBinary": {
-                      "description": "Path to trivy binary",
-                      "type": "string",
-                      "default": "trivy"
                     }
                   },
                   "additionalProperties": false
@@ -8086,11 +7962,6 @@
                     "step.git_commit",
                     "step.git_push",
                     "step.git_tag",
-                    "step.gitlab_create_mr",
-                    "step.gitlab_mr_comment",
-                    "step.gitlab_parse_webhook",
-                    "step.gitlab_pipeline_status",
-                    "step.gitlab_trigger_pipeline",
                     "step.graphql",
                     "step.hash",
                     "step.http_call",
