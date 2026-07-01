@@ -87,6 +87,7 @@
               "http.router",
               "http.server",
               "http.simple_proxy",
+              "iac.provider",
               "iac.state",
               "jsonschema.modular",
               "license.validator",
@@ -1782,6 +1783,54 @@
                     "targets": {
                       "description": "Map of URL prefix to backend URL (e.g. /api -\u003e http://localhost:3000)",
                       "type": "object"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "iac.provider"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "config": {
+                  "type": "object",
+                  "properties": {
+                    "credentials": {
+                      "description": "Provider-specific credential configuration",
+                      "type": "object"
+                    },
+                    "mode": {
+                      "description": "Provider-specific mode such as mock",
+                      "type": "string"
+                    },
+                    "plugin": {
+                      "description": "External plugin service name, for example workflow-plugin-aws; one of plugin, service, or provider is required",
+                      "type": "string"
+                    },
+                    "provider": {
+                      "description": "Provider shorthand: aws, azure, digitalocean, or gcp; one of plugin, service, or provider is required",
+                      "type": "string"
+                    },
+                    "region": {
+                      "description": "Primary provider region",
+                      "type": "string"
+                    },
+                    "service": {
+                      "description": "Alias for plugin: external IaC provider service name",
+                      "type": "string"
                     }
                   },
                   "additionalProperties": false
@@ -5526,7 +5575,7 @@
                       "type": "object"
                     },
                     "body_from": {
-                      "description": "Dotted path to resolve body from step outputs (e.g., steps.get-company.row)",
+                      "description": "Dotted path to resolve body from pipeline context or step outputs; use . for the full current context (e.g., steps.get-company.row)",
                       "type": "string"
                     },
                     "headers": {
@@ -6338,7 +6387,7 @@
                       "type": "object"
                     },
                     "body_from": {
-                      "description": "Dotted path to resolve body from step outputs (e.g., steps.get-company.row)",
+                      "description": "Dotted path to resolve body from pipeline context or step outputs; use . for the full current context (e.g., steps.get-company.row)",
                       "type": "string"
                     },
                     "headers": {
@@ -10507,7 +10556,7 @@
                             "type": "object"
                           },
                           "body_from": {
-                            "description": "Dotted path to resolve body from step outputs (e.g., steps.get-company.row)",
+                            "description": "Dotted path to resolve body from pipeline context or step outputs; use . for the full current context (e.g., steps.get-company.row)",
                             "type": "string"
                           },
                           "headers": {
@@ -11319,7 +11368,7 @@
                             "type": "object"
                           },
                           "body_from": {
-                            "description": "Dotted path to resolve body from step outputs (e.g., steps.get-company.row)",
+                            "description": "Dotted path to resolve body from pipeline context or step outputs; use . for the full current context (e.g., steps.get-company.row)",
                             "type": "string"
                           },
                           "headers": {
