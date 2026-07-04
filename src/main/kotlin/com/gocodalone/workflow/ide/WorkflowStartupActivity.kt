@@ -1,9 +1,10 @@
 package com.gocodalone.workflow.ide
 
 import com.gocodalone.workflow.ide.settings.WorkflowSettings
+import com.intellij.ide.BrowserUtil
+import com.intellij.notification.NotificationAction
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.notification.NotificationGroupManager
-import com.intellij.notification.NotificationListener
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.extensions.PluginId
@@ -31,9 +32,11 @@ class WorkflowStartupActivity : ProjectActivity {
 
             group.createNotification(
                 "Workflow LSP",
-                "Install the <a href=\"https://plugins.jetbrains.com/plugin/23257-lsp4ij\">LSP4IJ</a> plugin for Workflow Engine language server support (autocompletion, diagnostics).",
+                "Install the LSP4IJ plugin for Workflow Engine language server support (autocompletion, diagnostics).",
                 NotificationType.INFORMATION
-            ).setListener(NotificationListener.URL_OPENING_LISTENER)
+            ).addAction(NotificationAction.createSimpleExpiring("Install LSP4IJ") {
+                BrowserUtil.browse("https://plugins.jetbrains.com/plugin/23257-lsp4ij", project)
+            })
                 .notify(project)
         }
     }

@@ -75,8 +75,6 @@ class WorkflowVisualEditorToolWindowFactory : ToolWindowFactory {
             }
         )
     }
-
-    override fun shouldBeAvailable(project: Project): Boolean = true
 }
 
 /** Shared logic for loading workflow files into the visual editor tool window. */

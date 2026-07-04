@@ -137,7 +137,7 @@ class WorkflowBridge(
                 )
             }
         }
-        EditorFactory.getInstance().eventMulticaster.addCaretListener(caretListener!!)
+        EditorFactory.getInstance().eventMulticaster.addCaretListener(caretListener!!, browser)
 
         // Notify webview when an imported file's document content changes
         documentListener = object : com.intellij.openapi.editor.event.DocumentListener {
@@ -156,7 +156,7 @@ class WorkflowBridge(
                 )
             }
         }
-        EditorFactory.getInstance().eventMulticaster.addDocumentListener(documentListener!!)
+        EditorFactory.getInstance().eventMulticaster.addDocumentListener(documentListener!!, browser)
     }
 
     private fun injectBridge() {
@@ -441,9 +441,14 @@ class WorkflowBridge(
                             .getNotificationGroup("Workflow Engine") ?: return@invokeLater
                         group.createNotification(
                             "AI Design",
-                            "Install <a href=\"https://plugins.jetbrains.com/plugin/22282-ai-assistant\">JetBrains AI Assistant</a> for AI-assisted workflow design.",
+                            "Install JetBrains AI Assistant for AI-assisted workflow design.",
                             com.intellij.notification.NotificationType.INFORMATION
-                        ).setListener(com.intellij.notification.NotificationListener.URL_OPENING_LISTENER)
+                        ).addAction(com.intellij.notification.NotificationAction.createSimpleExpiring("Install AI Assistant") {
+                            com.intellij.ide.BrowserUtil.browse(
+                                "https://plugins.jetbrains.com/plugin/22282-ai-assistant",
+                                project
+                            )
+                        })
                             .notify(project)
                     }
                 }
@@ -499,10 +504,18 @@ class WorkflowBridge(
                         val dataContext = com.intellij.openapi.actionSystem.impl.SimpleDataContext.builder()
                             .add(com.intellij.openapi.actionSystem.CommonDataKeys.PROJECT, project)
                             .build()
-                        val event = com.intellij.openapi.actionSystem.AnActionEvent.createFromAnAction(
-                            aiAction, null, "", dataContext
+                        val event = com.intellij.openapi.actionSystem.AnActionEvent.createEvent(
+                            aiAction,
+                            dataContext,
+                            aiAction.templatePresentation.clone(),
+                            "WorkflowVisualEditor",
+                            com.intellij.openapi.actionSystem.ActionUiKind.NONE,
+                            null
                         )
-                        aiAction.actionPerformed(event)
+                        com.intellij.openapi.actionSystem.ex.ActionUtil.performAction(
+                            aiAction,
+                            event
+                        )
                     }
 
                     com.intellij.notification.NotificationGroupManager.getInstance()
