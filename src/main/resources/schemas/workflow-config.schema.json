@@ -4484,7 +4484,7 @@
                       "type": "string"
                     },
                     "service": {
-                      "description": "BlueGreenDriver service name",
+                      "description": "PrevalidatedRollingDriver or legacy BlueGreenDriver service name",
                       "type": "string"
                     },
                     "traffic_switch": {
@@ -9465,7 +9465,7 @@
                             "type": "string"
                           },
                           "service": {
-                            "description": "BlueGreenDriver service name",
+                            "description": "PrevalidatedRollingDriver or legacy BlueGreenDriver service name",
                             "type": "string"
                           },
                           "traffic_switch": {
