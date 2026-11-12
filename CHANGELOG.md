@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Preserve cached CLI binaries when a download, redirect, or atomic replacement fails; exercise downloader recovery on Windows CI.
+
 ### Added
 - Initial CHANGELOG + CONTRIBUTING (QoL sweep follow-up).
 
