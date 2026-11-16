@@ -11,8 +11,6 @@ import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.util.io.HttpRequests
 import java.io.File
-import java.io.FileOutputStream
-import java.net.HttpURLConnection
 import java.net.URI
 import java.util.concurrent.CompletableFuture
 
@@ -232,45 +230,6 @@ object BinaryDownloader {
         val assetName = if (isWindows()) "$binaryName-$suffix.exe" else "$binaryName-$suffix"
         val downloadUrl = "https://github.com/$GITHUB_REPO/releases/download/$tag/$assetName"
 
-        val destFile = File(destPath)
-        destFile.parentFile.mkdirs()
-
-        // Follow redirects manually since GitHub release downloads redirect to CDN
-        var currentUrl = downloadUrl
-        var redirects = 0
-        while (redirects < 5) {
-            val url = URI(currentUrl).toURL()
-            val conn = url.openConnection() as HttpURLConnection
-            conn.setRequestProperty("User-Agent", "workflow-jetbrains")
-            conn.instanceFollowRedirects = false
-            conn.connectTimeout = 30_000
-            conn.readTimeout = 120_000
-
-            val code = conn.responseCode
-            if (code == HttpURLConnection.HTTP_MOVED_TEMP || code == HttpURLConnection.HTTP_MOVED_PERM || code == 307) {
-                currentUrl = conn.getHeaderField("Location")
-                    ?: throw RuntimeException("Redirect with no Location header")
-                conn.disconnect()
-                redirects++
-                continue
-            }
-
-            if (code != HttpURLConnection.HTTP_OK) {
-                conn.disconnect()
-                throw RuntimeException("Download failed: HTTP $code for $currentUrl")
-            }
-
-            conn.inputStream.use { input ->
-                FileOutputStream(destFile).use { output ->
-                    input.copyTo(output)
-                }
-            }
-            conn.disconnect()
-            break
-        }
-
-        if (!isWindows()) {
-            destFile.setExecutable(true, false)
-        }
+        BinaryFileDownloader().download(URI(downloadUrl), File(destPath).toPath(), executable = !isWindows())
     }
 }
